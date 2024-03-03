@@ -1,0 +1,33 @@
+{
+  "name": "ecommerce",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/contracts/ecommerce/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{options.outputPath}"],
+      "cache": true,
+      "options": {
+        "command": "nx run ecommerce:hardhat compile",
+        "outputPath": "dist/apps/contracts/ecommerce"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "command": "nx run ecommerce:hardhat test",
+        "outputPath": "dist/apps/contracts/ecommerce"
+      }
+    },
+    "hardhat": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "hardhat --config apps/contracts/ecommerce/hardhat.config.ts --tsconfig apps/contracts/ecommerce/tsconfig.app.json",
+        "forwardAllArgs": true
+      }
+    }
+  },
+  "tags": []
+}
