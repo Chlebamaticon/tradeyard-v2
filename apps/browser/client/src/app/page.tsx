@@ -20,7 +20,7 @@ export default async function Index() {
           <div id="welcome">
             <h1>
               <span> Hello there, </span>
-              Welcome tradeyard-v2 👋
+              Welcome client 👋
             </h1>
           </div>
 
@@ -327,7 +327,7 @@ export default async function Index() {
                   You can activate distributed tasks executions and caching by
                   running:
                 </p>
-                <pre>nx connect-to-nx-cloud</pre>
+                <pre>nx connect</pre>
                 <a
                   href="https://nx.app/?utm_source=nx-project"
                   target="_blank"
@@ -404,7 +404,7 @@ export default async function Index() {
                 </svg>
                 View project details
               </summary>
-              <pre>nx show project tradeyard-v2 --web</pre>
+              <pre>nx show project client --web</pre>
             </details>
             <details>
               <summary>

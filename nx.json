@@ -40,6 +40,14 @@
       "options": {
         "targetName": "test"
       }
+    },
+    {
+      "plugin": "@nx/webpack/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview"
+      }
     }
   ],
   "generators": {
@@ -50,5 +58,16 @@
       }
     }
   },
-  "nxCloudAccessToken": "ZTI2YzE5N2UtZjc1Mi00OTdhLWEwOTAtN2JhYWNhOTYyMmVkfHJlYWQtd3JpdGU="
+  "nxCloudAccessToken": "ZTI2YzE5N2UtZjc1Mi00OTdhLWEwOTAtN2JhYWNhOTYyMmVkfHJlYWQtd3JpdGU=",
+  "targetDefaults": {
+    "@nx/js:swc": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "@nx/vite:test": {
+      "cache": true,
+      "inputs": ["default", "^production"]
+    }
+  }
 }

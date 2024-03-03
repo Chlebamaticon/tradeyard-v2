@@ -1,8 +1,0 @@
-{
-  "name": "tradeyard-v2",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/tradeyard-v2",
-  "projectType": "application",
-  "targets": {},
-  "tags": []
-}

@@ -1,0 +1,7 @@
+{
+  "name": "client-e2e",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/browser/client-e2e/src",
+  "targets": {},
+  "implicitDependencies": ["client"]
+}

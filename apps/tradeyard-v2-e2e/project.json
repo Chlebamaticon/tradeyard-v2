@@ -1,7 +1,0 @@
-{
-  "name": "tradeyard-v2-e2e",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/tradeyard-v2-e2e/src",
-  "targets": {},
-  "implicitDependencies": ["tradeyard-v2"]
-}
