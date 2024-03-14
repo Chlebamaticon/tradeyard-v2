@@ -100,3 +100,42 @@ Poniżej przedstawie zastosowane technologie dzieląc Je na cztery kategorie.
 | Tak   | Konsument    | Autoryzowany użytkownik, posiada dostęp do przeglądarki ofert z możliwością do składania zamówień                                                                         |
 | Tak   | Sprzedawca   | Autoryzowany użytkownik, posiada dostęp do przegląradki ofert, rozszerzony o możliwość tworzenia swoich własnych, ma wgląd w zamówienia, oraz możliwość zarządzania nimi. |
 | Tak   | Moderator    | Autoryzowany użytkownik pośredniczący w rozstrzyganiu sporów między konsumentem, a sprzedawcą wy wypadku sporów                                                           |
+
+#### 3.3.2 Lista aktor-cel, szkice przypadków użycia
+
+| Aktor        | Nazwa przypadku użycia                 | Szkic                                                                                                                                                                                         |
+| ------------ | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Gość witryny | Przeglądaj oferty                      | Witryna wyświetla dostępne oferty w formie listy, wraz z możliwością podglądu bardziej dokładnego opisu po wybraniu oferty.                                                                   |
+| Gość witryny | Zostań klientem                        | Witryna wyświetla formularz rejestracyjny zawierający pola; nazwy użytkownika, adres mailowy, dane osobowe, hasło użytkownika.                                                                |
+| Gość witryny | Przeglądaj oferty wybranego sprzedawcy | Witryna wyświetla dostępne oferty w formie listy, wraz z poglądem danych sprzedawcy - w Tym opinii - gdzie widoczne oferty należą tylko do Tego sprzedawcy.                                   |
+| Klient       | Polub usługę                           | Użytkownik ma możliwość dodania usługi konkretnego sprzedawcy do ulubionych.                                                                                                                  |
+| Klient       | Zamów usługę                           | Użytkownik ma możliwość wybrania usługi a następnie wykonania Jej zamówienia. Wiąże się to z określeniem adresu dostawy, a następnie przystąpieniem do procesu wymiany kryptowalut za usługę. |
+| Klient       | Żłóż skargę                            | Użytkownik ma możliwość w dowolnym momencie trwania realizacji usługi, złożenia skargi.                                                                                                       |
+| Klient       | Przeglądaj swoje zamówienia            | Witryna wyświetla wszystkie dotychczasowe zamówienia użytkownika                                                                                                                              |
+| Klient       | Przeglądaj swoje skargi                | Witryna wyświetla wszystkie skargi których Ten klient jest stroną                                                                                                                             |
+| Usługodawca  | Przeglądaj swoje oferty                | Witryna wyświetla tylko usługi zaoferowane przez użytkownika                                                                                                                                  |
+| Usługodawca  | Przeglądaj zamówienia                  | Witryna umożliwia przeglądanie zamówień na wystawione przez siebie usługi                                                                                                                     |
+| Usługodawca  | Zarządzanie ofertami                   | Użytkownik ma możliwość tworzenia, edycji, czy archiwizacji oferty                                                                                                                            |
+| Usługodawca  | Zarządzanie zamówieniem                | Użytkownik ma możliowość aktualizowania statusu zamówienia, jak i również wstępnego zaakceptowania, czy odrzucenia go.                                                                        |
+| Usługodawca  | Przeglądaj zaskarżone zamówienia       | Użytkownik ma możliwość brania udziału w dyskusji na temat zaskarżonych usług przez swoich klientów.                                                                                          |
+| Usługodawca  | Zarządaj portfelem                     | Użytkownik ma możliwość podglądu przypisanego publicznego adresu konta który ma możliwość zarządzania zamówieniami                                                                            |
+| Moderator    | Zarządzanie usługami                   | Użytkownik ma możliwość tworzenia, edycji, czy archiwizacji wszystkich dostępnych ofert                                                                                                       |
+| Moderator    | Zarządzanie skargami                   | Użytkownik ma możliwość zarządzania toczącymi się zaskarżeniami, w których pełni role arbitra. Ma możliwość odrzucenia, czy też rozstrzygnięcia sporu na strone klienta, lub usługodawcy      |
+| Moderator    | Zarządzanie klientami                  | Użytkownik ma możliwość przeglądania profili dostępnych klientów                                                                                                                              |
+| Moderator    | Zarządzanie usługodawcami              | Użytkownik ma możliwość przeglądania profili dostępnych usługodawców                                                                                                                          |
+| Moderator    | Przeglądaj zamówieniami                | Użytkownik ma możliwość przeglądania wszystkich dotychczasowych zamówień w systemie                                                                                                           |
+
+#### 3.3.3 Przypadki użycia
+
+#### 3.3.3.1 Rejestracja użytkownika
+
+|                           |                                                                                                 |                                                                                     |
+| ------------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| **Zakres**                | Witryna                                                                                         |                                                                                     |
+| **Poziom**                | Cel użytkownika                                                                                 |                                                                                     |
+| **Uczestnicy i interesy** | **Gość witryny**                                                                                | chce założyć konto klienta w systemie                                               |
+| **Uczestnicy i interesy** | **Platforma**                                                                                   | chce rozszerzać grupę odbiorczą w celu uatrakcyjnienia systemu przyszłym sprzedawcą |
+| **Aktor główny**          | Gość witryny                                                                                    |                                                                                     |
+| **Warunek początkowy**    | Brak                                                                                            |                                                                                     |
+| **Wyzwalacz**             | Gość wybiera opcję "załóż konto" na witrynie systemu                                            |                                                                                     |
+| **Scenariusz**            | 1. Witryna wyświetla formularz realizujący polami model "formularz rejestracyjny klienta" \n 2. |                                                                                     |

@@ -7,7 +7,6 @@
     "build": {
       "executor": "nx:run-commands",
       "outputs": ["{options.outputPath}"],
-      "cache": true,
       "options": {
         "command": "nx run ecommerce:hardhat compile",
         "outputPath": "dist/apps/contracts/ecommerce"
