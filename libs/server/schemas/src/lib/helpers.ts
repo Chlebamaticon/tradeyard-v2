@@ -1,4 +1,4 @@
-import { EventType } from '../../../database/src/lib/types';
+import { EventType } from './types';
 
 /**
  * @description

@@ -1,35 +1,72 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   Patch,
-  Put,
+  Post,
+  Query,
 } from '@nestjs/common';
+import {
+  CreateUser,
+  CreateUserBody,
+  CreateUserBodyDto,
+  CreateUserDto,
+  GetUser,
+  GetUserDto,
+  GetUserPathParams,
+  GetUserPathParamsDto,
+  GetUsers,
+  GetUsersDto,
+  GetUsersQueryParams,
+  GetUsersQueryParamsDto,
+  UpdateUser,
+  UpdateUserBody,
+  UpdateUserBodyDto,
+  UpdateUserDto,
+  UpdateUserPathParams,
+  UpdateUserPathParamsDto,
+} from '@tradeyard-v2/api-dtos';
 import { UsersService } from './users.service';
 
 @Controller()
 export class UsersController {
+  @Get(':user_id')
+  async getOne(@Param() pathParams: GetUserPathParamsDto): Promise<GetUserDto> {
+    const validatedPathParams = GetUserPathParams.parse(pathParams);
+    return GetUser.parse(await this.usersService.getOne(validatedPathParams));
+  }
+
   @Get()
-  getMany() {
-    return this.usersService.getMany();
+  async getMany(
+    @Query() queryParams: GetUsersQueryParamsDto
+  ): Promise<GetUsersDto> {
+    const validatedQueryParams = GetUsersQueryParams.parse(queryParams);
+    return GetUsers.parse(
+      await this.usersService.getMany(validatedQueryParams)
+    );
   }
 
-  @Put()
-  createOne() {
-    return this.usersService.create();
+  @Post()
+  async createOne(@Body() body: CreateUserBodyDto): Promise<CreateUserDto> {
+    const validatedBody = CreateUserBody.parse(body);
+    return CreateUser.parse(await this.usersService.createOne(validatedBody));
   }
 
-  @Get(':id')
-  getOne(@Param('id') userId: string, @Body() params) {
-    return this.usersService.getOne({ userId });
+  @Patch(':user_id')
+  async updateOne(
+    @Param() pathParams: UpdateUserPathParamsDto,
+    @Body() body: UpdateUserBodyDto
+  ): Promise<UpdateUserDto> {
+    const validatedPathParams = UpdateUserPathParams.parse(pathParams);
+    const validatedBody = UpdateUserBody.parse(body);
+    return UpdateUser.parse(
+      await this.usersService.updateOne({
+        ...validatedPathParams,
+        ...validatedBody,
+      })
+    );
   }
 
-  @Patch(':id')
-  updateOne(@Param('id') userId: string, @Body() body) {
-    this.usersService.update({ userId, ...body });
-  }
-
-  constructor(private usersService: UsersService) {}
+  constructor(readonly usersService: UsersService) {}
 }

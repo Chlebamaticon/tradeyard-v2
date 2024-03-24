@@ -1,19 +1,19 @@
 import { version } from 'os';
 import * as zod from 'zod';
 
-export const schema = zod.object({
+export const moderator = zod.object({
   moderator_id: zod.string().uuid(),
   user_id: zod.string().uuid(),
 });
 
 export default {
-  'moderator:created': schema.required().strict(),
-  'moderator:updated': schema
+  'moderator:created': moderator.required().strict(),
+  'moderator:updated': moderator
     .partial()
     .required({ moderator_id: true })
     .omit({ user_id: true })
     .strict(),
-  'moderator:snapshot': schema
+  'moderator:snapshot': moderator
     .required()
     .strict()
     .extend({ version: zod.number() }),

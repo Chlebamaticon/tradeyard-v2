@@ -1,7 +1,7 @@
 import { Brackets, SelectQueryBuilder } from 'typeorm';
 import { EventEntity } from '../entities';
 import { escapeArrayToSQL } from './helpers';
-import { EventType } from '../types';
+import { EventType } from '../../../../schemas/src/lib/types';
 
 export interface CreateAggregateEventsSelectQuery {
   primaryPropertyName: string;

@@ -8,10 +8,7 @@ import { createAggregateEventsSelectQuery } from '../queries';
       .createQueryBuilder()
       .select(`("event"."body" ->> 'merchant_id')::uuid`, 'merchant_id')
       .addSelect(`("event"."body" ->> 'user_id')::uuid`, 'user_id')
-      .addSelect(`"user"."email"`, 'email')
-      .addSelect(`"user"."first_name"`, 'first_name')
-      .addSelect(`"user"."last_name"`, 'last_name')
-      .addSelect(`"user"."created_at"`, 'created_at')
+      .addSelect(`"event"."created_at"`, 'created_at')
       .from(
         createAggregateEventsSelectQuery({
           primaryPropertyName: 'merchant_id',
@@ -22,27 +19,16 @@ import { createAggregateEventsSelectQuery } from '../queries';
           ],
         }),
         'event'
-      )
-      .leftJoin(UserViewEntity, 'user', '"user"."user_id" = "user_id"'),
+      ),
 })
 export class MerchantViewEntity {
   @ViewColumn()
   @PrimaryColumn()
-  merchantId!: string;
+  merchant_id!: string;
 
   @ViewColumn()
-  userId!: string;
+  user_id!: string;
 
   @ViewColumn()
-  email!: string;
-
-  @ViewColumn()
-  firstName!: string;
-
-  @ViewColumn()
-  lastName!: string;
-
-  get fullName(): string {
-    return `${this.firstName} ${this.lastName}`;
-  }
+  created_at!: Date;
 }

@@ -3,6 +3,26 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/server/database/src",
   "projectType": "library",
-  "targets": {},
+  "targets": {
+    "migration": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "yarn typeorm migration:run --dataSource ./libs/server/database/src/lib/datasource.ts"
+        ],
+        "parallel": false
+      },
+      "configurations": {
+        "generate": {
+          "commands": [
+            {
+              "command": "yarn typeorm migration:generate --dataSource ./libs/server/database/src/lib/datasource.ts",
+              "forwardAllArgs": true
+            }
+          ]
+        }
+      }
+    }
+  },
   "tags": []
 }

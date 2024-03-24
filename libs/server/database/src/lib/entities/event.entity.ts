@@ -4,7 +4,8 @@ import {
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { EventBody, EventType } from '../types';
+
+import { EventBody, EventType } from '@tradeyard-v2/server/schemas';
 
 @Entity({
   name: 'events',

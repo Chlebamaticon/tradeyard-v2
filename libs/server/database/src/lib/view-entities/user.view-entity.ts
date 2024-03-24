@@ -9,10 +9,7 @@ import { createAggregateEventsSelectQuery } from '../queries';
       .addSelect(`("event"."body" ->> 'first_name')::varchar`, 'first_name')
       .addSelect(`("event"."body" ->> 'last_name')::varchar`, 'last_name')
       .addSelect(`("event"."body" ->> 'email')::varchar`, 'email')
-      .addSelect(
-        `("event"."body" ->> 'created_at')::timestamp with time zone`,
-        'created_at'
-      )
+      .addSelect(`"event"."created_at"`, 'created_at')
       .from(
         createAggregateEventsSelectQuery({
           primaryPropertyName: 'user_id',
@@ -24,14 +21,17 @@ import { createAggregateEventsSelectQuery } from '../queries';
 export class UserViewEntity {
   @ViewColumn()
   @PrimaryColumn()
-  userId!: string;
+  user_id!: string;
 
   @ViewColumn()
-  firstName!: string;
+  first_name!: string;
 
   @ViewColumn()
-  lastName!: string;
+  last_name!: string;
 
   @ViewColumn()
   email!: string;
+
+  @ViewColumn()
+  created_at!: Date;
 }

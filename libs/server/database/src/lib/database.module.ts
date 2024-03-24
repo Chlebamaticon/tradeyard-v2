@@ -1,12 +1,12 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MixedList } from 'typeorm';
 
 import * as importedEntities from './entities';
 import * as importedMigrations from './migrations';
-import * as importedViewEntities from './view-entities';
-import { SnakeNamingStrategy } from './snake-naming.strategy';
+import { createConnectionOptions } from './ormconfig';
 import { EventRepository } from './repositories';
+import * as importedViewEntities from './view-entities';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 const entities: MixedList<Function> = [];
@@ -23,27 +23,20 @@ for (const migration of Object.values(importedMigrations)) {
   migrations.push(migration);
 }
 
-@Global()
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
-      useFactory: () => ({
-        logging: true,
-        type: 'postgres',
-        host: 'localhost',
-        port: 5432,
-        username: 'root',
-        password: 'root',
-        database: 'tradeyard',
-        entities,
-        migrations,
-        migrationsTransactionMode: 'each',
-        synchronize: true,
-        namingStrategy: new SnakeNamingStrategy(),
-      }),
+      useFactory: () =>
+        createConnectionOptions({
+          host: 'localhost',
+          port: 5432,
+          username: 'root',
+          password: 'root',
+          database: 'tradeyard',
+        }),
     }),
   ],
-  providers: [EventRepository],
-  exports: [TypeOrmModule, EventRepository],
+  providers: [],
+  exports: [TypeOrmModule],
 })
-export class ServerDatabaseModule {}
+export class DatabaseModule {}

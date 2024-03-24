@@ -1,6 +1,6 @@
 import * as zod from 'zod';
 
-import { eventSchemas } from '@tradeyard-v2/server/schemas';
+import eventSchemas from './schemas';
 
 export type EventType = keyof typeof eventSchemas;
 
