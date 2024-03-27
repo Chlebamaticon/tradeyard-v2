@@ -1,4 +1,5 @@
 import { PrimaryColumn, ViewColumn, ViewEntity } from 'typeorm';
+
 import { createAggregateEventsSelectQuery } from '../queries';
 
 @ViewEntity({
@@ -7,9 +8,9 @@ import { createAggregateEventsSelectQuery } from '../queries';
       .createQueryBuilder()
       .select(`("event"."body" ->> 'offer_id')::uuid`, 'offer_id')
       .addSelect(`("event"."body" ->> 'user_id')::uuid`, 'user_id')
-      .addSelect(`"event"."created_at"`, 'created_at')
       .addSelect(`("event"."body" ->> 'title')`, 'title')
       .addSelect(`("event"."body" ->> 'description')`, 'description')
+      .addSelect(`"event"."created_at"`, 'created_at')
       .from(
         createAggregateEventsSelectQuery({
           primaryPropertyName: 'offer_id',

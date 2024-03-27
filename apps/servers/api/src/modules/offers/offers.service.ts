@@ -7,20 +7,15 @@ import { Repository } from 'typeorm';
 
 import {
   CreateOffer,
-  CreateOfferBody,
   CreateOfferBodyDto,
   CreateOfferDto,
   Offer,
   OfferDto,
   GetOffer,
   GetOfferDto,
-  GetOfferPathParams,
   GetOfferPathParamsDto,
-  GetOffers,
   GetOffersDto,
-  GetOffersQueryParams,
   GetOffersQueryParamsDto,
-  UpdateOfferBody,
   UpdateOfferBodyDto,
   UpdateOfferDto,
 } from '@tradeyard-v2/api-dtos';

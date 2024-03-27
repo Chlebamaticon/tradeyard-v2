@@ -8,17 +8,14 @@ export const AlchemyWalletClient = Symbol('alchemy:wallet:client');
 export default {
   provide: AlchemyWalletClient,
   useFactory: () => {
-    const privateKey = generatePrivateKey();
+    const privateKey =
+      (process.env['POLYGON_PRIVATE_KEY'] as `0x${string}`) ??
+      generatePrivateKey();
     const account = privateKeyToAccount(privateKey);
-
-    console.log({
-      publicKey: account.address,
-      privateKey: privateKey,
-    });
     return createWalletClient({
       chain: polygonMumbai,
       transport: webSocket(
-        'wss://eth-mainnet.g.alchemy.com/v2/PzF4U1lkQgntAN2AmXsI00Ul-e0t-MPZ',
+        'wss://polygon-mainnet.g.alchemy.com/v2/QJcDPZfWnh6bvESljyKRwh7K4BpDv_Et',
         { key: 'alchemy' }
       ),
       account,

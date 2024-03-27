@@ -1,7 +1,10 @@
 import { Brackets, SelectQueryBuilder } from 'typeorm';
+
+import { EventType } from '@tradeyard-v2/server/schemas';
+
 import { EventEntity } from '../entities';
+
 import { escapeArrayToSQL } from './helpers';
-import { EventType } from '../../../../schemas/src/lib/types';
 
 export interface CreateAggregateEventsSelectQuery {
   primaryPropertyName: string;
@@ -20,7 +23,7 @@ export function createAggregateEventsSelectQuery({
     queryBuilder
       .select(
         `("${alias}"."body" ->> '${primaryPropertyName}')::uuid`,
-        'customer_id'
+        primaryPropertyName
       )
       .addSelect(`jsonb_recursive_mergeagg("${alias}"."body")`, 'body')
       .from(EventEntity, alias)

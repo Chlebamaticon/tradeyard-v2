@@ -7,6 +7,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+
 import {
   CreateOffer,
   CreateOfferBody,
@@ -27,6 +28,7 @@ import {
   UpdateOfferPathParams,
   UpdateOfferPathParamsDto,
 } from '@tradeyard-v2/api-dtos';
+
 import { OffersService } from './offers.service';
 
 @Controller()

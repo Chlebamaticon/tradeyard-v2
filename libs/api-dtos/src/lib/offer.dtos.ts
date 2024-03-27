@@ -1,4 +1,6 @@
 import * as zod from 'zod';
+
+import { OfferVariant } from './offer-variant.dtos';
 import { pagination, queryParams } from './pagination.dtos';
 
 export const Offer = zod.object({
@@ -6,6 +8,7 @@ export const Offer = zod.object({
   merchant_id: zod.string().uuid(),
   title: zod.string(),
   description: zod.string(),
+  variants: zod.array(OfferVariant),
 });
 export type OfferDto = zod.infer<typeof Offer>;
 

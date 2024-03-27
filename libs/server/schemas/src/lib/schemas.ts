@@ -2,6 +2,8 @@ import customerSchema from './customer';
 import merchantSchema from './merchant';
 import moderatorSchema from './moderator';
 import offerSchema from './offer';
+import offerVariantSchema from './offer-variant';
+import offerVariantPriceSchema from './offer-variant-price';
 import userSchema from './user';
 
 export * from './customer';
@@ -15,5 +17,7 @@ export default {
   ...merchantSchema,
   ...moderatorSchema,
   ...offerSchema,
+  ...offerVariantSchema,
+  ...offerVariantPriceSchema,
   ...userSchema,
 };

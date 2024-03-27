@@ -1,4 +1,5 @@
 import * as zod from 'zod';
+
 import { Contract } from './contract.dtos';
 
 export const Token = zod.object({

@@ -1,4 +1,5 @@
 import * as zod from 'zod';
+
 import { pagination, queryParams } from './pagination.dtos';
 
 export const User = zod.object({
