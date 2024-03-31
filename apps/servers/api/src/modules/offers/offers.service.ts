@@ -61,6 +61,7 @@ export class OffersService {
       total,
       offset,
       limit,
+      timestamp,
     };
   }
 

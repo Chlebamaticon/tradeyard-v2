@@ -56,6 +56,12 @@
         "style": "styled-components",
         "linter": "eslint"
       }
+    },
+    "@nx/angular:application": {
+      "e2eTestRunner": "playwright",
+      "linter": "eslint",
+      "style": "scss",
+      "unitTestRunner": "jest"
     }
   },
   "nxCloudAccessToken": "ZTI2YzE5N2UtZjc1Mi00OTdhLWEwOTAtN2JhYWNhOTYyMmVkfHJlYWQtd3JpdGU=",
@@ -68,6 +74,11 @@
     "@nx/vite:test": {
       "cache": true,
       "inputs": ["default", "^production"]
+    },
+    "@angular-devkit/build-angular:application": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
     }
   }
 }

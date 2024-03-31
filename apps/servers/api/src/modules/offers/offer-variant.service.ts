@@ -54,9 +54,14 @@ export class OfferVariantService {
   }
 
   async create(body: CreateOfferVariantBodyDto) {
+    const offer_variant_id = randomUUID();
     this.eventRepository.publish('offer:variant:created', {
       offer_id: body.offer_id,
-      offer_variant_id: randomUUID(),
+      offer_variant_id,
+    });
+
+    return this.offerVariantRepository.findOneOrFail({
+      where: { offer_variant_id },
     });
   }
 

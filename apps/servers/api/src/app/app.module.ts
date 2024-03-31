@@ -22,25 +22,20 @@ import { AppService } from './app.service';
     UsersRouteModule,
     RouterModule.register([
       {
-        path: 'api',
-        children: [
-          {
-            path: 'customers',
-            module: CustomersRouteModule,
-          },
-          {
-            path: 'merchants',
-            module: MerchantsRouteModule,
-          },
-          {
-            path: 'offers',
-            module: OffersRouteModule,
-          },
-          {
-            path: 'users',
-            module: UsersRouteModule,
-          },
-        ],
+        path: 'customers',
+        module: CustomersRouteModule,
+      },
+      {
+        path: 'merchants',
+        module: MerchantsRouteModule,
+      },
+      {
+        path: 'offers',
+        module: OffersRouteModule,
+      },
+      {
+        path: 'users',
+        module: UsersRouteModule,
       },
     ]),
   ],

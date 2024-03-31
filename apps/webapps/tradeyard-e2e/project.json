@@ -1,0 +1,9 @@
+{
+  "name": "webapps-tradeyard-e2e",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/webapps/tradeyard-e2e/src",
+  "implicitDependencies": ["webapps-tradeyard"],
+  "// targets": "to see all targets run: nx show project webapps-tradeyard-e2e --web",
+  "targets": {}
+}

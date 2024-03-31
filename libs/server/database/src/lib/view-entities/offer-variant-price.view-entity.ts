@@ -7,15 +7,15 @@ import { createAggregateEventsSelectQuery } from '../queries';
     connection
       .createQueryBuilder()
       .select(
-        `("event"."data" ->> 'offer_variant_id')::uuid`,
+        `("event"."body" ->> 'offer_variant_id')::uuid`,
         `offer_variant_id`
       )
       .addSelect(
-        `("event"."data" ->> 'offer_variant_price_id')::uuid`,
+        `("event"."body" ->> 'offer_variant_price_id')::uuid`,
         `offer_variant_price_id`
       )
-      .addSelect(`("event"."data" ->> 'token_id')::uuid`, 'token_id')
-      .addSelect(`"event"."data" ->> 'amount'`, `amount`)
+      .addSelect(`("event"."body" ->> 'token_id')::uuid`, 'token_id')
+      .addSelect(`"event"."body" ->> 'amount'`, `amount`)
       .addSelect(`"event"."created_at"`, 'created_at')
       .from(
         createAggregateEventsSelectQuery({

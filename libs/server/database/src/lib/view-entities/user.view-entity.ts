@@ -1,4 +1,5 @@
 import { PrimaryColumn, ViewColumn, ViewEntity } from 'typeorm';
+
 import { createAggregateEventsSelectQuery } from '../queries';
 
 @ViewEntity({

@@ -1,0 +1,12 @@
+.container {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.actions {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-end;
+}

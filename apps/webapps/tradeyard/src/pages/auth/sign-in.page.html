@@ -1,0 +1,16 @@
+<nb-layout center [withScroll]="false">
+  <nb-layout-column class="container">
+    <nb-card>
+      <nb-card-body [formGroup]="form">
+        <input nbInput formControlName="email" />
+
+      </nb-card-body>
+      <nb-card-footer>
+        <nb-button-group class="actions">
+          <button nbButton [nbSpinner]="(loading$ | async) ?? false" nbSpinnerStatus="success" status="primary"
+            (click)="submit$.emit()">Submit</button>
+        </nb-button-group>
+      </nb-card-footer>
+    </nb-card>
+  </nb-layout-column>
+</nb-layout>

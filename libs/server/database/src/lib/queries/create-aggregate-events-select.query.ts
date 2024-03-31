@@ -26,6 +26,7 @@ export function createAggregateEventsSelectQuery({
         primaryPropertyName
       )
       .addSelect(`jsonb_recursive_mergeagg("${alias}"."body")`, 'body')
+      .addSelect(`MIN("${alias}"."created_at")`, 'created_at')
       .from(EventEntity, alias)
       .where(
         new Brackets((qb) =>

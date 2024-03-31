@@ -6,13 +6,13 @@ import { createAggregateEventsSelectQuery } from '../queries';
   expression: (connection) =>
     connection
       .createQueryBuilder()
-      .select(`("event"."data" ->> 'offer_id')::uuid`, `offer_id`)
+      .select(`("event"."body" ->> 'offer_id')::uuid`, `offer_id`)
       .addSelect(
-        `("event"."data" ->> 'offer_variant_id')::uuid`,
+        `("event"."body" ->> 'offer_variant_id')::uuid`,
         `offer_variant_id`
       )
-      .addSelect(`"event"."data" ->> 'title'`, `title`)
-      .addSelect(`"event"."data" ->> 'description'`, `description`)
+      .addSelect(`"event"."body" ->> 'title'`, `title`)
+      .addSelect(`"event"."body" ->> 'description'`, `description`)
       .addSelect(`"event"."created_at"`, 'created_at')
       .from(
         createAggregateEventsSelectQuery({

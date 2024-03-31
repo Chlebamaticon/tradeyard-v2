@@ -1,5 +1,5 @@
 import { PrimaryColumn, ViewColumn, ViewEntity } from 'typeorm';
-import { UserViewEntity } from './user.view-entity';
+
 import { createAggregateEventsSelectQuery } from '../queries';
 
 @ViewEntity({

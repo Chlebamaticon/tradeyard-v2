@@ -21,5 +21,5 @@ export class EventEntity<ET extends EventType> {
   body!: EventBody<ET>;
 
   @CreateDateColumn({ type: 'timestamp with time zone' })
-  createdAt!: Date;
+  created_at!: Date;
 }

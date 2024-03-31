@@ -1,0 +1,25 @@
+<nb-layout center>
+  <nb-layout-column>
+    <nb-list nbInfiniteList [threshold]="500">
+      <nb-list-item *ngFor="let offer of (offers$ | async)">
+        <nb-card class="offer-card">
+          <nb-card-body class="offer-card__body">
+            <div class="gallery">
+              <div class="gallery__tile">
+                <img [src]="offer.thumbnailUrl" [alt]="offer.title">
+              </div>
+              <div class="gallery__tile">
+                <img [src]="offer.thumbnailUrl" [alt]="offer.title">
+              </div>
+              <div class="gallery__tile">
+                <img [src]="offer.thumbnailUrl" [alt]="offer.title">
+              </div>
+            </div>
+            <h6>{{ offer.title }}</h6>
+            <p>{{ offer.description }}</p>
+          </nb-card-body>
+        </nb-card>
+      </nb-list-item>
+    </nb-list>
+  </nb-layout-column>
+</nb-layout>
