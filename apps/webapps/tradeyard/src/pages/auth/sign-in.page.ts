@@ -20,6 +20,7 @@ import {
   combineLatest,
   exhaustMap,
   filter,
+  finalize,
   map,
   takeUntil,
   tap,
@@ -55,7 +56,24 @@ export class SignInPage implements OnDestroy {
 
   readonly destroy$ = new EventEmitter<void>();
   readonly submit$ = new EventEmitter<void>();
+  readonly passkey$ = new EventEmitter<void>();
   readonly loading$ = new BehaviorSubject<boolean>(false);
+  readonly authenticateUponPasskey$ = this.passkey$
+    .pipe(
+      withLatestFrom(
+        combineLatest([this.form.statusChanges, this.form.valueChanges]).pipe(
+          filter(([status]) => status === 'VALID'),
+          map(([, formData]) => formData)
+        )
+      ),
+      tap(() => this.loading$.next(true)),
+      exhaustMap(([, formData]) =>
+        this.auth.passkey(formData.email!).catch((error) => console.warn(error))
+      ),
+      takeUntil(this.destroy$),
+      finalize(() => this.loading$.next(false))
+    )
+    .subscribe();
   readonly authenticateUponSubmit$ = this.submit$
     .pipe(
       withLatestFrom(
@@ -65,9 +83,13 @@ export class SignInPage implements OnDestroy {
         )
       ),
       tap(() => this.loading$.next(true)),
-      exhaustMap(([, formData]) => this.auth.authenticate(formData.email!)),
-      tap(() => this.loading$.next(false)),
-      takeUntil(this.destroy$)
+      exhaustMap(([, formData]) =>
+        this.auth
+          .authenticate(formData.email!)
+          .catch((error) => console.warn(error))
+      ),
+      takeUntil(this.destroy$),
+      finalize(() => this.loading$.next(false))
     )
     .subscribe();
 

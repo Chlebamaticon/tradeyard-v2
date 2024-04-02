@@ -7,12 +7,12 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@angular-devkit/build-angular:application",
+      "executor": "@nx/angular:webpack-browser",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/webapps/tradeyard",
         "index": "apps/webapps/tradeyard/src/index.html",
-        "browser": "apps/webapps/tradeyard/src/main.ts",
+        "main": "apps/webapps/tradeyard/src/main.ts",
         "polyfills": ["zone.js"],
         "tsConfig": "apps/webapps/tradeyard/tsconfig.app.json",
         "inlineStyleLanguage": "scss",

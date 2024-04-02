@@ -37,6 +37,21 @@ export class AuthService {
     });
   }
 
+  passkey(email: string) {
+    return signer
+      .authenticate({
+        type: 'passkey',
+        createNew: false,
+      })
+      .catch(() =>
+        signer.authenticate({
+          type: 'passkey',
+          createNew: true,
+          username: email,
+        })
+      );
+  }
+
   completeAuthentication(bundle: string, orgId: string) {
     return signer.inner.completeEmailAuth({
       orgId,
