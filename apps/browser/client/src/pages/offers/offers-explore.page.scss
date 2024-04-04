@@ -1,0 +1,30 @@
+.offer-card {
+  width: 100%;
+  max-width: 100%;
+}
+
+.offer-card__header {
+}
+
+.offer-card__body {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.5rem;
+}
+
+.actions {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-end;
+}
+
+.gallery {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.gallery__tile {
+  flex: 0 0 auto;
+}

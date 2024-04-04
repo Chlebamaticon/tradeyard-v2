@@ -1,0 +1,17 @@
+<nb-layout center>
+  <nb-layout-column>
+    <div class="offers-header">
+      <div class="offers-header__breadcrumbs">
+        <h4 routerLink="/offers">Offers</h4>
+      </div>
+
+      <nb-button-group class="offers-header__actions">
+        <button nbButton outline status="primary" routerLink="create">
+          Create offer
+        </button>
+      </nb-button-group>
+    </div>
+
+    <router-outlet></router-outlet>
+  </nb-layout-column>
+</nb-layout>
