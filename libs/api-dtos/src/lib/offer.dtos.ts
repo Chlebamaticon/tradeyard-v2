@@ -1,6 +1,6 @@
 import * as zod from 'zod';
 
-import { OfferVariant } from './offer-variant.dtos';
+import { CreateOfferVariantBody, OfferVariant } from './offer-variant.dtos';
 import { pagination, queryParams } from './pagination.dtos';
 
 export const Offer = zod.object({
@@ -27,6 +27,7 @@ export type GetOffersQueryParamsDto = zod.infer<typeof GetOffersQueryParams>;
 export const CreateOfferBody = zod.object({
   title: zod.string(),
   description: zod.string(),
+  variants: zod.array(CreateOfferVariantBody.omit({ offer_id: true })),
 });
 export const CreateOffer = zod.object({}).merge(Offer);
 export type CreateOfferDto = zod.infer<typeof CreateOffer>;

@@ -1,7 +1,7 @@
 import { AlchemySigner } from '@alchemy/aa-alchemy';
 import { chains } from '@alchemy/aa-core';
 import { Injectable } from '@angular/core';
-import { createWalletClient, http } from 'viem';
+import { createWalletClient, webSocket } from 'viem';
 
 const signer = new AlchemySigner({
   client: {
@@ -16,40 +16,50 @@ const signer = new AlchemySigner({
 
 @Injectable()
 export class AuthService {
-  get signer() {
+  get signer(): AlchemySigner {
     return signer;
   }
 
   getWalletClient() {
     return createWalletClient({
-      transport: http(
-        'https://polygon-mumbai.g.alchemy.com/v2/htE35Fah1VZdE01bd0O09oGg1sa2QF9F'
+      transport: webSocket(
+        'wss://polygon-amoy.g.alchemy.com/v2/8nlrybVrAAt__SLRBss75r_CyA8WRhDc'
       ),
-      chain: chains.polygonMumbai,
+      chain: chains.polygonAmoy,
       account: signer.toViemAccount(),
     });
   }
 
-  authenticate(email: string) {
+  authenticateWithEmail(email: string) {
     return signer.authenticate({
       type: 'email',
       email,
     });
   }
 
-  passkey(email: string) {
-    return signer
-      .authenticate({
-        type: 'passkey',
-        createNew: false,
-      })
-      .catch(() =>
-        signer.authenticate({
-          type: 'passkey',
-          createNew: true,
-          username: email,
-        })
-      );
+  authenticateWithPasskey() {
+    return signer.authenticate({
+      type: 'passkey',
+      createNew: false,
+    });
+  }
+
+  signupWithPasskey(email: string) {
+    return signer.authenticate({
+      type: 'passkey',
+      createNew: true,
+      username: email,
+    });
+  }
+
+  signupWithEmail(email: string) {
+    const redirectParams = new URLSearchParams();
+    redirectParams.set('email', email);
+    return signer.authenticate({
+      type: 'email',
+      email,
+      redirectParams,
+    });
   }
 
   completeAuthentication(bundle: string, orgId: string) {

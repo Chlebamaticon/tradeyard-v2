@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 
 import {
   CreateOffer,
@@ -22,6 +22,7 @@ import {
 import {
   OfferViewEntity,
   EventRepository,
+  OfferVariantViewEntity,
 } from '@tradeyard-v2/server/database';
 
 @Injectable()
@@ -68,6 +69,7 @@ export class OffersService {
   async createOne({
     title,
     description,
+    variants,
   }: CreateOfferBodyDto): Promise<CreateOfferDto> {
     const offerCreatedEvent = await this.eventRepository.publish(
       'offer:created',
@@ -77,9 +79,19 @@ export class OffersService {
         description,
       }
     );
-    const offer = await this.offerRepository.findOneOrFail({
+
+    await Promise.all(
+      variants.map((variant) =>
+        this.eventRepository.publish('offer:variant:created', {
+          offer_id: offerCreatedEvent.body.offer_id,
+          ...variant,
+        })
+      )
+    );
+
+    const offer = await this.#queryBuilder({
       where: { offer_id: offerCreatedEvent.body.offer_id },
-    });
+    }).getOneOrFail();
 
     return CreateOffer.parse(this.mapToOfferDto(offer));
   }
@@ -92,13 +104,10 @@ export class OffersService {
       where: { offer_id },
     });
 
-    const offerUpdatedEvent = await this.eventRepository.publish(
-      'offer:updated',
-      {
-        offer_id: offer.offer_id,
-        ...body,
-      }
-    );
+    await this.eventRepository.publish('offer:updated', {
+      offer_id: offer.offer_id,
+      ...body,
+    });
 
     return this.mapToOfferDto(
       await this.offerRepository.findOneOrFail({
@@ -111,5 +120,17 @@ export class OffersService {
     return Offer.parse({
       ...offer,
     });
+  }
+
+  #queryBuilder(options: FindManyOptions<OfferViewEntity> = {}) {
+    return this.offerRepository
+      .createQueryBuilder('offer')
+      .setFindOptions(options)
+      .leftJoinAndMapMany(
+        'offer.variants',
+        OfferVariantViewEntity,
+        'variant',
+        '"variant"."offer_id" = "offer"."offer_id"'
+      );
   }
 }

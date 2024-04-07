@@ -3,6 +3,8 @@ import * as zod from 'zod';
 import { pagination, queryParams } from './pagination.dtos';
 import { Token } from './token.dtos';
 
+export const TokenSymbol = zod.enum(['USD', 'EUR', 'GBP', 'MATIC']);
+
 const OfferVariantPrice = zod.object({
   amount: zod.number(),
   token: Token,
@@ -41,7 +43,7 @@ export type GetOfferVariantsQueryParamsDto = zod.infer<
 
 export const CreateOfferVariantBody = zod.object({
   offer_id: zod.string().uuid(),
-  price: OfferVariantPrice,
+  price: OfferVariantPrice.extend({ token: TokenSymbol }),
   title: zod.string(),
   description: zod.string(),
 });

@@ -15,7 +15,7 @@ export default {
     return createWalletClient({
       chain: polygonMumbai,
       transport: webSocket(
-        'wss://polygon-mainnet.g.alchemy.com/v2/QJcDPZfWnh6bvESljyKRwh7K4BpDv_Et',
+        'wss://polygon-amoy.g.alchemy.com/v2/8nlrybVrAAt__SLRBss75r_CyA8WRhDc',
         { key: 'alchemy' }
       ),
       account,

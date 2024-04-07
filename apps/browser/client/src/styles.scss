@@ -17,3 +17,32 @@ h6,
 p {
   margin: 0;
 }
+
+.form {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.form {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.5rem;
+}
+
+.form-group:last-of-type {
+  margin-bottom: 1rem;
+}

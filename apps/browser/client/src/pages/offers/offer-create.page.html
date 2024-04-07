@@ -1,0 +1,68 @@
+<form [formGroup]="form" class="form">
+  <!-- <nb-card class="form-section">
+    <nb-card-header>
+      <h5>Media</h5>
+    </nb-card-header>
+    <nb-card-body>
+      <img src="" />
+    </nb-card-body>
+  </nb-card> -->
+
+  <nb-card class="form-section form-section--details">
+    <nb-card-body>
+      <h6>Offer details</h6>
+
+      <div class="form-group">
+        <input type="text" nbInput fullWidth formControlName="title" placeholder="Type your title..." />
+
+        <textarea type="text" nbInput fullWidth formControlName="description"
+          placeholder="Type your description..."></textarea>
+      </div>
+    </nb-card-body>
+  </nb-card>
+
+  <nb-accordion multi class="form-section form-section--variants">
+    @for (formGroup of variants.controls; track formGroup) {
+
+    <nb-accordion-item [formGroup]="formGroup">
+      <nb-accordion-item-header>
+        <h6>{{formGroup.value.title || 'Variant #' + ($index + 1)}}</h6>
+        @if ($index > 0) {
+        <button nbButton ghost size="tiny" (click)="removeVariant($index)"><nb-icon icon="trash-outline" /></button>
+        }
+      </nb-accordion-item-header>
+      <nb-accordion-item-body>
+        <div class="form-group">
+          <input type="text" nbInput formControlName="title" placeholder="Type your title...">
+
+          <input type="text" nbInput formControlName="description" placeholder="Type your description...">
+
+          <input type="text" nbInput formControlName="price" placeholder="Type your price...">
+        </div>
+      </nb-accordion-item-body>
+    </nb-accordion-item>
+    }
+  </nb-accordion>
+
+  <nb-card class="form-section form-section--actions">
+    <nb-card-body>
+      <div class="overview">
+        <div class="overview__item">
+          <span class="overview__label">Total variants</span>
+          <h6 class="overview__value">{{variants.length}}</h6>
+        </div>
+      </div>
+
+      <nb-button-group outline>
+        <button nbButton status="info" (click)="addVariant()">
+          <nb-icon icon="plus-outline"></nb-icon>
+          Add variant
+        </button>
+        <button nbButton status="primary" (click)="save$.emit()">
+          <nb-icon icon="save"></nb-icon>
+          Save
+        </button>
+      </nb-button-group>
+    </nb-card-body>
+  </nb-card>
+</form>

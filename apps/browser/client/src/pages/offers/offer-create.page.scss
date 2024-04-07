@@ -1,0 +1,51 @@
+.form {
+  gap: 1.5rem;
+  padding-bottom: calc(2.5rem + 4rem);
+}
+
+.form-section {
+  margin: 0;
+}
+
+.form-section--details {
+  nb-card-body {
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 1rem;
+  }
+}
+
+.form-section--variants {
+  nb-accordion-item-header {
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 0.5rem;
+  }
+}
+
+.form-section--actions {
+  position: fixed;
+  bottom: 1.5rem;
+  width: 100%;
+  max-width: 828px;
+
+  nb-card-body {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+  }
+}
+
+.overview {
+  display: flex;
+  flex-flow: row nowrap;
+
+  align-items: center;
+
+  &__label {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: rgba(0, 0, 0, 0.37);
+    text-transform: uppercase;
+  }
+}

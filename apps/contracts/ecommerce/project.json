@@ -23,8 +23,7 @@
     "hardhat": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "hardhat --config apps/contracts/ecommerce/hardhat.config.ts --tsconfig apps/contracts/ecommerce/tsconfig.app.json",
-        "forwardAllArgs": true
+        "command": "hardhat --config apps/contracts/ecommerce/hardhat.config.ts --tsconfig apps/contracts/ecommerce/tsconfig.app.json"
       }
     }
   },

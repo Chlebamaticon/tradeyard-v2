@@ -7,6 +7,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+
 import {
   CreateMerchant,
   CreateMerchantBody,
@@ -27,6 +28,7 @@ import {
   UpdateMerchantPathParams,
   UpdateMerchantPathParamsDto,
 } from '@tradeyard-v2/api-dtos';
+
 import { MerchantsService } from './merchants.service';
 
 @Controller()
@@ -37,7 +39,7 @@ export class MerchantsController {
   ): Promise<GetMerchantDto> {
     const validatedPathParams = GetMerchantPathParams.parse(pathParams);
     return GetMerchant.parse(
-      await this.customersService.getOne(validatedPathParams)
+      await this.merchantsService.getOne(validatedPathParams)
     );
   }
 
@@ -47,7 +49,7 @@ export class MerchantsController {
   ): Promise<GetMerchantsDto> {
     const validatedQueryParams = GetMerchantsQueryParams.parse(queryParams);
     return GetMerchants.parse(
-      await this.customersService.getMany(validatedQueryParams)
+      await this.merchantsService.getMany(validatedQueryParams)
     );
   }
 
@@ -57,7 +59,7 @@ export class MerchantsController {
   ): Promise<CreateMerchantDto> {
     const validatedBody = CreateMerchantBody.parse(body);
     return CreateMerchant.parse(
-      await this.customersService.createOne(validatedBody)
+      await this.merchantsService.createOne(validatedBody)
     );
   }
 
@@ -69,12 +71,12 @@ export class MerchantsController {
     const validatedPathParams = UpdateMerchantPathParams.parse(pathParams);
     const validatedBody = UpdateMerchantBody.parse(body);
     return UpdateMerchant.parse(
-      await this.customersService.updateOne({
+      await this.merchantsService.updateOne({
         ...validatedPathParams,
         ...validatedBody,
       })
     );
   }
 
-  constructor(readonly customersService: MerchantsService) {}
+  constructor(readonly merchantsService: MerchantsService) {}
 }

@@ -1,0 +1,23 @@
+<nb-card>
+  <nb-card-body [formGroup]="form">
+    <form class="form">
+      <h6>Sign up as Merchant</h6>
+
+      <div class="form-group">
+        <input nbInput formControlName="email" placeholder="Type your email..." autocomplete="email" />
+
+        <input nbInput formControlName="password" placeholder="Type your password..." type="password"
+          autocomplete="current-password" />
+
+        <input nbInput formControlName="confirm_password" placeholder="Confirm your password..." type="password" />
+      </div>
+
+      <div class="form-actions">
+        <button nbButton status="primary" [nbSpinner]="(loading$ | async) ?? false" nbSpinnerStatus="success"
+          status="primary" (click)="submit$.emit()">
+          Submit
+        </button>
+      </div>
+    </form>
+  </nb-card-body>
+</nb-card>

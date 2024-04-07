@@ -1,18 +1,11 @@
 import { CommonModule } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  EventEmitter,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
+import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import {
   NbButtonGroupModule,
   NbButtonModule,
   NbCardModule,
   NbInputModule,
-  NbLayoutModule,
   NbSpinnerModule,
 } from '@nebular/theme';
 import {
@@ -34,7 +27,6 @@ import { AuthService } from '../../modules/auth';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    NbLayoutModule,
     NbCardModule,
     NbInputModule,
     NbButtonGroupModule,
@@ -48,6 +40,7 @@ import { AuthService } from '../../modules/auth';
 export class SignInPage implements OnDestroy {
   form = this.formBuilder.group({
     email: this.formBuilder.control(''),
+    password: this.formBuilder.control(''),
     params: this.formBuilder.group({
       bundle: this.formBuilder.control(''),
       orgId: this.formBuilder.control(''),
@@ -60,15 +53,11 @@ export class SignInPage implements OnDestroy {
   readonly loading$ = new BehaviorSubject<boolean>(false);
   readonly authenticateUponPasskey$ = this.passkey$
     .pipe(
-      withLatestFrom(
-        combineLatest([this.form.statusChanges, this.form.valueChanges]).pipe(
-          filter(([status]) => status === 'VALID'),
-          map(([, formData]) => formData)
-        )
-      ),
       tap(() => this.loading$.next(true)),
-      exhaustMap(([, formData]) =>
-        this.auth.passkey(formData.email!).catch((error) => console.warn(error))
+      exhaustMap(() =>
+        this.auth
+          .authenticateWithPasskey()
+          .catch((error) => console.warn(error))
       ),
       takeUntil(this.destroy$),
       finalize(() => this.loading$.next(false))
@@ -85,7 +74,7 @@ export class SignInPage implements OnDestroy {
       tap(() => this.loading$.next(true)),
       exhaustMap(([, formData]) =>
         this.auth
-          .authenticate(formData.email!)
+          .authenticateWithEmail(formData.email!)
           .catch((error) => console.warn(error))
       ),
       takeUntil(this.destroy$),

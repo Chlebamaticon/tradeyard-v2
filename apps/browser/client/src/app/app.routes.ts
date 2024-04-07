@@ -3,7 +3,6 @@ import { Route } from '@angular/router';
 import { LayoutComponent } from '../components/layout/layout.component';
 import { AuthenticatedOnly, UnauthenticatedOnly } from '../modules/auth/guards';
 import { CompleteAuthentication } from '../modules/auth/guards/complete-authentication.guard';
-import { SignInPage } from '../pages/auth/sign-in.page';
 import { DashboardPage } from '../pages/dashboard/dashboard.page';
 
 export const appRoutes: Route[] = [
@@ -14,17 +13,10 @@ export const appRoutes: Route[] = [
       {
         path: 'auth',
         canActivate: [UnauthenticatedOnly],
-        children: [
-          {
-            path: 'sign-in',
-            component: SignInPage,
-          },
-          {
-            path: '**',
-            redirectTo: 'sign-in',
-            pathMatch: 'full',
-          },
-        ],
+        loadChildren: () =>
+          import('../pages/auth/auth.routes').then(
+            ({ authRoutes }) => authRoutes
+          ),
       },
       {
         path: '',
