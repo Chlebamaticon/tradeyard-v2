@@ -1,7 +1,7 @@
 import { Provider } from '@nestjs/common';
 import { createWalletClient, WalletClient, webSocket } from 'viem';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
-import { polygonMumbai } from 'viem/chains';
+import { polygonAmoy } from 'viem/chains';
 
 export const AlchemyWalletClient = Symbol('alchemy:wallet:client');
 
@@ -13,7 +13,7 @@ export default {
       generatePrivateKey();
     const account = privateKeyToAccount(privateKey);
     return createWalletClient({
-      chain: polygonMumbai,
+      chain: polygonAmoy,
       transport: webSocket(
         'wss://polygon-amoy.g.alchemy.com/v2/8nlrybVrAAt__SLRBss75r_CyA8WRhDc',
         { key: 'alchemy' }

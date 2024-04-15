@@ -1,15 +1,17 @@
 import * as zod from 'zod';
 
-import { Contract } from './contract.dtos';
 import { pagination, queryParams } from './pagination.dtos';
 
 export const Token = zod.object({
   token_id: zod.string().uuid(),
+  token_address: zod
+    .string()
+    .regex(/^0x([a-fA-F0-9]+)$/)
+    .optional(),
   symbol: zod.string(),
   name: zod.string(),
   precision: zod.number(),
-  // contract_id: zod.string().uuid(),
-  // contract: Contract,
+  icon_url: zod.string().url().optional(),
 });
 export type TokenDto = zod.infer<typeof Token>;
 

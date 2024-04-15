@@ -1,5 +1,5 @@
-<nb-list nbInfiniteList [threshold]="500">
-  <nb-list-item *ngFor="let offer of (offers.data$ | async)?.items">
+<div class="list">
+  <div class="list__item" *ngFor="let offer of (offers.data$ | async)?.items">
     <nb-card class="offer-card">
       <nb-card-body class="offer-card__body">
         <div class="gallery">
@@ -20,5 +20,5 @@
         </nb-button-group>
       </nb-card-body>
     </nb-card>
-  </nb-list-item>
-</nb-list>
+  </div>
+</div>

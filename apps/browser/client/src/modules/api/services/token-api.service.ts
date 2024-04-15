@@ -1,17 +1,18 @@
 import { Injectable } from '@angular/core';
 
-import { CreateOfferBodyDto, GetOffersDto } from '@tradeyard-v2/api-dtos';
+import { GetTokensDto } from '@tradeyard-v2/api-dtos';
 
-import { pagination, PaginationInit } from '../api';
-import { BaseApiService } from '../api/base-api.service';
+import { pagination, PaginationInit } from '..';
+
+import { BaseApiService } from './base-api.service';
 
 @Injectable()
-export class OfferApiService {
+export class TokenApiService {
   constructor(readonly baseApiService: BaseApiService) {}
 
-  create(dto: CreateOfferBodyDto) {
-    return this.baseApiService.post('/offers', dto, {});
-  }
+  // create(dto: CreateTokenBodyDto) {
+  //   return this.baseApiService.post('/tokens', dto, {});
+  // }
 
   many({
     initialParams: { offset = 0, limit = 20, timestamp = Date.now() },
@@ -22,7 +23,7 @@ export class OfferApiService {
       initialParams: { offset, limit },
       initialSearch: { timestamp },
       request: (search, params) =>
-        this.baseApiService.get<GetOffersDto>('/offers', {
+        this.baseApiService.get<GetTokensDto>('/tokens', {
           params: { ...search, ...params },
         }),
     });

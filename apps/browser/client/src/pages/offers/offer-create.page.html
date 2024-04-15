@@ -10,7 +10,7 @@
 
   <nb-card class="form-section form-section--details">
     <nb-card-body>
-      <h6>Offer details</h6>
+      <h6>Details</h6>
 
       <div class="form-group">
         <input type="text" nbInput fullWidth formControlName="title" placeholder="Type your title..." />
@@ -35,13 +35,18 @@
         <div class="form-group">
           <input type="text" nbInput formControlName="title" [placeholder]="form.value.title || 'Type your title...'">
 
-          <input type="text" nbInput formControlName="description"
-            [placeholder]="form.value.description || 'Type your description...'">
+          <textarea type="text" nbInput fullWidth formControlName="description"
+            [placeholder]="form.value.description || 'Type your description...'"></textarea>
 
-          <nb-form-field formGroupName="price">
-            <nb-icon nbPrefix icon="pricetags-outline" pack="eva"></nb-icon>
-            <input type="number" nbInput formControlName="amount" placeholder="Type your price..." step="0.01">
-          </nb-form-field>
+          <div class="form-control" formGroupName="price">
+            <nb-form-field>
+              <nb-icon nbPrefix icon="pricetags-outline" pack="eva"></nb-icon>
+              <input type="number" nbInput formControlName="amount" placeholder="Type your price..." step="0.01">
+            </nb-form-field>
+
+            <app-token-select [toValue]="parseTokenToValue" [fromValue]="parseValueToToken" formControlName="token"
+              placeholder="Select your currency..."></app-token-select>
+          </div>
         </div>
       </nb-accordion-item-body>
     </nb-accordion-item>

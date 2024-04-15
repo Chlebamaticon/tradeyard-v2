@@ -44,6 +44,7 @@ export interface PaginationControls<
   T = unknown,
   SearchParams extends object = object
 > {
+  data: PaginationResponse<T>;
   data$: Observable<PaginationResponse<T>>;
   search: (searchParams: SearchParams) => void;
   next: () => void;
@@ -62,6 +63,7 @@ export function pagination<T = unknown, SearchParams extends object = object>({
   const fetching$ = new BehaviorSubject<boolean>(false);
   const initOrInstant$ = initNotifier ?? of(void 0);
 
+  const data: PaginationResponse<T> = { items: [], total: 0 };
   const data$ = combineLatest([search$, initOrInstant$]).pipe(
     tap(() => loading$.next(true)),
     switchMap(([searchParams]) =>
@@ -89,6 +91,7 @@ export function pagination<T = unknown, SearchParams extends object = object>({
             total: 0,
           }
         ),
+        tap((currentData) => Object.assign(data, currentData)),
         tap(() => fetching$.next(false))
       )
     ),
@@ -97,6 +100,7 @@ export function pagination<T = unknown, SearchParams extends object = object>({
   );
 
   return {
+    data,
     data$,
     search: (searchParams: SearchParams) => search$.next(searchParams),
     next: () => {

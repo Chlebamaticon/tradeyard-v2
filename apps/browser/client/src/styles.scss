@@ -48,6 +48,12 @@ p {
   gap: 0.5rem;
 }
 
+.form-control {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+}
+
 .form-group:last-of-type {
   margin-bottom: 1rem;
 }

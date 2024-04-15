@@ -23,6 +23,7 @@ import { AppService } from './app.service';
     MerchantsRouteModule,
     OffersRouteModule,
     UsersRouteModule,
+    TokensRouteModule,
     RouterModule.register([
       {
         path: 'customers',

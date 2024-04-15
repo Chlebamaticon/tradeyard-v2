@@ -11,6 +11,9 @@ export const [TokenSeed, TokenSeedProvider] = createSeed(async (manager) => {
       type: 'token:created',
       body: {
         token_id: randomUUID(),
+        token_address: '0x0000000000000000000000000000000000001010',
+        icon_url:
+          'https://polygonscan.com/assets/poly/images/svg/logos/token-light.svg',
         symbol: 'MATIC',
         name: 'Polygon',
         precision: 18,

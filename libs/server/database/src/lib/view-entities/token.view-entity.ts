@@ -7,7 +7,11 @@ import { createAggregateEventsSelectQuery } from '../queries';
     connection
       .createQueryBuilder()
       .select(`("event"."body" ->> 'token_id')::uuid`, 'token_id')
-      .addSelect(`("event"."body" ->> 'token_address')::varchar`, 'token_id')
+      .addSelect(
+        `("event"."body" ->> 'token_address')::varchar`,
+        'token_address'
+      )
+      .addSelect(`("event"."body" ->> 'icon_url')::varchar`, 'icon_url')
       .addSelect(`("event"."body" ->> 'symbol')::varchar`, 'symbol')
       .addSelect(`("event"."body" ->> 'precision')::int`, 'precision')
       .addSelect(`("event"."body" ->> 'name')::varchar`, 'name')
@@ -27,6 +31,9 @@ export class TokenViewEntity {
 
   @ViewColumn()
   token_address!: string;
+
+  @ViewColumn()
+  icon_url!: string;
 
   @ViewColumn()
   symbol!: string;

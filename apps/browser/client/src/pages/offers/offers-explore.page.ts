@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  EventEmitter,
-  OnDestroy,
-  OnInit,
-  Self,
-} from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Self } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import {
   NbButtonGroupModule,
@@ -17,7 +10,7 @@ import {
 } from '@nebular/theme';
 import { BehaviorSubject } from 'rxjs';
 
-import { OfferApiService } from '../../modules/offer';
+import { OfferApiService } from '../../modules/api/services';
 import { OnDestroyNotifier$ } from '../../providers';
 
 @Component({

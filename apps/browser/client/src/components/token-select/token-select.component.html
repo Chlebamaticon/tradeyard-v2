@@ -1,0 +1,14 @@
+<nb-select [placeholder]="placeholder" [multiple]="multiple" [selected]="selected"
+  (selectedChange)="onSelectedChange($event)">
+  <nb-select-label class="token">
+    <img class="token__icon" [src]="selected?.icon_url" />
+    <span class="token__label">{{selected?.symbol}}</span>
+  </nb-select-label>
+
+  @for (token of (tokens.data$ | async)?.items; track token) {
+  <nb-option [value]="token" class="token">
+    <img class="token__icon" [src]="token.icon_url" />
+    <span class="token__label">{{token.symbol}}</span>
+  </nb-option>
+  }
+</nb-select>

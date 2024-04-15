@@ -1,3 +1,3 @@
 export * from './api.module';
-export * from './base-api.service';
-export * from './pagination.factory';
+export * from './services/base-api.service';
+export * from './helpers/pagination';
