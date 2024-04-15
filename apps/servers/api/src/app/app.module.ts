@@ -3,10 +3,12 @@ import { RouterModule } from '@nestjs/core';
 
 import { DatabaseModule } from '@tradeyard-v2/server/database';
 
-import { AlchemyModule } from '../modules/alchemy/alchemy.module';
+import { AlchemyModule } from '../modules/alchemy';
 import { CustomersRouteModule } from '../modules/customers';
 import { MerchantsRouteModule } from '../modules/merchants';
 import { OffersRouteModule } from '../modules/offers';
+import { SeedModule } from '../modules/seed';
+import { TokensRouteModule } from '../modules/tokens';
 import { UsersRouteModule } from '../modules/users';
 
 import { AppController } from './app.controller';
@@ -15,6 +17,7 @@ import { AppService } from './app.service';
 @Module({
   imports: [
     DatabaseModule,
+    SeedModule,
     AlchemyModule,
     CustomersRouteModule,
     MerchantsRouteModule,
@@ -36,6 +39,10 @@ import { AppService } from './app.service';
       {
         path: 'users',
         module: UsersRouteModule,
+      },
+      {
+        path: 'tokens',
+        module: TokensRouteModule,
       },
     ]),
   ],

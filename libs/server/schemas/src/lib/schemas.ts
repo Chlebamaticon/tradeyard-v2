@@ -4,6 +4,7 @@ import moderatorSchema from './moderator';
 import offerSchema from './offer';
 import offerVariantSchema from './offer-variant';
 import offerVariantPriceSchema from './offer-variant-price';
+import tokenSchema from './token';
 import userSchema from './user';
 
 export * from './customer';
@@ -20,4 +21,5 @@ export default {
   ...offerVariantSchema,
   ...offerVariantPriceSchema,
   ...userSchema,
+  ...tokenSchema,
 };

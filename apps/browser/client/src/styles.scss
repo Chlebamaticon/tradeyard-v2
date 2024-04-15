@@ -1,4 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
+html,
+body {
+  background-color: #edf1f7;
+}
+
 #turnkey {
   top: 0;
   left: 0;
@@ -45,4 +50,11 @@ p {
 
 .form-group:last-of-type {
   margin-bottom: 1rem;
+}
+
+.container {
+  max-width: 58rem;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
 }

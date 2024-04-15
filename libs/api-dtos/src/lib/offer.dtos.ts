@@ -5,7 +5,7 @@ import { pagination, queryParams } from './pagination.dtos';
 
 export const Offer = zod.object({
   offer_id: zod.string().uuid(),
-  merchant_id: zod.string().uuid(),
+  // merchant_id: zod.string().uuid(),
   title: zod.string(),
   description: zod.string(),
   variants: zod.array(OfferVariant),

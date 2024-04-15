@@ -1,17 +1,11 @@
 <nb-list nbInfiniteList [threshold]="500">
-  <nb-list-item *ngFor="let offer of (offers$ | async)">
+  <nb-list-item *ngFor="let offer of (offers.data$ | async)?.items">
     <nb-card class="offer-card">
       <nb-card-body class="offer-card__body">
         <div class="gallery">
-          <div class="gallery__tile">
+          <!-- <div class="gallery__tile">
             <img [src]="offer.thumbnailUrl" [alt]="offer.title" />
-          </div>
-          <div class="gallery__tile">
-            <img [src]="offer.thumbnailUrl" [alt]="offer.title" />
-          </div>
-          <div class="gallery__tile">
-            <img [src]="offer.thumbnailUrl" [alt]="offer.title" />
-          </div>
+          </div> -->
         </div>
 
         <div class="summary">
@@ -20,7 +14,7 @@
         </div>
 
         <nb-button-group class="actions" size="small" outline status="primary">
-          <button nbButton [routerLink]="'/offers/' + offer.id">
+          <button nbButton [routerLink]="'/offers/' + offer.offer_id">
             Show more
           </button>
         </nb-button-group>

@@ -33,11 +33,15 @@
       </nb-accordion-item-header>
       <nb-accordion-item-body>
         <div class="form-group">
-          <input type="text" nbInput formControlName="title" placeholder="Type your title...">
+          <input type="text" nbInput formControlName="title" [placeholder]="form.value.title || 'Type your title...'">
 
-          <input type="text" nbInput formControlName="description" placeholder="Type your description...">
+          <input type="text" nbInput formControlName="description"
+            [placeholder]="form.value.description || 'Type your description...'">
 
-          <input type="text" nbInput formControlName="price" placeholder="Type your price...">
+          <nb-form-field formGroupName="price">
+            <nb-icon nbPrefix icon="pricetags-outline" pack="eva"></nb-icon>
+            <input type="number" nbInput formControlName="amount" placeholder="Type your price..." step="0.01">
+          </nb-form-field>
         </div>
       </nb-accordion-item-body>
     </nb-accordion-item>
@@ -58,7 +62,7 @@
           <nb-icon icon="plus-outline"></nb-icon>
           Add variant
         </button>
-        <button nbButton status="primary" (click)="save$.emit()">
+        <button nbButton status="primary" (click)="save()" [disabled]="form.invalid">
           <nb-icon icon="save"></nb-icon>
           Save
         </button>

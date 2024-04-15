@@ -18,3 +18,5 @@ export const pagination = <Schema extends Zod.ZodSchema>(schema: Schema) =>
       total: zod.number().min(0),
     })
     .merge(paginationQueryParams);
+
+export type Pagination = zod.infer<ReturnType<typeof pagination>>;

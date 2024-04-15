@@ -43,7 +43,7 @@ export type GetOfferVariantsQueryParamsDto = zod.infer<
 
 export const CreateOfferVariantBody = zod.object({
   offer_id: zod.string().uuid(),
-  price: OfferVariantPrice.extend({ token: TokenSymbol }),
+  price: OfferVariantPrice.omit({ token: true }).extend({ token: TokenSymbol }),
   title: zod.string(),
   description: zod.string(),
 });

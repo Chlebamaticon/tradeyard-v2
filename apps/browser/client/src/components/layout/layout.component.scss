@@ -3,3 +3,7 @@ nb-layout-header {
   z-index: 1000;
   position: sticky;
 }
+
+.scrollable-container .layout {
+  min-height: unset;
+}

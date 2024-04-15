@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -43,9 +44,18 @@ export class OffersController {
 
   @Get()
   async getMany(
+    @Query('offset', new ParseIntPipe({ optional: true })) offset = 0,
+    @Query('timestamp', new ParseIntPipe({ optional: true }))
+    timestamp = Date.now(),
+    @Query('limit', new ParseIntPipe({ optional: true })) limit,
     @Query() queryParams: GetOffersQueryParamsDto
   ): Promise<GetOffersDto> {
-    const validatedQueryParams = GetOffersQueryParams.parse(queryParams);
+    const validatedQueryParams = GetOffersQueryParams.parse({
+      ...queryParams,
+      offset,
+      timestamp,
+      limit,
+    });
     return GetOffers.parse(
       await this.offersService.getMany(validatedQueryParams)
     );
