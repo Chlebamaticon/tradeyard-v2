@@ -3,7 +3,13 @@ import { randomUUID } from 'crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, LessThan, Repository } from 'typeorm';
+import {
+  FindManyOptions,
+  In,
+  LessThan,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { symbol } from 'zod';
 
 import {
@@ -20,6 +26,8 @@ import {
   UpdateOfferBodyDto,
   UpdateOfferDto,
   OfferVariant,
+  OfferVariantPrice,
+  OfferVariantPriceDto,
 } from '@tradeyard-v2/api-dtos';
 import {
   OfferViewEntity,
@@ -35,17 +43,23 @@ export class OffersService {
     @Inject(REQUEST) readonly request: Express.Request,
     @InjectRepository(OfferViewEntity)
     readonly offerRepository: Repository<OfferViewEntity>,
+    @InjectRepository(OfferVariantPriceViewEntity)
+    readonly offerVariantPriceRepository: Repository<OfferVariantPriceViewEntity>,
     @InjectRepository(TokenViewEntity)
     readonly tokenRepository: Repository<TokenViewEntity>,
     readonly eventRepository: EventRepository
   ) {}
 
   async getOne({ offer_id }: GetOfferPathParamsDto): Promise<GetOfferDto> {
-    const customer = await this.#queryBuilder({
+    const offer = await this.#queryBuilder({
       where: { offer_id },
     }).getOneOrFail();
 
-    return GetOffer.parse(this.mapToOfferDto(customer));
+    const latestVariantPrices = await this.#latestVariantPrices(
+      offer.variants ?? []
+    );
+
+    return GetOffer.parse(this.mapToOfferDto(offer, { latestVariantPrices }));
   }
 
   async getMany({
@@ -62,8 +76,13 @@ export class OffersService {
       .take(limit)
       .getManyAndCount();
 
+    const variants = offers.map(({ variants }) => variants).flat();
+    const latestVariantPrices = await this.#latestVariantPrices(variants);
+
     return {
-      items: offers.map((offer) => this.mapToOfferDto(offer)),
+      items: offers.map((offer) =>
+        this.mapToOfferDto(offer, { latestVariantPrices })
+      ),
       total,
       offset,
       limit,
@@ -103,11 +122,12 @@ export class OffersService {
         where: { symbol: price.token },
       });
 
+      const base = 10n ** BigInt(token.precision);
       return await this.eventRepository.publish('offer:variant:price:created', {
         offer_variant_price_id: randomUUID(),
         offer_variant_id: body.offer_variant_id,
         token_id: token.token_id,
-        amount: `${price.amount * token.precision}`,
+        amount: `${BigInt(price.amount) * base}`,
       });
     });
 
@@ -139,30 +159,48 @@ export class OffersService {
   }
 
   mapToOfferDto(
-    offer: OfferViewEntity & { variants?: OfferVariantViewEntity[] }
+    offer: OfferViewEntity & { variants?: OfferVariantViewEntity[] },
+    enhancements: {
+      latestVariantPrices?: Record<
+        string,
+        OfferVariantPriceViewEntity & { token: TokenViewEntity }
+      >;
+    } = {}
   ): OfferDto {
+    const { latestVariantPrices = {} } = enhancements;
     return Offer.parse({
       ...offer,
       variants: offer.variants.map((variant) =>
         OfferVariant.parse({
           ...variant,
-          current_price: {
-            amount: 0,
-            token: {
-              token_id: randomUUID(),
-              symbol: 'MATIC',
-              precision: 18,
-              name: 'Polygon',
-            },
-          },
+          current_price: this.mapToOfferPriceDto(
+            latestVariantPrices[variant.offer_variant_id]
+          ),
         })
       ),
     });
   }
 
-  #queryBuilder(options: FindManyOptions<OfferViewEntity> = {}) {
-    return this.offerRepository
-      .createQueryBuilder('offer')
+  mapToOfferPriceDto(
+    price: OfferVariantPriceViewEntity & { token: TokenViewEntity }
+  ): OfferVariantPriceDto {
+    const base = 10n ** BigInt(price.token.precision);
+    return OfferVariantPrice.parse({
+      amount: +`${BigInt(price.amount) / base}`,
+      token: price.token,
+    });
+  }
+
+  #queryBuilder(
+    options: FindManyOptions<OfferViewEntity> = {}
+  ): SelectQueryBuilder<
+    OfferViewEntity & { variants: OfferVariantViewEntity[] }
+  > {
+    const { manager } = this.offerRepository;
+    return manager
+      .createQueryBuilder<
+        OfferViewEntity & { variants: OfferVariantViewEntity[] }
+      >(OfferViewEntity, 'offer')
       .setFindOptions(options)
       .leftJoinAndMapMany(
         'offer.variants',
@@ -171,5 +209,43 @@ export class OffersService {
         '"offer_variant"."offer_id" = "offer"."offer_id"',
         {}
       );
+  }
+
+  async #latestVariantPrices(
+    variants: OfferVariantViewEntity[]
+  ): Promise<
+    Record<string, OfferVariantPriceViewEntity & { token: TokenViewEntity }>
+  > {
+    const variantPrices = await this.offerVariantPriceRepository
+      .createQueryBuilder('offer_variant_price')
+      .innerJoin(
+        (qb) =>
+          qb
+            .distinct(true)
+            .select('"variant_price"."offer_variant_id"', 'offer_variant_id')
+            .addSelect('MAX("variant_price"."created_at")', 'created_at')
+            .from(OfferVariantPriceViewEntity, 'variant_price')
+            .where('"variant_price"."offer_variant_id" IN (:...ids)', {
+              ids: variants.map((variant) => variant.offer_variant_id),
+            })
+            .groupBy('"variant_price"."offer_variant_id"'),
+        'latest_variant_price',
+        '"latest_variant_price"."offer_variant_id" = "offer_variant_price"."offer_variant_id"'
+      )
+      .leftJoinAndMapOne(
+        'offer_variant_price.token',
+        TokenViewEntity,
+        'token',
+        '"offer_variant_price"."token_id" = "token"."token_id"'
+      )
+      .getMany();
+
+    return variantPrices.reduce(
+      (acc, variantPrice) => ({
+        ...acc,
+        [variantPrice.offer_variant_id]: variantPrice,
+      }),
+      {}
+    );
   }
 }

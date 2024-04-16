@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 
-import { CreateOfferBodyDto, GetOffersDto } from '@tradeyard-v2/api-dtos';
+import {
+  CreateOfferBodyDto,
+  GetOfferDto,
+  GetOffersDto,
+} from '@tradeyard-v2/api-dtos';
 
 import { pagination, PaginationInit } from '..';
 
@@ -12,6 +17,10 @@ export class OfferApiService {
 
   create(dto: CreateOfferBodyDto) {
     return this.baseApiService.post('/offers', dto, {});
+  }
+
+  one({ offer_id }: { offer_id: string }): Observable<GetOfferDto> {
+    return this.baseApiService.get<GetOfferDto>(`/offers/${offer_id}`, {});
   }
 
   many({

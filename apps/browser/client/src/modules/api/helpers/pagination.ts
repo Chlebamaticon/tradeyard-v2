@@ -46,6 +46,8 @@ export interface PaginationControls<
 > {
   data: PaginationResponse<T>;
   data$: Observable<PaginationResponse<T>>;
+  loading$: Observable<boolean>;
+  fetching$: Observable<boolean>;
   search: (searchParams: SearchParams) => void;
   next: () => void;
 }
@@ -102,6 +104,8 @@ export function pagination<T = unknown, SearchParams extends object = object>({
   return {
     data,
     data$,
+    loading$: loading$.asObservable(),
+    fetching$: fetching$.asObservable(),
     search: (searchParams: SearchParams) => search$.next(searchParams),
     next: () => {
       const { limit = 20 } = initialParams;

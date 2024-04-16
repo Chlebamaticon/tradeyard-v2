@@ -1,0 +1,26 @@
+@if ((selection$ | async); as selection) {
+<nb-card>
+  <nb-card-body class="offer">
+    <div class="offer__label">
+      <h6>{{ selection.offer?.title }}</h6>
+      <p>{{ selection.offer?.description }}</p>
+    </div>
+
+    <div class="offer__price-tag">
+      <p>{{ selection.variant?.current_price?.amount }} <span>{{ selection.variant?.current_price?.token?.symbol
+          }}</span></p>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card class="summary">
+  <nb-card-body>
+    <h6>{{ selection.variant?.current_price?.amount }} x {{ snapshot.queryParams['quantity'] }} =</h6>
+    <h5> {{
+      (selection.variant?.current_price?.amount ?? 0) * snapshot.queryParams['quantity'] }} <span>{{
+        selection.variant?.current_price?.token?.symbol
+        }}</span>
+    </h5>
+  </nb-card-body>
+</nb-card>
+}

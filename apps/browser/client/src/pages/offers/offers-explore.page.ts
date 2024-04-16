@@ -8,7 +8,6 @@ import {
   NbLayoutModule,
   NbListModule,
 } from '@nebular/theme';
-import { BehaviorSubject } from 'rxjs';
 
 import { OfferApiService } from '../../modules/api/services';
 import { OnDestroyNotifier$ } from '../../providers';
@@ -31,7 +30,6 @@ import { OnDestroyNotifier$ } from '../../providers';
 })
 export class OffersExplorePage implements AfterViewInit {
   readonly init$ = new EventEmitter<void>();
-  readonly loading$ = new BehaviorSubject<boolean>(false);
 
   readonly offers = this.offerApiService.many({
     initialParams: {

@@ -5,10 +5,11 @@ import { Token } from './token.dtos';
 
 export const TokenSymbol = zod.enum(['USD', 'EUR', 'GBP', 'MATIC']);
 
-const OfferVariantPrice = zod.object({
+export const OfferVariantPrice = zod.object({
   amount: zod.number(),
   token: Token,
 });
+export type OfferVariantPriceDto = zod.infer<typeof OfferVariantPrice>;
 
 export const OfferVariant = zod.object({
   offer_id: zod.string().uuid(),
