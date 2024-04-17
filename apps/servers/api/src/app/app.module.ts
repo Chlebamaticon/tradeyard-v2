@@ -7,6 +7,7 @@ import { AlchemyModule } from '../modules/alchemy';
 import { CustomersRouteModule } from '../modules/customers';
 import { MerchantsRouteModule } from '../modules/merchants';
 import { OffersRouteModule } from '../modules/offers';
+import { OrdersRouteModule } from '../modules/orders';
 import { SeedModule } from '../modules/seed';
 import { TokensRouteModule } from '../modules/tokens';
 import { UsersRouteModule } from '../modules/users';
@@ -36,6 +37,10 @@ import { AppService } from './app.service';
       {
         path: 'offers',
         module: OffersRouteModule,
+      },
+      {
+        path: 'orders',
+        module: OrdersRouteModule,
       },
       {
         path: 'users',

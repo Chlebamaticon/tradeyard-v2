@@ -13,14 +13,22 @@
   </nb-card-body>
 </nb-card>
 
-<nb-card class="summary">
-  <nb-card-body>
-    <h6>{{ selection.variant?.current_price?.amount }} x {{ snapshot.queryParams['quantity'] }} =</h6>
+
+<div class="summary">
+  <div class="summary__body">
+    <p><span>{{ snapshot.queryParams['quantity'] }}</span> x <span>{{ selection.variant?.current_price?.amount }}
+        {{selection.variant?.current_price?.token?.symbol}}</span> =</p>
     <h5> {{
       (selection.variant?.current_price?.amount ?? 0) * snapshot.queryParams['quantity'] }} <span>{{
         selection.variant?.current_price?.token?.symbol
         }}</span>
     </h5>
-  </nb-card-body>
-</nb-card>
+  </div>
+  <div class="summary__actions">
+    @if (selection.variant) {
+    <button nbButton status="success"
+      (click)="order$.emit([selection.variant.offer_id, selection.variant.offer_variant_id])">Order</button>
+    }
+  </div>
+</div>
 }

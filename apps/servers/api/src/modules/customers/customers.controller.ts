@@ -7,6 +7,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+
 import {
   CreateCustomer,
   CreateCustomerBody,
@@ -27,6 +28,7 @@ import {
   UpdateCustomerPathParams,
   UpdateCustomerPathParamsDto,
 } from '@tradeyard-v2/api-dtos';
+
 import { CustomersService } from './customers.service';
 
 @Controller()

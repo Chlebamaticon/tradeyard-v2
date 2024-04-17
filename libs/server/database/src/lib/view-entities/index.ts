@@ -4,5 +4,6 @@ export * from './moderator.view-entity';
 export * from './offer-variant-price.view-entity';
 export * from './offer-variant.view-entity';
 export * from './offer.view-entity';
+export * from './order.view-entity';
 export * from './token.view-entity';
 export * from './user.view-entity';

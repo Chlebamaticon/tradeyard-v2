@@ -6,11 +6,14 @@ import {
   NbButtonModule,
   NbCardModule,
 } from '@nebular/theme';
-import { scan, switchMap } from 'rxjs';
+import { exhaustMap, scan, switchMap, tap } from 'rxjs';
 
 import { OfferDto, OfferVariantDto } from '@tradeyard-v2/api-dtos';
 
-import { OfferApiService } from '../../../../../modules/api/services';
+import {
+  OfferApiService,
+  OrderApiService,
+} from '../../../../../modules/api/services';
 
 @Component({
   standalone: true,
@@ -28,6 +31,7 @@ import { OfferApiService } from '../../../../../modules/api/services';
 export class OfferOrderPage implements AfterViewInit {
   readonly init$ = new EventEmitter<void>();
   readonly order$ = new EventEmitter<[string, string]>();
+  readonly createOrderLoading$ = new EventEmitter<boolean>();
 
   get snapshot() {
     return this.route.snapshot;
@@ -53,9 +57,21 @@ export class OfferOrderPage implements AfterViewInit {
     )
   );
 
+  readonly createOrder$ = this.order$
+    .pipe(
+      tap(() => this.createOrderLoading$.emit(true)),
+      exhaustMap(([offer_id, offer_variant_id]) =>
+        this.orderApiService.create({ offer_id, offer_variant_id })
+      ),
+      tap(console.log),
+      tap(() => this.createOrderLoading$.emit(false))
+    )
+    .subscribe();
+
   constructor(
     readonly route: ActivatedRoute,
-    readonly offerApiService: OfferApiService
+    readonly offerApiService: OfferApiService,
+    readonly orderApiService: OrderApiService
   ) {}
 
   ngAfterViewInit(): void {

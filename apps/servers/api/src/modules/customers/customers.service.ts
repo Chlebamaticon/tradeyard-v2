@@ -1,22 +1,21 @@
+import { randomUUID } from 'crypto';
+
 import { Inject, Injectable } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import {
   CreateCustomer,
-  CreateCustomerBody,
   CreateCustomerBodyDto,
   CreateCustomerDto,
   Customer,
   CustomerDto,
   GetCustomer,
   GetCustomerDto,
-  GetCustomerPathParams,
   GetCustomerPathParamsDto,
-  GetCustomers,
   GetCustomersDto,
-  GetCustomersQueryParams,
   GetCustomersQueryParamsDto,
-  UpdateCustomerBody,
   UpdateCustomerBodyDto,
   UpdateCustomerDto,
 } from '@tradeyard-v2/api-dtos';
@@ -24,8 +23,6 @@ import {
   CustomerViewEntity,
   EventRepository,
 } from '@tradeyard-v2/server/database';
-import { randomUUID } from 'crypto';
-import { Repository } from 'typeorm';
 
 @Injectable()
 export class CustomersService {

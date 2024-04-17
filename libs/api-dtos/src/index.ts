@@ -9,3 +9,4 @@ export * from './lib/offer.dtos';
 export * from './lib/pagination.dtos';
 export * from './lib/token.dtos';
 export * from './lib/user.dtos';
+export * from './lib/order.dtos';

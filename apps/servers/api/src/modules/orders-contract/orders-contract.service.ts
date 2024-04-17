@@ -25,7 +25,7 @@ export interface OrderDeployInit {
 }
 
 @Injectable({})
-export class OrderContractService {
+export class OrdersContractService {
   constructor(
     @Inject(AlchemyPublicClient) readonly publicClient: PublicClient,
     @Inject(AlchemyWalletClient) readonly walletClient: WalletClient

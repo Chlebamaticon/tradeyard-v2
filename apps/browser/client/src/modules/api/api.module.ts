@@ -1,12 +1,17 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 
-import { OfferApiService, TokenApiService } from './services';
+import { OfferApiService, OrderApiService, TokenApiService } from './services';
 import { BaseApiService } from './services/base-api.service';
 
 @NgModule({
   imports: [HttpClientModule],
-  providers: [BaseApiService, OfferApiService, TokenApiService],
+  providers: [
+    BaseApiService,
+    OfferApiService,
+    OrderApiService,
+    TokenApiService,
+  ],
   exports: [],
 })
 export class ApiModule {}
