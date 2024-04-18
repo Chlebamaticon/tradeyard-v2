@@ -25,6 +25,7 @@ import { AppService } from './app.service';
     OffersRouteModule,
     UsersRouteModule,
     TokensRouteModule,
+    OrdersRouteModule,
     RouterModule.register([
       {
         path: 'customers',

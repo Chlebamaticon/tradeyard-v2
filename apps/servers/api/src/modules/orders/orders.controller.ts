@@ -47,7 +47,7 @@ export class OrdersController {
 
   @Post()
   async createOne(@Body() body: CreateOrderBodyDto): Promise<CreateOrderDto> {
-    const validatedBody = CreateOrderBody.parse(body);
+    const validatedBody = CreateOrderBody.strict().parse(body);
     return CreateOrder.parse(await this.orderService.createOne(validatedBody));
   }
 

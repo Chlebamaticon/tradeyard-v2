@@ -6,9 +6,10 @@ import {
   NbButtonModule,
   NbCardModule,
 } from '@nebular/theme';
-import { switchMap } from 'rxjs';
+import { switchMap, withLatestFrom } from 'rxjs';
 
 import { OfferApiService } from '../../../modules/api/services';
+import { AuthService } from '../../../modules/auth';
 
 @Component({
   standalone: true,

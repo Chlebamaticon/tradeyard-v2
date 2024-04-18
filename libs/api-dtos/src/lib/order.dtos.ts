@@ -1,6 +1,7 @@
 import * as zod from 'zod';
 
 import { pagination, queryParams } from './pagination.dtos';
+import { Wallet } from './wallet.dtos';
 
 export const Order = zod.object({
   order_id: zod.string().uuid(),
@@ -28,6 +29,7 @@ export type GetOrdersQueryParamsDto = zod.infer<typeof GetOrdersQueryParams>;
 export const CreateOrderBody = zod.object({
   offer_id: zod.string().uuid(),
   offer_variant_id: zod.string().uuid(),
+  customer: Wallet,
 });
 export type CreateOrderBodyDto = zod.infer<typeof CreateOrderBody>;
 export const CreateOrder = zod.object({}).merge(Order);

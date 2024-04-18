@@ -25,7 +25,20 @@
       "options": {
         "command": "hardhat --config apps/contracts/ecommerce/hardhat.config.ts --tsconfig apps/contracts/ecommerce/tsconfig.app.json"
       }
+    },
+    "nx-release-publish": {
+      "options": {
+        "packageRoot": "dist/{projectRoot}"
+      }
     }
   },
-  "tags": []
+  "tags": [],
+  "release": {
+    "version": {
+      "generatorOptions": {
+        "packageRoot": "dist/{projectRoot}",
+        "currentVersionResolver": "git-tag"
+      }
+    }
+  }
 }

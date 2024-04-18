@@ -11,21 +11,10 @@ import {
 } from '@tradeyard-v2/server/database';
 
 import { OffersController } from './offers.controller';
-import { OffersService } from './offers.service';
+import { OffersModule } from './offers.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      OfferViewEntity,
-      OfferVariantViewEntity,
-      OfferVariantPriceViewEntity,
-      TokenViewEntity,
-      EventEntity,
-    ]),
-    CommonDatabaseModule,
-  ],
+  imports: [OffersModule],
   controllers: [OffersController],
-  providers: [OffersService],
-  exports: [OffersService],
 })
 export class OffersRouteModule {}

@@ -25,6 +25,7 @@ import { CreateOfferBody, TokenDto } from '@tradeyard-v2/api-dtos';
 
 import { TokenSelectComponent } from '../../components/token-select/token-select.component';
 import { OfferApiService } from '../../modules/api/services';
+import { AuthService } from '../../modules/auth';
 import { OnDestroyNotifier$ } from '../../providers';
 
 @Component({
@@ -72,8 +73,11 @@ export class OfferCreatePage {
     .pipe(
       withLatestFrom(this.form.valueChanges, this.form.statusChanges),
       filter(([_, __, status]) => status === 'VALID'),
-      map(([, values]) => CreateOfferBody.parse(values)),
-      exhaustMap((values) => this.offerApiService.create(values)),
+      withLatestFrom(this.authService.signer.getAddress()),
+      map(([[, values], address]) =>
+        CreateOfferBody.parse({ ...values, merchant: { address } })
+      ),
+      exhaustMap((body) => this.offerApiService.create(body)),
       tap(() => this.form.reset()),
       tap(() => this.router.navigateByUrl('/offers')),
       takeUntil(this.destroy$)
@@ -82,6 +86,7 @@ export class OfferCreatePage {
 
   constructor(
     readonly router: Router,
+    readonly authService: AuthService,
     readonly builder: FormBuilder,
     readonly offerApiService: OfferApiService,
     @Self() readonly destroy$: OnDestroyNotifier$

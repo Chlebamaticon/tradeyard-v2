@@ -6,7 +6,7 @@ import { createWalletClient, webSocket } from 'viem';
 const signer = new AlchemySigner({
   client: {
     connection: {
-      apiKey: 'alcht_jFwYTq4RwGJlXVuG2oGx5MwgdOaqrZ',
+      apiKey: '3qRz7cWG_qr34OFx7kyfYz79Htsm2inC',
     },
     iframeConfig: {
       iframeContainerId: 'turnkey',
@@ -23,7 +23,7 @@ export class AuthService {
   getWalletClient() {
     return createWalletClient({
       transport: webSocket(
-        'wss://polygon-amoy.g.alchemy.com/v2/8nlrybVrAAt__SLRBss75r_CyA8WRhDc'
+        'wss://polygon-amoy.g.alchemy.com/v2/3qRz7cWG_qr34OFx7kyfYz79Htsm2inC'
       ),
       chain: chains.polygonAmoy,
       account: signer.toViemAccount(),

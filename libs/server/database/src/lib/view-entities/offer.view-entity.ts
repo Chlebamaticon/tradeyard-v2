@@ -10,6 +10,10 @@ import { createAggregateEventsSelectQuery } from '../queries';
       .addSelect(`("event"."body" ->> 'user_id')::uuid`, 'user_id')
       .addSelect(`("event"."body" ->> 'title')`, 'title')
       .addSelect(`("event"."body" ->> 'description')`, 'description')
+      .addSelect(
+        `("event"."body" ->> 'merchant')::jsonb ->> 'address'`,
+        'merchant_address'
+      )
       .addSelect(`"event"."created_at"`, 'created_at')
       .from(
         createAggregateEventsSelectQuery({
@@ -26,6 +30,9 @@ export class OfferViewEntity {
 
   @ViewColumn()
   user_id!: string;
+
+  @ViewColumn()
+  merchant_address!: string;
 
   @ViewColumn()
   title!: string;

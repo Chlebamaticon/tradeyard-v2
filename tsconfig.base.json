@@ -16,11 +16,12 @@
     "baseUrl": ".",
     "paths": {
       "@tradeyard-v2/api-dtos": ["libs/api-dtos/src/index.ts"],
-      "@tradeyard-v2/contracts/ecommerce": [
-        "dist/apps/contracts/ecommerce/artifacts/artifacts.d.ts"
+      "@tradeyard-v2/contracts/ecommerce/artifacts/*": [
+        "dist/apps/contracts/ecommerce/artifacts/apps/contracts/ecommerce/contracts/*"
       ],
       "@tradeyard-v2/server/database": ["libs/server/database/src/index.ts"],
-      "@tradeyard-v2/server/schemas": ["libs/server/schemas/src/index.ts"]
+      "@tradeyard-v2/server/schemas": ["libs/server/schemas/src/index.ts"],
+      "@tradeyard/contracts-x": ["tradeyard/contract/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

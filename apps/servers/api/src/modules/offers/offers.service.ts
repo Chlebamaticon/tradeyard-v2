@@ -5,12 +5,17 @@ import { REQUEST } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   FindManyOptions,
-  In,
   LessThan,
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
-import { symbol } from 'zod';
+import {
+  formatEther,
+  formatGwei,
+  formatUnits,
+  parseEther,
+  parseUnits,
+} from 'viem';
 
 import {
   CreateOffer,
@@ -91,16 +96,14 @@ export class OffersService {
   }
 
   async createOne({
-    title,
-    description,
     variants,
+    ...body
   }: CreateOfferBodyDto): Promise<CreateOfferDto> {
     const offerCreatedEvent = await this.eventRepository.publish(
       'offer:created',
       {
         offer_id: randomUUID(),
-        title,
-        description,
+        ...body,
       }
     );
 
@@ -109,8 +112,8 @@ export class OffersService {
         this.eventRepository.publish('offer:variant:created', {
           offer_id: offerCreatedEvent.body.offer_id,
           offer_variant_id: randomUUID(),
-          title: variant.title ?? title,
-          description: variant.description ?? description,
+          title: variant.title ?? body.title,
+          description: variant.description ?? body.description,
         })
       )
     );
@@ -122,12 +125,11 @@ export class OffersService {
         where: { symbol: price.token },
       });
 
-      const base = 10n ** BigInt(token.precision);
       return await this.eventRepository.publish('offer:variant:price:created', {
         offer_variant_price_id: randomUUID(),
         offer_variant_id: body.offer_variant_id,
         token_id: token.token_id,
-        amount: `${BigInt(price.amount) * base}`,
+        amount: `${parseUnits(`${price.amount}`, token.precision)}`,
       });
     });
 
@@ -170,12 +172,15 @@ export class OffersService {
     const { latestVariantPrices = {} } = enhancements;
     return Offer.parse({
       ...offer,
+      merchant: { address: offer.merchant_address },
       variants: offer.variants.map((variant) =>
         OfferVariant.parse({
           ...variant,
-          current_price: this.mapToOfferPriceDto(
-            latestVariantPrices[variant.offer_variant_id]
-          ),
+          current_price: latestVariantPrices[variant.offer_variant_id]
+            ? this.mapToOfferPriceDto(
+                latestVariantPrices[variant.offer_variant_id]
+              )
+            : undefined,
         })
       ),
     });
@@ -184,9 +189,8 @@ export class OffersService {
   mapToOfferPriceDto(
     price: OfferVariantPriceViewEntity & { token: TokenViewEntity }
   ): OfferVariantPriceDto {
-    const base = 10n ** BigInt(price.token.precision);
     return OfferVariantPrice.parse({
-      amount: +`${BigInt(price.amount) / base}`,
+      amount: +formatUnits(BigInt(price.amount), price.token.precision),
       token: price.token,
     });
   }

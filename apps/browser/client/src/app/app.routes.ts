@@ -12,7 +12,7 @@ export const appRoutes: Route[] = [
     children: [
       {
         path: 'auth',
-        // canActivate: [UnauthenticatedOnly],
+        canActivate: [UnauthenticatedOnly],
         loadChildren: () =>
           import('../pages/auth/auth.routes').then(
             ({ authRoutes }) => authRoutes
@@ -21,7 +21,7 @@ export const appRoutes: Route[] = [
       {
         path: '',
         component: LayoutComponent,
-        // canActivate: [AuthenticatedOnly],
+        canActivate: [AuthenticatedOnly],
         children: [
           {
             path: '',

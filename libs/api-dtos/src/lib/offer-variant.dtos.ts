@@ -16,7 +16,7 @@ export const OfferVariant = zod.object({
   offer_variant_id: zod.string().uuid(),
   title: zod.string(),
   description: zod.string(),
-  current_price: OfferVariantPrice,
+  current_price: OfferVariantPrice.optional(),
 });
 export type OfferVariantDto = zod.infer<typeof OfferVariant>;
 

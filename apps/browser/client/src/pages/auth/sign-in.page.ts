@@ -60,7 +60,7 @@ export class SignInPage implements OnDestroy {
           .catch((error) => console.warn(error))
       ),
       takeUntil(this.destroy$),
-      finalize(() => this.loading$.next(false))
+      tap(() => this.loading$.next(false))
     )
     .subscribe();
   readonly authenticateUponSubmit$ = this.submit$
@@ -78,7 +78,7 @@ export class SignInPage implements OnDestroy {
           .catch((error) => console.warn(error))
       ),
       takeUntil(this.destroy$),
-      finalize(() => this.loading$.next(false))
+      tap(() => this.loading$.next(false))
     )
     .subscribe();
 

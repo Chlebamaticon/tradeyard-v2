@@ -69,7 +69,10 @@ export class OrderService {
     };
   }
 
-  createOne(body: CreateOrderBodyDto) {
+  async createOne(body: CreateOrderBodyDto) {
+    const { merchant } = await this.offersService.getOne({
+      offer_id: body.offer_id,
+    });
     this.orderContractService.deploy({
       target: {
         merchant: zeroAddress,
@@ -82,7 +85,7 @@ export class OrderService {
       redemption: {
         timeoutInSeconds: BigInt(0),
       },
-      orderId: '',
+      orderId: crypto.randomUUID(),
     });
   }
 

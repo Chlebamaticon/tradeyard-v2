@@ -1,7 +1,6 @@
 {
-  "root": true,
   "ignorePatterns": ["**/*"],
-  "plugins": ["@nx", "import"],
+  "plugins": ["import"],
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
@@ -19,7 +18,6 @@
             ]
           }
         ],
-
         "import/order": [
           "error",
           {
@@ -45,20 +43,22 @@
               }
             ],
             "pathGroupsExcludedImportTypes": ["builtin"],
-            "alphabetize": { "order": "asc", "caseInsensitive": true }
+            "alphabetize": {
+              "order": "asc",
+              "caseInsensitive": true
+            }
           }
         ]
       }
     },
     {
       "files": ["*.ts", "*.tsx"],
-      "extends": ["plugin:@nx/typescript"],
       "rules": {}
     },
     {
       "files": ["*.js", "*.jsx"],
-      "extends": ["plugin:@nx/javascript"],
       "rules": {}
     }
-  ]
+  ],
+  "extends": ["./.eslintrc.base.json"]
 }

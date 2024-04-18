@@ -16,6 +16,10 @@ import { createAggregateEventsSelectQuery } from '../queries';
         'offer_variant_price_id'
       )
       .addSelect(`("event"."body" ->> 'quantity')`, 'quantity')
+      .addSelect(
+        `("event"."body" ->> 'customer')::jsonb ->> 'address'`,
+        'customer_address'
+      )
       .addSelect(`("event"."body" ->> 'merchant_id')::uuid`, 'merchant_id')
       .addSelect(`("event"."body" ->> 'customer_id')::uuid`, 'customer_id')
       .addSelect(`"event"."created_at"`, 'created_at')
@@ -46,6 +50,9 @@ export class OrderViewEntity {
 
   @ViewColumn()
   customer_id!: string;
+
+  @ViewColumn()
+  customer_address!: string;
 
   @ViewColumn()
   created_at!: Date;
