@@ -13,7 +13,6 @@ import {
   combineLatest,
   exhaustMap,
   filter,
-  finalize,
   map,
   takeUntil,
   tap,
@@ -40,7 +39,6 @@ import { AuthService } from '../../modules/auth';
 export class SignInPage implements OnDestroy {
   form = this.formBuilder.group({
     email: this.formBuilder.control(''),
-    password: this.formBuilder.control(''),
     params: this.formBuilder.group({
       bundle: this.formBuilder.control(''),
       orgId: this.formBuilder.control(''),

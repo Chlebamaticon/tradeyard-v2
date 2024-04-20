@@ -30,7 +30,7 @@ import {
   UpdateOfferPathParamsDto,
 } from '@tradeyard-v2/api-dtos';
 
-import { OffersService } from './offers.service';
+import { OfferService } from './offers.service';
 
 @Controller()
 export class OffersController {
@@ -56,9 +56,8 @@ export class OffersController {
       timestamp,
       limit,
     });
-    return GetOffers.parse(
-      await this.offersService.getMany(validatedQueryParams)
-    );
+    const offers = await this.offersService.getMany(validatedQueryParams);
+    return GetOffers.parse(offers);
   }
 
   @Post()
@@ -82,5 +81,5 @@ export class OffersController {
     );
   }
 
-  constructor(readonly offersService: OffersService) {}
+  constructor(readonly offersService: OfferService) {}
 }

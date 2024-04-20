@@ -6,6 +6,7 @@ import { FindOptionsWhere, Repository } from 'typeorm';
 
 import {
   CreateOfferVariantBodyDto,
+  GetOfferVariant,
   GetOfferVariantDto,
   GetOfferVariants,
   GetOfferVariantsDto,
@@ -14,6 +15,7 @@ import {
   EventRepository,
   OfferVariantPriceViewEntity,
   OfferVariantViewEntity,
+  TokenViewEntity,
 } from '@tradeyard-v2/server/database';
 
 @Injectable()
@@ -21,13 +23,23 @@ export class OfferVariantService {
   constructor(
     readonly eventRepository: EventRepository,
     @InjectRepository(OfferVariantViewEntity)
-    readonly offerVariantRepository: Repository<OfferVariantViewEntity>
+    readonly offerVariantRepository: Repository<OfferVariantViewEntity>,
+    @InjectRepository(OfferVariantPriceViewEntity)
+    readonly offerVariantPriceRepository: Repository<OfferVariantPriceViewEntity>
   ) {}
 
   async getOne(
     where: FindOptionsWhere<OfferVariantViewEntity>
   ): Promise<GetOfferVariantDto> {
-    return this.queryBuilder({ where }).getOneOrFail();
+    const variant = await this.queryBuilder({ where }).getOneOrFail();
+    const latestPrice = await this.#latestVariantPrices([
+      variant.offer_variant_id,
+    ]);
+
+    return GetOfferVariant.parse({
+      ...variant,
+      current_price: latestPrice[variant.offer_variant_id],
+    });
   }
 
   async getMany({
@@ -76,18 +88,43 @@ export class OfferVariantService {
   }) {
     const qb = this.offerVariantRepository
       .createQueryBuilder('offer_variant')
-      .setFindOptions({ where, skip: offset, take: limit })
-      .leftJoinAndMapOne(
-        'offer_variant.current_price',
-        (qb) =>
-          qb
-            .from(OfferVariantPriceViewEntity, 'offer_variant_price')
-            .orderBy('created_at', 'DESC'),
-        'offer_variant_price',
-        '"offer_variant_price"."offer_variant_id" = "offer_variant"."offer_variant_id"'
-      );
+      .setFindOptions({ where, skip: offset, take: limit });
     if (offset !== undefined) qb.skip(offset);
     if (limit !== undefined) qb.take(limit);
     return qb;
+  }
+
+  async #latestVariantPrices(offerVariantIds: string[]) {
+    const variantPrices = await this.offerVariantPriceRepository
+      .createQueryBuilder('offer_variant_price')
+      .innerJoin(
+        (qb) =>
+          qb
+            .distinct(true)
+            .select('"variant_price"."offer_variant_id"', 'offer_variant_id')
+            .addSelect('MAX("variant_price"."created_at")', 'created_at')
+            .from(OfferVariantPriceViewEntity, 'variant_price')
+            .where('"variant_price"."offer_variant_id" IN (:...ids)', {
+              ids: offerVariantIds,
+            })
+            .groupBy('"variant_price"."offer_variant_id"'),
+        'latest_variant_price',
+        '"latest_variant_price"."offer_variant_id" = "offer_variant_price"."offer_variant_id"'
+      )
+      .leftJoinAndMapOne(
+        'offer_variant_price.token',
+        TokenViewEntity,
+        'token',
+        '"offer_variant_price"."token_id" = "token"."token_id"'
+      )
+      .getMany();
+
+    return variantPrices.reduce(
+      (acc, variantPrice) => ({
+        ...acc,
+        [variantPrice.offer_variant_id]: variantPrice,
+      }),
+      {}
+    );
   }
 }

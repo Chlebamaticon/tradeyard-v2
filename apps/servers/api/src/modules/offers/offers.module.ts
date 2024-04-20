@@ -10,8 +10,8 @@ import {
   TokenViewEntity,
 } from '@tradeyard-v2/server/database';
 
-import { OffersController } from './offers.controller';
-import { OffersService } from './offers.service';
+import { OfferVariantService } from './offer-variant.service';
+import { OfferService } from './offers.service';
 
 @Module({
   imports: [
@@ -24,7 +24,7 @@ import { OffersService } from './offers.service';
     ]),
     CommonDatabaseModule,
   ],
-  providers: [OffersService],
-  exports: [OffersService],
+  providers: [OfferService, OfferVariantService],
+  exports: [OfferService, OfferVariantService],
 })
 export class OffersModule {}

@@ -43,7 +43,7 @@ import {
 } from '@tradeyard-v2/server/database';
 
 @Injectable()
-export class OffersService {
+export class OfferService {
   constructor(
     @Inject(REQUEST) readonly request: Express.Request,
     @InjectRepository(OfferViewEntity)

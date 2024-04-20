@@ -12,6 +12,10 @@ const signer = new AlchemySigner({
       iframeContainerId: 'turnkey',
     },
   },
+  sessionConfig: {
+    storage: 'localStorage',
+    expirationTimeMs: 60 * 60 * 1000,
+  },
 });
 
 @Injectable()
