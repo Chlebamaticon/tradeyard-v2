@@ -4,13 +4,12 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 export const AuthenticatedOnly: CanActivateFn = async () => {
-  const { signer } = inject(AuthService);
+  const { accessToken } = inject(AuthService);
   const router = inject(Router);
 
-  try {
-    await signer.getAuthDetails();
+  if (accessToken) {
     return true;
-  } catch (error) {
-    return router.parseUrl('/auth/sign-in');
   }
+
+  return router.parseUrl('/auth');
 };

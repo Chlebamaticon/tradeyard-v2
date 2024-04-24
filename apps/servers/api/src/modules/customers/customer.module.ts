@@ -7,14 +7,14 @@ import {
   EventEntity,
 } from '@tradeyard-v2/server/database';
 
-import { CustomersService } from './customers.service';
+import { CustomerService } from './customer.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([CustomerViewEntity, EventEntity]),
     CommonDatabaseModule,
   ],
-  providers: [CustomersService],
-  exports: [CustomersService],
+  providers: [CustomerService],
+  exports: [CustomerService],
 })
-export class CustomersModule {}
+export class CustomerModule {}

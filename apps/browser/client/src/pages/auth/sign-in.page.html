@@ -1,10 +1,13 @@
 <nb-card>
   <nb-card-body [formGroup]="form">
-    <form class="form">
+    <form class="form" (submit)="submit$.emit()">
       <h6>Sign in</h6>
 
       <div class="form-group">
-        <input nbInput formControlName="email" placeholder="Type your email..." autocomplete="email" />
+        <input nbInput formControlName="email" placeholder="Type your email" autocomplete="username" />
+
+        <input nbInput formControlName="password" type="password" placeholder="Type your password"
+          autocomplete="current-password" />
       </div>
 
       <div class="form-actions">
@@ -12,8 +15,8 @@
           (click)="passkey$.emit()">
           Use passkey instead
         </button>
-        <button nbButton status="primary" [nbSpinner]="(loading$ | async) ?? false" nbSpinnerStatus="success"
-          status="primary" (click)="submit$.emit()">
+        <button nbButton status="primary" type="submit" [nbSpinner]="(loading$ | async) ?? false"
+          nbSpinnerStatus="success" status="primary">
           Submit
         </button>
       </div>

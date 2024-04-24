@@ -9,13 +9,7 @@ import {
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
-import {
-  formatEther,
-  formatGwei,
-  formatUnits,
-  parseEther,
-  parseUnits,
-} from 'viem';
+import { formatUnits, parseUnits } from 'viem';
 
 import {
   CreateOffer,
@@ -98,7 +92,8 @@ export class OfferService {
   async createOne({
     variants,
     ...body
-  }: CreateOfferBodyDto): Promise<CreateOfferDto> {
+  }: CreateOfferBodyDto & { merchant_id: string }): Promise<CreateOfferDto> {
+    console.log(body, variants);
     const offerCreatedEvent = await this.eventRepository.publish(
       'offer:created',
       {
@@ -190,6 +185,7 @@ export class OfferService {
     price: OfferVariantPriceViewEntity & { token: TokenViewEntity }
   ): OfferVariantPriceDto {
     return OfferVariantPrice.parse({
+      offer_variant_price_id: price.offer_variant_price_id,
       amount: +formatUnits(BigInt(price.amount), price.token.precision),
       token: price.token,
     });
@@ -220,6 +216,7 @@ export class OfferService {
   ): Promise<
     Record<string, OfferVariantPriceViewEntity & { token: TokenViewEntity }>
   > {
+    if (!variants.length) return {};
     const variantPrices = await this.offerVariantPriceRepository
       .createQueryBuilder('offer_variant_price')
       .innerJoin(

@@ -53,4 +53,9 @@ export const authRoutes: Route[] = [
       },
     ],
   },
+  {
+    path: '**',
+    redirectTo: '',
+    pathMatch: 'full',
+  },
 ];

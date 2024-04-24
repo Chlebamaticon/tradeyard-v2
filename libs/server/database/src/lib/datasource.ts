@@ -6,11 +6,9 @@ import { DataSource } from 'typeorm';
 
 import { createConnectionOptions } from './ormconfig';
 
-console.log(
-  config({
-    path: join(__dirname, '../../.env'),
-  })
-);
+config({
+  path: join(__dirname, '../../.env'),
+});
 
 export default new DataSource(
   createConnectionOptions({

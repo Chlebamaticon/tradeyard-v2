@@ -45,6 +45,12 @@ p {
   gap: 0.5rem;
 }
 
+.form-row {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 1rem;
+}
+
 .form-control {
   display: flex;
   flex-flow: row nowrap;

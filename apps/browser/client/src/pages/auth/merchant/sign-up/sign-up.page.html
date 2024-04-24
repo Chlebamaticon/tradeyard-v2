@@ -1,20 +1,26 @@
 <nb-card>
   <nb-card-body [formGroup]="form">
-    <form class="form">
+    <form class="form" (submit)="submit$.emit()">
       <h6>Sign up as Merchant</h6>
 
       <div class="form-group">
-        <input nbInput formControlName="email" placeholder="Type your email..." autocomplete="email" />
+        <input nbInput formControlName="email" placeholder="Type your email..." autocomplete="username" />
 
-        <!-- <input nbInput formControlName="password" placeholder="Type your password..." type="password"
-          autocomplete="current-password" />
+        <div class="form-row">
+          <input nbInput formControlName="first_name" placeholder="First name" autocomplete="given-name" />
 
-        <input nbInput formControlName="confirm_password" placeholder="Confirm your password..." type="password" /> -->
+          <input nbInput formControlName="last_name" placeholder="Last name" autocomplete="family-name" />
+        </div>
+
+        <input nbInput formControlName="password" placeholder="Type your password..." type="password"
+          autocomplete="new-password" />
+
+        <input nbInput formControlName="confirm_password" placeholder="Confirm your password..." type="password" />
       </div>
 
       <div class="form-actions">
         <button nbButton status="primary" [nbSpinner]="(loading$ | async) ?? false" nbSpinnerStatus="success"
-          status="primary" (click)="submit$.emit()">
+          status="primary" type="submit">
           Submit
         </button>
       </div>

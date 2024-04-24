@@ -61,12 +61,30 @@ export class OfferOrderPage implements AfterViewInit {
   readonly createOrder$ = this.order$
     .pipe(
       tap(() => this.createOrderLoading$.emit(true)),
-      withLatestFrom(this.authService.signer.getAddress()),
+      exhaustMap(
+        async ([offer_id, offer_variant_id]) =>
+          [
+            [offer_id, offer_variant_id],
+            await this.authService.signer.inner
+              .lookupUserByEmail(this.authService.payload!.email!)
+              .then((org) =>
+                org
+                  ? this.authService
+                      .signupWithPasskey(this.authService.payload!.email!)
+                      .then(() => this.authService.signer.getAddress())
+                  : this.authService.signer.getAddress().catch(async () => {
+                      await this.authService.authenticateWithPasskey();
+                      return this.authService.signer.getAddress();
+                    })
+              ),
+          ] as const
+      ),
       exhaustMap(([[offer_id, offer_variant_id], address]) =>
         this.orderApiService.create({
           offer_id,
           offer_variant_id,
           customer: { address },
+          quantity: 1,
         })
       ),
       tap(() => this.createOrderLoading$.emit(false))

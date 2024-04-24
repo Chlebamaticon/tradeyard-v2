@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { randomUUID } from 'crypto';
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,13 +9,14 @@ import {
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
-import { isAddress, isHex, zeroAddress } from 'viem';
+import { isAddress, parseEther } from 'viem';
 
 import {
   CreateOrderBodyDto,
   GetOrder,
   GetOrderDto,
   GetOrdersDto,
+  GetOrdersParamsDto,
   GetOrdersQueryParamsDto,
   OrderDto,
 } from '@tradeyard-v2/api-dtos';
@@ -23,8 +25,8 @@ import {
   OrderViewEntity,
 } from '@tradeyard-v2/server/database';
 
-import { CustomersService } from '../customers';
-import { MerchantsService } from '../merchants';
+import { CustomerService } from '../customers';
+import { MerchantService } from '../merchants';
 import { OfferService, OfferVariantService } from '../offers';
 import { OrdersContractService } from '../orders-contract';
 
@@ -34,8 +36,8 @@ export class OrderService {
     @InjectRepository(OrderViewEntity)
     readonly orderRepository: Repository<OrderViewEntity>,
     readonly eventRepository: EventRepository,
-    readonly merchantService: MerchantsService,
-    readonly customerService: CustomersService,
+    readonly merchantService: MerchantService,
+    readonly customerService: CustomerService,
     readonly offersService: OfferService,
     readonly offerVariantsService: OfferVariantService,
     readonly orderContractService: OrdersContractService
@@ -53,9 +55,13 @@ export class OrderService {
     offset = 0,
     limit = 25,
     timestamp = Date.now(),
-  }: GetOrdersQueryParamsDto): Promise<GetOrdersDto> {
+    merchant_id,
+    customer_id,
+  }: GetOrdersQueryParamsDto & GetOrdersParamsDto): Promise<GetOrdersDto> {
     const [offers, total] = await this.#queryBuilder({
       where: {
+        customer_id,
+        merchant_id,
         created_at: LessThan(new Date(timestamp)),
       },
     })
@@ -75,8 +81,10 @@ export class OrderService {
   async createOne({
     offer_id,
     offer_variant_id,
+    quantity,
     customer,
-  }: CreateOrderBodyDto) {
+  }: CreateOrderBodyDto): Promise<OrderDto> {
+    const order_id = crypto.randomUUID();
     const { merchant } = await this.offersService.getOne({
       offer_id,
     });
@@ -85,12 +93,10 @@ export class OrderService {
       offer_variant_id,
     });
 
-    console.log(variant);
-
-    // assert.ok(
-    //   current_price,
-    //   `Offer variant ("${offer_variant_id}") is missing a price`
-    // );
+    assert.ok(
+      variant.current_price,
+      `Offer variant ("${offer_variant_id}") is missing a price`
+    );
 
     assert.ok(
       isAddress(merchant.address),
@@ -102,20 +108,39 @@ export class OrderService {
       "Customer's address is not a valid ethereum address"
     );
 
-    this.orderContractService.deploy({
+    assert.ok(
+      isAddress(variant.current_price.token.token_address),
+      'Token address is not a valid ethereum address'
+    );
+
+    const { contract_id } = await this.orderContractService.deploy({
       target: {
         merchant: merchant.address,
-        customer: zeroAddress,
+        customer: customer.address,
       },
       conditions: {
-        tokenAddress: zeroAddress,
-        tokenAmountInWei: BigInt(0),
+        tokenAddress: variant.current_price.token.token_address,
+        tokenAmountInWei: parseEther(`${variant.current_price.amount}`),
       },
       redemption: {
         timeoutInSeconds: BigInt(0),
       },
-      orderId: crypto.randomUUID(),
+      orderId: order_id,
     });
+
+    await this.eventRepository.publish('order:created', {
+      order_id,
+      offer_variant_id,
+      offer_variant_price_id: variant.current_price.offer_variant_price_id,
+      customer_id: randomUUID(),
+      merchant_id: randomUUID(),
+      contract_id,
+      quantity,
+    });
+
+    return this.mapToOrderDto(
+      await this.orderRepository.findOneByOrFail({ order_id })
+    );
   }
 
   mapToOrderDto(order: OrderViewEntity): OrderDto {

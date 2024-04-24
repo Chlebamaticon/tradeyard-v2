@@ -6,4 +6,8 @@ export * from './offer-variant.view-entity';
 export * from './offer.view-entity';
 export * from './order.view-entity';
 export * from './token.view-entity';
+export * from './user-wallet.view-entity';
+export * from './user-credential.view-entity';
 export * from './user.view-entity';
+export * from './contract-deployment.view-entity';
+export * from './contract.view-entity';

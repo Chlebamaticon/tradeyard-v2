@@ -7,6 +7,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+
 import {
   CreateUser,
   CreateUserBody,
@@ -27,7 +28,8 @@ import {
   UpdateUserPathParams,
   UpdateUserPathParamsDto,
 } from '@tradeyard-v2/api-dtos';
-import { UsersService } from './users.service';
+
+import { UserService } from './user.service';
 
 @Controller()
 export class UsersController {
@@ -68,5 +70,5 @@ export class UsersController {
     );
   }
 
-  constructor(readonly usersService: UsersService) {}
+  constructor(readonly usersService: UserService) {}
 }

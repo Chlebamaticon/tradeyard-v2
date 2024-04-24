@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, Repository } from 'typeorm';
+import { formatUnits } from 'viem';
 
 import {
   CreateOfferVariantBodyDto,
@@ -10,6 +11,8 @@ import {
   GetOfferVariantDto,
   GetOfferVariants,
   GetOfferVariantsDto,
+  OfferVariantDto,
+  OfferVariantPrice,
 } from '@tradeyard-v2/api-dtos';
 import {
   EventRepository,
@@ -36,10 +39,7 @@ export class OfferVariantService {
       variant.offer_variant_id,
     ]);
 
-    return GetOfferVariant.parse({
-      ...variant,
-      current_price: latestPrice[variant.offer_variant_id],
-    });
+    return GetOfferVariant.parse(this.mapToDto(variant, latestPrice));
   }
 
   async getMany({
@@ -56,9 +56,12 @@ export class OfferVariantService {
       offset,
       limit,
     }).getManyAndCount();
+    const latestPrices = await this.#latestVariantPrices(
+      items.map((item) => item.offer_variant_id)
+    );
 
     return GetOfferVariants.parse({
-      items,
+      items: items.map((item) => this.mapToDto(item, latestPrices)),
       total,
       offset,
       limit,
@@ -75,6 +78,25 @@ export class OfferVariantService {
     return this.offerVariantRepository.findOneOrFail({
       where: { offer_variant_id },
     });
+  }
+
+  mapToDto(
+    offerVariant: OfferVariantViewEntity,
+    latestPrice: Record<
+      string,
+      OfferVariantPriceViewEntity & { token: TokenViewEntity }
+    >
+  ): OfferVariantDto {
+    return {
+      ...offerVariant,
+      current_price: OfferVariantPrice.parse({
+        ...latestPrice[offerVariant.offer_variant_id],
+        amount: +formatUnits(
+          BigInt(latestPrice[offerVariant.offer_variant_id].amount),
+          latestPrice[offerVariant.offer_variant_id].token.precision
+        ),
+      }),
+    };
   }
 
   queryBuilder({
@@ -94,7 +116,11 @@ export class OfferVariantService {
     return qb;
   }
 
-  async #latestVariantPrices(offerVariantIds: string[]) {
+  async #latestVariantPrices(
+    offerVariantIds: string[]
+  ): Promise<
+    Record<string, OfferVariantPriceViewEntity & { token: TokenViewEntity }>
+  > {
     const variantPrices = await this.offerVariantPriceRepository
       .createQueryBuilder('offer_variant_price')
       .innerJoin(

@@ -9,8 +9,10 @@ import {
 } from '@nebular/theme';
 import {
   BehaviorSubject,
+  combineLatest,
   exhaustMap,
   filter,
+  firstValueFrom,
   map,
   takeUntil,
   tap,
@@ -18,6 +20,8 @@ import {
 } from 'rxjs';
 
 import { AuthService } from '../../../../modules/auth';
+import { matchValidator } from '../../../../modules/form';
+import { OnDestroyNotifier$ } from '../../../../providers';
 
 @Component({
   standalone: true,
@@ -32,30 +36,56 @@ import { AuthService } from '../../../../modules/auth';
   selector: 'app-merchant-sign-up',
   templateUrl: './sign-up.page.html',
   styleUrls: ['./sign-up.page.scss'],
+  providers: [OnDestroyNotifier$],
 })
 export class MerchantSignUpPage {
   form = this.formBuilder.group({
-    email: this.formBuilder.control('', [Validators.required]),
+    email: this.formBuilder.nonNullable.control('', [
+      Validators.required,
+      Validators.email,
+    ]),
+    first_name: this.formBuilder.nonNullable.control('', [Validators.required]),
+    last_name: this.formBuilder.nonNullable.control('', [Validators.required]),
+    password: this.formBuilder.nonNullable.control('', [
+      Validators.required,
+      Validators.minLength(8),
+      matchValidator('confirm_password', true),
+    ]),
+    confirm_password: this.formBuilder.nonNullable.control('', [
+      Validators.required,
+      matchValidator('password'),
+    ]),
   });
 
-  readonly destroy$ = new EventEmitter<void>();
   readonly submit$ = new EventEmitter<void>();
   readonly loading$ = new BehaviorSubject<boolean>(false);
-  readonly signupOnSubmit$ = this.submit$
+
+  readonly signupUponSubmit = this.submit$
     .pipe(
-      withLatestFrom(this.form.statusChanges, this.form.valueChanges),
-      filter(([, status]) => status === 'VALID'),
-      map(([, , formData]) => formData),
-      tap(() => this.loading$.next(true)),
-      exhaustMap((formData) =>
-        this.auth
-          .signupWithEmail(formData.email!)
-          .catch((error) => console.warn(error))
+      withLatestFrom(
+        combineLatest([this.form.statusChanges, this.form.valueChanges]).pipe(
+          filter(([status]) => status === 'VALID'),
+          map(([, formData]) => formData),
+          filter(
+            (formData): formData is Required<typeof formData> => !!formData
+          )
+        )
       ),
-      takeUntil(this.destroy$),
-      tap(() => this.loading$.next(false))
+      tap(() => this.loading$.next(true)),
+      exhaustMap(
+        async ([, formData]) =>
+          await firstValueFrom(
+            this.authService.signUp({ type: 'merchant', ...formData })
+          )
+      ),
+      tap(() => this.loading$.next(false)),
+      takeUntil(this.destroy$)
     )
     .subscribe();
 
-  constructor(readonly formBuilder: FormBuilder, readonly auth: AuthService) {}
+  constructor(
+    readonly formBuilder: FormBuilder,
+    readonly authService: AuthService,
+    readonly destroy$: OnDestroyNotifier$
+  ) {}
 }

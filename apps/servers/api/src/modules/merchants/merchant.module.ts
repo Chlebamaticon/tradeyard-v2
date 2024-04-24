@@ -7,14 +7,14 @@ import {
   MerchantViewEntity,
 } from '@tradeyard-v2/server/database';
 
-import { MerchantsService } from './merchants.service';
+import { MerchantService } from './merchant.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([MerchantViewEntity, EventEntity]),
     CommonDatabaseModule,
   ],
-  providers: [MerchantsService],
-  exports: [MerchantsService],
+  providers: [MerchantService],
+  exports: [MerchantService],
 })
-export class MerchantsModule {}
+export class MerchantModule {}

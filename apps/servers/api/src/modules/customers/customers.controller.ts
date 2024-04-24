@@ -6,6 +6,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 
 import {
@@ -29,7 +30,7 @@ import {
   UpdateCustomerPathParamsDto,
 } from '@tradeyard-v2/api-dtos';
 
-import { CustomersService } from './customers.service';
+import { CustomerService } from './customer.service';
 
 @Controller()
 export class CustomersController {
@@ -78,5 +79,5 @@ export class CustomersController {
     );
   }
 
-  constructor(readonly customersService: CustomersService) {}
+  constructor(readonly customersService: CustomerService) {}
 }

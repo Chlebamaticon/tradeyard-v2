@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import {
   NbButtonGroupModule,
   NbButtonModule,
@@ -38,7 +39,8 @@ import { AuthService } from '../../modules/auth';
 })
 export class SignInPage implements OnDestroy {
   form = this.formBuilder.group({
-    email: this.formBuilder.control(''),
+    email: this.formBuilder.nonNullable.control(''),
+    password: this.formBuilder.nonNullable.control(''),
     params: this.formBuilder.group({
       bundle: this.formBuilder.control(''),
       orgId: this.formBuilder.control(''),
@@ -66,21 +68,30 @@ export class SignInPage implements OnDestroy {
       withLatestFrom(
         combineLatest([this.form.statusChanges, this.form.valueChanges]).pipe(
           filter(([status]) => status === 'VALID'),
-          map(([, formData]) => formData)
+          map(([, formData]) => formData),
+          filter(
+            (formData): formData is Required<typeof formData> => !!formData
+          )
         )
       ),
       tap(() => this.loading$.next(true)),
       exhaustMap(([, formData]) =>
-        this.auth
-          .authenticateWithEmail(formData.email!)
-          .catch((error) => console.warn(error))
+        this.auth.signIn({
+          email: formData.email,
+          password: formData.password,
+        })
       ),
       takeUntil(this.destroy$),
-      tap(() => this.loading$.next(false))
+      tap(() => this.loading$.next(false)),
+      tap(() => this.router.navigateByUrl('/'))
     )
     .subscribe();
 
-  constructor(readonly formBuilder: FormBuilder, readonly auth: AuthService) {}
+  constructor(
+    readonly formBuilder: FormBuilder,
+    readonly auth: AuthService,
+    private router: Router
+  ) {}
 
   ngOnDestroy(): void {
     this.destroy$.emit();

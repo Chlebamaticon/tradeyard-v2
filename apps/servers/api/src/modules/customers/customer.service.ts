@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 
 import {
   CreateCustomer,
@@ -22,10 +22,11 @@ import {
 import {
   CustomerViewEntity,
   EventRepository,
+  UserViewEntity,
 } from '@tradeyard-v2/server/database';
 
 @Injectable()
-export class CustomersService {
+export class CustomerService {
   constructor(
     @Inject(REQUEST) readonly request: Express.Request,
     @InjectRepository(CustomerViewEntity)
@@ -87,9 +88,9 @@ export class CustomersService {
         user_id: userCreatedEvent.body.user_id,
       }
     );
-    const customer = await this.customerRepository.findOneOrFail({
-      where: { customer_id: customerCreatedEvent.body.customer_id },
-    });
+    const customer = await this.#queryBuilder({
+      customer_id: customerCreatedEvent.body.customer_id,
+    }).getOneOrFail();
 
     return CreateCustomer.parse(this.mapToCustomerDto(customer));
   }
@@ -116,9 +117,27 @@ export class CustomersService {
     );
   }
 
-  mapToCustomerDto(customer: CustomerViewEntity): CustomerDto {
+  mapToCustomerDto({
+    user,
+    ...customer
+  }: CustomerViewEntity & { user?: UserViewEntity }): CustomerDto {
     return Customer.parse({
       ...customer,
+      first_name: user?.first_name,
+      last_name: user?.last_name,
+      email: user?.email,
     });
+  }
+
+  #queryBuilder(where: FindOptionsWhere<CustomerViewEntity> = {}) {
+    return this.customerRepository
+      .createQueryBuilder('customer')
+      .leftJoinAndMapOne(
+        'customer.user',
+        UserViewEntity,
+        'user',
+        `"user"."user_id" = "customer"."user_id"`
+      )
+      .where(where);
   }
 }

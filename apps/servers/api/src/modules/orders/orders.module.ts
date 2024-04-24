@@ -7,8 +7,8 @@ import {
   OrderViewEntity,
 } from '@tradeyard-v2/server/database';
 
-import { CustomersModule } from '../customers';
-import { MerchantsModule } from '../merchants';
+import { CustomerModule } from '../customers';
+import { MerchantModule } from '../merchants';
 import { OffersModule } from '../offers';
 import { OrdersContractModule } from '../orders-contract';
 
@@ -18,8 +18,8 @@ import { OrderService } from './order.service';
   imports: [
     TypeOrmModule.forFeature([OrderViewEntity, EventEntity]),
     CommonDatabaseModule,
-    MerchantsModule,
-    CustomersModule,
+    MerchantModule,
+    CustomerModule,
     OffersModule,
     OrdersContractModule,
   ],

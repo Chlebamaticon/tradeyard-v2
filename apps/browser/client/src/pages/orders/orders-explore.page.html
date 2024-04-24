@@ -1,0 +1,9 @@
+<ul>
+  @for(order of (orders.data$ | async)?.items; track order) {
+  <li>
+    <a [routerLink]="['/orders', order.order_id]">
+      {{ order.order_id }}
+    </a>
+  </li>
+  }
+</ul>

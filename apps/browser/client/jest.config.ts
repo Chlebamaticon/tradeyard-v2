@@ -1,6 +1,6 @@
 /* eslint-disable */
 export default {
-  displayName: 'browser-client',
+  displayName: 'client',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: '../../../coverage/apps/browser/client',

@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 
 import { MerchantsController } from './merchants.controller';
-import { MerchantsModule } from './merchants.module';
+import { MerchantModule } from './merchant.module';
 
 @Module({
-  imports: [MerchantsModule],
+  imports: [MerchantModule],
   controllers: [MerchantsController],
 })
 export class MerchantsRouteModule {}

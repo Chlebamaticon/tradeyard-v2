@@ -73,9 +73,27 @@ export class OfferCreatePage {
     .pipe(
       withLatestFrom(this.form.valueChanges, this.form.statusChanges),
       filter(([_, __, status]) => status === 'VALID'),
-      withLatestFrom(this.authService.signer.getAddress()),
-      map(([[, values], address]) =>
-        CreateOfferBody.parse({ ...values, merchant: { address } })
+      exhaustMap(
+        async ([, formData]) =>
+          [
+            formData,
+            await this.authService.signer.inner
+              .lookupUserByEmail(this.authService.payload!.email!)
+              .then((org) =>
+                org
+                  ? this.authService.signer.getAddress().catch(async () => {
+                      await this.authService.authenticateWithPasskey();
+                      return this.authService.signer.getAddress();
+                    })
+                  : this.authService
+                      .signupWithPasskey(this.authService.payload!.email!)
+                      .then(() => this.authService.signer.getAddress())
+              ),
+          ] as const
+      ),
+      tap(console.log),
+      map(([formData, address]) =>
+        CreateOfferBody.parse({ ...formData, merchant: { address } })
       ),
       exhaustMap((body) => this.offerApiService.create(body)),
       tap(() => this.form.reset()),

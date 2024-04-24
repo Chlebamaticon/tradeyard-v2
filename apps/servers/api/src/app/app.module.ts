@@ -4,6 +4,7 @@ import { RouterModule } from '@nestjs/core';
 import { DatabaseModule } from '@tradeyard-v2/server/database';
 
 import { AlchemyModule } from '../modules/alchemy';
+import { AuthGuardModule, AuthRouteModule } from '../modules/auth';
 import { CustomersRouteModule } from '../modules/customers';
 import { MerchantsRouteModule } from '../modules/merchants';
 import { OffersRouteModule } from '../modules/offers';
@@ -20,13 +21,19 @@ import { AppService } from './app.service';
     DatabaseModule,
     SeedModule,
     AlchemyModule,
+    AuthGuardModule,
     CustomersRouteModule,
     MerchantsRouteModule,
     OffersRouteModule,
     UsersRouteModule,
     TokensRouteModule,
     OrdersRouteModule,
+    AuthRouteModule,
     RouterModule.register([
+      {
+        path: 'auth',
+        module: AuthRouteModule,
+      },
       {
         path: 'customers',
         module: CustomersRouteModule,

@@ -7,11 +7,13 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app/app.module';
+import { HttpExceptionFilter } from './app/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
+  app.useGlobalFilters(new HttpExceptionFilter());
   app.enableCors();
   const port = process.env.PORT || 3000;
   await app.listen(port);

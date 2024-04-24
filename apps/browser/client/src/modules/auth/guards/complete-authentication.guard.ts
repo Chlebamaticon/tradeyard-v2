@@ -7,6 +7,11 @@ export const CompleteAuthentication: CanActivateFn = async (route) => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
+  const { accessToken } = auth;
+  if (accessToken) {
+    return true;
+  }
+
   const { bundle, orgId } = route.queryParams;
   if (bundle && orgId) {
     await auth.completeAuthentication(bundle, orgId);

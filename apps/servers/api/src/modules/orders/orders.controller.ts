@@ -3,7 +3,7 @@ import {
   Controller,
   Get,
   Param,
-  Patch,
+  ParseIntPipe,
   Post,
   Query,
 } from '@nestjs/common';
@@ -20,8 +20,9 @@ import {
   GetOrders,
   GetOrdersDto,
   GetOrdersQueryParams,
-  GetOrdersQueryParamsDto,
 } from '@tradeyard-v2/api-dtos';
+
+import { User } from '../auth';
 
 import { OrderService } from './order.service';
 
@@ -37,11 +38,24 @@ export class OrdersController {
 
   @Get()
   async getMany(
-    @Query() queryParams: GetOrdersQueryParamsDto
+    @Query('offset', new ParseIntPipe({ optional: true })) offset = 0,
+    @Query('timestamp', new ParseIntPipe({ optional: true }))
+    timestamp = Date.now(),
+    @Query('limit', new ParseIntPipe({ optional: true })) limit,
+    @User('customer_id') customer_id: string,
+    @User('merchant_id') merchant_id: string
   ): Promise<GetOrdersDto> {
-    const validatedQueryParams = GetOrdersQueryParams.parse(queryParams);
+    const validatedQueryParams = GetOrdersQueryParams.parse({
+      offset,
+      limit,
+      timestamp,
+    });
     return GetOrders.parse(
-      await this.orderService.getMany(validatedQueryParams)
+      await this.orderService.getMany({
+        customer_id,
+        merchant_id,
+        ...validatedQueryParams,
+      })
     );
   }
 

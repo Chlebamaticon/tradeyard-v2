@@ -64,9 +64,8 @@
       "unitTestRunner": "jest"
     }
   },
-  "nxCloudAccessToken": "ZTI2YzE5N2UtZjc1Mi00OTdhLWEwOTAtN2JhYWNhOTYyMmVkfHJlYWQtd3JpdGU=",
   "targetDefaults": {
-    "@nx/js:swc": {
+    "@nx/js:tsc": {
       "cache": true,
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]

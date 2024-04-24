@@ -21,14 +21,20 @@ export const GetOrder = zod.object({}).merge(Order);
 export type GetOrderDto = zod.infer<typeof GetOrder>;
 export type GetOrderPathParamsDto = zod.infer<typeof GetOrderPathParams>;
 
-export const GetOrdersQueryParams = queryParams({});
 export const GetOrders = pagination(Order);
+export const GetOrdersParams = zod.object({
+  merchant_id: zod.string().uuid().optional(),
+  customer_id: zod.string().uuid().optional(),
+});
+export const GetOrdersQueryParams = queryParams({});
 export type GetOrdersDto = zod.infer<typeof GetOrders>;
+export type GetOrdersParamsDto = zod.infer<typeof GetOrdersParams>;
 export type GetOrdersQueryParamsDto = zod.infer<typeof GetOrdersQueryParams>;
 
 export const CreateOrderBody = zod.object({
   offer_id: zod.string().uuid(),
   offer_variant_id: zod.string().uuid(),
+  quantity: zod.number().positive().min(1),
   customer: Wallet,
 });
 export type CreateOrderBodyDto = zod.infer<typeof CreateOrderBody>;

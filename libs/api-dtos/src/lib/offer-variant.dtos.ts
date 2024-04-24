@@ -6,6 +6,7 @@ import { Token } from './token.dtos';
 export const TokenSymbol = zod.enum(['USD', 'EUR', 'GBP', 'MATIC']);
 
 export const OfferVariantPrice = zod.object({
+  offer_variant_price_id: zod.string().uuid(),
   amount: zod.number(),
   token: Token,
 });
@@ -44,7 +45,10 @@ export type GetOfferVariantsQueryParamsDto = zod.infer<
 
 export const CreateOfferVariantBody = zod.object({
   offer_id: zod.string().uuid(),
-  price: OfferVariantPrice.omit({ token: true }).extend({ token: TokenSymbol }),
+  price: OfferVariantPrice.omit({
+    offer_variant_price_id: true,
+    token: true,
+  }).merge(zod.object({ token: TokenSymbol })),
   title: zod.string(),
   description: zod.string(),
 });

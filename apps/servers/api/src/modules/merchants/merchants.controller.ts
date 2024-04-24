@@ -6,6 +6,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 
 import {
@@ -29,7 +30,7 @@ import {
   UpdateMerchantPathParamsDto,
 } from '@tradeyard-v2/api-dtos';
 
-import { MerchantsService } from './merchants.service';
+import { MerchantService } from './merchant.service';
 
 @Controller()
 export class MerchantsController {
@@ -78,5 +79,5 @@ export class MerchantsController {
     );
   }
 
-  constructor(readonly merchantsService: MerchantsService) {}
+  constructor(readonly merchantsService: MerchantService) {}
 }

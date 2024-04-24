@@ -2,6 +2,7 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NbLayoutModule } from '@nebular/theme';
 
+import { AuthApiService } from '../../modules/api/services';
 import { NavigationComponent } from '../navigation/navigation.component';
 
 @Component({
@@ -12,4 +13,10 @@ import { NavigationComponent } from '../navigation/navigation.component';
   styleUrls: ['./layout.component.scss'],
   encapsulation: ViewEncapsulation.None,
 })
-export class LayoutComponent {}
+export class LayoutComponent {
+  constructor(readonly authApi: AuthApiService) {}
+
+  ngOnInit(): void {
+    this.authApi.whoami();
+  }
+}

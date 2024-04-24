@@ -1,22 +1,10 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
-import {
-  CommonDatabaseModule,
-  EventEntity,
-  UserViewEntity,
-} from '@tradeyard-v2/server/database';
-
-import { UsersController } from './users.controller';
-import { UsersService } from './users.service';
+import { UsersController } from './user.controller';
+import { UserModule } from './user.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UserViewEntity, EventEntity]),
-    CommonDatabaseModule,
-  ],
+  imports: [UserModule],
   controllers: [UsersController],
-  providers: [UsersService],
-  exports: [UsersService],
 })
 export class UsersRouteModule {}

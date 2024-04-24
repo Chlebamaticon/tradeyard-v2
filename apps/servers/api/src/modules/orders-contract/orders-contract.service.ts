@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable } from '@nestjs/common';
-import { Hex, stringToHex, isHex } from 'viem';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Hex, stringToHex, isHex, PublicClient } from 'viem';
 
 import { Order$Type } from '@tradeyard-v2/contracts/ecommerce/artifacts/Order.sol/Order';
 import artifact from '@tradeyard-v2/contracts/ecommerce/artifacts/Order.sol/Order.json';
+import { EventRepository } from '@tradeyard-v2/server/database';
 
 import { AlchemyPublicClient, AlchemyWalletClient } from '../alchemy';
 
@@ -29,8 +31,9 @@ export interface OrderDeployInit {
 @Injectable({})
 export class OrdersContractService {
   constructor(
-    @Inject(AlchemyPublicClient) readonly publicClient,
-    @Inject(AlchemyWalletClient) readonly walletClient
+    @Inject(AlchemyPublicClient) readonly publicClient: PublicClient,
+    @Inject(AlchemyWalletClient) readonly walletClient,
+    readonly eventRepository: EventRepository
   ) {}
 
   async deploy(init: OrderDeployInit) {
@@ -50,6 +53,8 @@ export class OrdersContractService {
       bigint,
       `0x${string}`
     ];
+
+    const contract_id = crypto.randomUUID();
     const result = await this.walletClient.deployContract({
       abi: orderArtifact.abi,
       bytecode: isHex(orderArtifact.bytecode)
@@ -57,17 +62,35 @@ export class OrdersContractService {
         : `0x${orderArtifact.bytecode}`,
       args,
     });
-    // const result = await deployContract(
-    //   'apps/contracts/ecommerce/contracts/Order.sol:Order' as any,
-    //   [],
-    //   {
-    //     client: {
-    //       public: this.publicClient,
-    //       wallet: this.walletClient,
-    //     },
-    //   }
-    // );
-    console.log(result);
-    return result;
+
+    const transaction_hash = result;
+    try {
+      await this.eventRepository.publish('contract:created', { contract_id });
+      await this.eventRepository.publish('contract:deployment:started', {
+        contract_id,
+        deployment: { transaction_hash },
+      });
+
+      const { contractAddress } =
+        await this.publicClient.waitForTransactionReceipt({
+          hash: transaction_hash,
+        });
+
+      await this.eventRepository.publish('contract:deployment:completed', {
+        contract_id,
+        deployment: { transaction_hash, address: contractAddress },
+      });
+
+      return { contract_id, address: contractAddress };
+    } catch (error) {
+      await this.eventRepository.publish('contract:deployment:failed', {
+        contract_id,
+        deployment: { transaction_hash, error_message: error.message },
+      });
+      return {
+        contract_id,
+        error: error.message,
+      };
+    }
   }
 }

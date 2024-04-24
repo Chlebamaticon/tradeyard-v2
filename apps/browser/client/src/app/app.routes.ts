@@ -1,8 +1,11 @@
 import { Route } from '@angular/router';
 
 import { LayoutComponent } from '../components/layout/layout.component';
-import { AuthenticatedOnly, UnauthenticatedOnly } from '../modules/auth/guards';
-import { CompleteAuthentication } from '../modules/auth/guards/complete-authentication.guard';
+import {
+  AuthenticatedOnly,
+  CompleteAuthentication,
+  UnauthenticatedOnly,
+} from '../modules/auth/guards';
 import { DashboardPage } from '../pages/dashboard/dashboard.page';
 
 export const appRoutes: Route[] = [
