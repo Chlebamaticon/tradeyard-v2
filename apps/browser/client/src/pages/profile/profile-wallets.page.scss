@@ -1,0 +1,14 @@
+nb-card-body {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.5rem;
+
+  pre {
+    font-weight: 200;
+    margin: 0;
+  }
+
+  nb-tag {
+    text-transform: lowercase;
+  }
+}

@@ -1,13 +1,16 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { CommonDatabaseModule } from '@tradeyard-v2/server/database';
+import {
+  CommonDatabaseModule,
+  UserWalletViewEntity,
+} from '@tradeyard-v2/server/database';
 
 import { UserWalletService } from './user-wallet.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserWalletService]),
+    TypeOrmModule.forFeature([UserWalletViewEntity]),
     CommonDatabaseModule,
   ],
   providers: [UserWalletService],

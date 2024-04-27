@@ -93,7 +93,6 @@ export class OfferService {
     variants,
     ...body
   }: CreateOfferBodyDto & { merchant_id: string }): Promise<CreateOfferDto> {
-    console.log(body, variants);
     const offerCreatedEvent = await this.eventRepository.publish(
       'offer:created',
       {
@@ -167,7 +166,6 @@ export class OfferService {
     const { latestVariantPrices = {} } = enhancements;
     return Offer.parse({
       ...offer,
-      merchant: { address: offer.merchant_address },
       variants: offer.variants.map((variant) =>
         OfferVariant.parse({
           ...variant,

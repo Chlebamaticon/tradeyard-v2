@@ -15,8 +15,8 @@ export type OfferVariantPriceDto = zod.infer<typeof OfferVariantPrice>;
 export const OfferVariant = zod.object({
   offer_id: zod.string().uuid(),
   offer_variant_id: zod.string().uuid(),
-  title: zod.string(),
-  description: zod.string(),
+  title: zod.string().optional(),
+  description: zod.string().optional(),
   current_price: OfferVariantPrice.optional(),
 });
 export type OfferVariantDto = zod.infer<typeof OfferVariant>;
@@ -49,8 +49,8 @@ export const CreateOfferVariantBody = zod.object({
     offer_variant_price_id: true,
     token: true,
   }).merge(zod.object({ token: TokenSymbol })),
-  title: zod.string(),
-  description: zod.string(),
+  title: zod.string().optional(),
+  description: zod.string().optional(),
 });
 export const CreateOfferVariant = zod.object({}).merge(OfferVariant);
 export type CreateOfferVariantDto = zod.infer<typeof CreateOfferVariant>;

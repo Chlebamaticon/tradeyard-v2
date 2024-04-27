@@ -1,15 +1,37 @@
 import * as zod from 'zod';
 
+import { Contract } from './contract.dtos';
+import { Merchant } from './merchant.dtos';
+import { OfferVariant, OfferVariantPrice } from './offer-variant.dtos';
 import { pagination, queryParams } from './pagination.dtos';
-import { Wallet } from './wallet.dtos';
 
 export const Order = zod.object({
   order_id: zod.string().uuid(),
-  offer_variant_id: zod.string().uuid(),
-  offer_variant_price_id: zod.string().uuid(),
-  merchant_id: zod.string().uuid(),
-  customer_id: zod.string().uuid(),
   quantity: zod.number(),
+  merchant: zod
+    .object({})
+    .merge(
+      Merchant.pick({ merchant_id: true, first_name: true, last_name: true })
+    ),
+  contract: zod
+    .object({})
+    .merge(Contract.pick({ contract_id: true, address: true, chain: true })),
+  offer_variant: zod.object({}).merge(
+    OfferVariant.pick({
+      offer_variant_id: true,
+      title: true,
+      description: true,
+    })
+  ),
+  offer_variant_price: zod
+    .object({})
+    .merge(
+      OfferVariantPrice.pick({
+        offer_variant_price_id: true,
+        amount: true,
+        token: true,
+      })
+    ),
 });
 export type OrderDto = zod.infer<typeof Order>;
 
@@ -35,7 +57,7 @@ export const CreateOrderBody = zod.object({
   offer_id: zod.string().uuid(),
   offer_variant_id: zod.string().uuid(),
   quantity: zod.number().positive().min(1),
-  customer: Wallet,
+  customer_address: zod.string(),
 });
 export type CreateOrderBodyDto = zod.infer<typeof CreateOrderBody>;
 export const CreateOrder = zod.object({}).merge(Order);

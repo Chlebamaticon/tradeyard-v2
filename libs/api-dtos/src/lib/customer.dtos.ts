@@ -10,9 +10,10 @@ export const Customer = zod
   .merge(User);
 export type CustomerDto = zod.infer<typeof Customer>;
 
-export const GetCustomerPathParams = zod
-  .object({})
-  .merge(Customer.pick({ customer_id: true }));
+export const GetCustomerPathParams = zod.union([
+  zod.object({}).merge(Customer.pick({ customer_id: true })),
+  zod.object({}).merge(Customer.pick({ user_id: true })),
+]);
 export const GetCustomer = zod.object({}).merge(Customer);
 export type GetCustomerDto = zod.infer<typeof GetCustomer>;
 export type GetCustomerPathParamsDto = zod.infer<typeof GetCustomerPathParams>;

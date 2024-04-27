@@ -34,14 +34,10 @@ export class CustomerService {
     readonly eventRepository: EventRepository
   ) {}
 
-  async getOne({
-    customer_id,
-  }: GetCustomerPathParamsDto): Promise<GetCustomerDto> {
-    const customer = await this.customerRepository.findOneOrFail({
-      where: {
-        customer_id,
-      },
-    });
+  async getOne(params: GetCustomerPathParamsDto): Promise<GetCustomerDto> {
+    const customer = await this.#queryBuilder({
+      ...params,
+    }).getOneOrFail();
 
     return GetCustomer.parse(this.mapToCustomerDto(customer));
   }
@@ -51,19 +47,21 @@ export class CustomerService {
     limit = 25,
     timestamp = Date.now(),
   }: GetCustomersQueryParamsDto): Promise<GetCustomersDto> {
-    const [customers, total] = await this.customerRepository.findAndCount({
-      where: {
-        created_at: new Date(timestamp),
-      },
-      skip: offset,
-      take: limit,
+    const qb = await this.#queryBuilder({
+      created_at: new Date(timestamp),
     });
+
+    if (offset !== undefined) qb.skip(offset);
+    if (limit !== undefined) qb.take(limit);
+
+    const [customers, total] = await qb.getManyAndCount();
 
     return {
       items: customers.map((customer) => this.mapToCustomerDto(customer)),
       total,
       offset,
       limit,
+      timestamp,
     };
   }
 
@@ -102,12 +100,9 @@ export class CustomerService {
 
     const isValid = false;
     if (isValid) {
-      const customerCreatedEvent = await this.eventRepository.publish(
-        'customer:updated',
-        {
-          customer_id: customer.customer_id,
-        }
-      );
+      await this.eventRepository.publish('customer:updated', {
+        customer_id: customer.customer_id,
+      });
     }
 
     return this.mapToCustomerDto(

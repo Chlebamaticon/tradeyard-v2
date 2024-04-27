@@ -65,25 +65,14 @@ export class OfferOrderPage implements AfterViewInit {
         async ([offer_id, offer_variant_id]) =>
           [
             [offer_id, offer_variant_id],
-            await this.authService.signer.inner
-              .lookupUserByEmail(this.authService.payload!.email!)
-              .then((org) =>
-                org
-                  ? this.authService
-                      .signupWithPasskey(this.authService.payload!.email!)
-                      .then(() => this.authService.signer.getAddress())
-                  : this.authService.signer.getAddress().catch(async () => {
-                      await this.authService.authenticateWithPasskey();
-                      return this.authService.signer.getAddress();
-                    })
-              ),
+            await this.authService.createOrUsePasskey(),
           ] as const
       ),
-      exhaustMap(([[offer_id, offer_variant_id], address]) =>
+      exhaustMap(([[offer_id, offer_variant_id], customer_address]) =>
         this.orderApiService.create({
           offer_id,
           offer_variant_id,
-          customer: { address },
+          customer_address,
           quantity: 1,
         })
       ),

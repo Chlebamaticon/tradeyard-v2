@@ -2,14 +2,13 @@ import * as zod from 'zod';
 
 import { CreateOfferVariantBody, OfferVariant } from './offer-variant.dtos';
 import { pagination, queryParams } from './pagination.dtos';
-import { Wallet } from './wallet.dtos';
 
 export const Offer = zod.object({
   offer_id: zod.string().uuid(),
+  merchant_id: zod.string().uuid(),
   title: zod.string(),
   description: zod.string(),
   variants: zod.array(OfferVariant),
-  merchant: Wallet,
 });
 export type OfferDto = zod.infer<typeof Offer>;
 
@@ -29,7 +28,6 @@ export const CreateOfferBody = zod.object({
   title: zod.string(),
   description: zod.string(),
   variants: zod.array(CreateOfferVariantBody.omit({ offer_id: true })),
-  merchant: Wallet,
 });
 export const CreateOffer = zod.object({}).merge(Offer);
 export type CreateOfferDto = zod.infer<typeof CreateOffer>;

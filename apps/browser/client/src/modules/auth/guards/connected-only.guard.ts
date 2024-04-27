@@ -1,16 +1,16 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateFn } from '@angular/router';
 
 import { AuthService } from '../services/auth.service';
 
 export const ConnectedOnly: CanActivateFn = async () => {
-  const { signer } = inject(AuthService);
-  const router = inject(Router);
+  const authService = inject(AuthService);
 
   try {
-    await signer.getAuthDetails();
+    await authService.createOrUsePasskey();
     return true;
   } catch (error) {
-    return router.parseUrl('/auth');
+    console.error(error);
+    return false;
   }
 };

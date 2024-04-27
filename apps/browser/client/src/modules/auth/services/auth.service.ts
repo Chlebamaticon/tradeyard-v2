@@ -3,17 +3,25 @@ import { chains } from '@alchemy/aa-core';
 import { EventEmitter, Inject, Injectable } from '@angular/core';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import {
+  catchError,
   defaultIfEmpty,
+  defer,
+  EMPTY,
+  exhaustMap,
   filter,
+  firstValueFrom,
+  from,
   fromEvent,
   map,
   merge,
   Observable,
   of,
   startWith,
+  switchMap,
   tap,
 } from 'rxjs';
 import { createWalletClient, webSocket } from 'viem';
+import { polygonAmoy } from 'viem/chains';
 
 import {
   AuthSignInBodyDto,
@@ -23,7 +31,7 @@ import {
 } from '@tradeyard-v2/api-dtos';
 
 import { BasicHeaderEmitter } from '../../api/providers';
-import { AuthApiService } from '../../api/services';
+import { AuthApiService, UserWalletApiService } from '../../api/services';
 
 const signer = new AlchemySigner({
   client: {
@@ -83,9 +91,12 @@ export class AuthService {
     .subscribe(this.basicHeaderEmitter);
 
   constructor(
-    readonly authApi: AuthApiService,
     @Inject(BasicHeaderEmitter)
-    readonly basicHeaderEmitter: EventEmitter<Record<string, string | string[]>>
+    readonly basicHeaderEmitter: EventEmitter<
+      Record<string, string | string[]>
+    >,
+    readonly authApi: AuthApiService,
+    readonly userWalletApiService: UserWalletApiService
   ) {}
 
   getWalletClient() {
@@ -151,5 +162,38 @@ export class AuthService {
       orgId,
       bundle,
     });
+  }
+
+  async createOrUsePasskey(customEmail?: string): Promise<string> {
+    const email = customEmail ?? this.payload?.email;
+    if (!email) throw new Error('No email provided');
+
+    const createPasskey$ = defer(() =>
+      from(this.signupWithPasskey(email))
+    ).pipe(
+      switchMap(() => this.signer.getAddress()),
+      exhaustMap((address) =>
+        this.userWalletApiService.create({
+          address,
+          type: 'turnkey',
+          chain: `${polygonAmoy.id}`,
+        })
+      ),
+      map(({ address }) => address)
+    );
+
+    const usePasskey$ = defer(() => from(this.signer.getAddress())).pipe(
+      catchError(() =>
+        from(this.authenticateWithPasskey()).pipe(
+          exhaustMap(() => this.signer.getAddress())
+        )
+      )
+    );
+
+    const createOrUsePasskey$ = from(
+      this.signer.inner.lookupUserByEmail(email).catch(() => null)
+    ).pipe(exhaustMap((org) => (org ? usePasskey$ : createPasskey$)));
+
+    return firstValueFrom(createOrUsePasskey$);
   }
 }

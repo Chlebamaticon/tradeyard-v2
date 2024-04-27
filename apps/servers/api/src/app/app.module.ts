@@ -11,7 +11,7 @@ import { OffersRouteModule } from '../modules/offers';
 import { OrdersRouteModule } from '../modules/orders';
 import { SeedModule } from '../modules/seed';
 import { TokensRouteModule } from '../modules/tokens';
-import { UsersRouteModule } from '../modules/users';
+import { UsersRouteModule, UserWalletsRouteModule } from '../modules/users';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -29,6 +29,7 @@ import { AppService } from './app.service';
     TokensRouteModule,
     OrdersRouteModule,
     AuthRouteModule,
+    UserWalletsRouteModule,
     RouterModule.register([
       {
         path: 'auth',
@@ -53,6 +54,10 @@ import { AppService } from './app.service';
       {
         path: 'users',
         module: UsersRouteModule,
+      },
+      {
+        path: 'wallets',
+        module: UserWalletsRouteModule,
       },
       {
         path: 'tokens',

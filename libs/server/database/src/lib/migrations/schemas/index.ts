@@ -8,3 +8,6 @@ export * from './1713621828757-added-contract-views';
 export * from './1713622472903-update-with-contract-id';
 export * from './1713715626675-update-with-user-credentials';
 export * from './1713912750364-update-with-user-wallet';
+export * from './1714250462952-updated-order-merchant-id';
+export * from './1714252092003-updated-order-customer-id';
+export * from './1714252706603-updated-contract-created-at';

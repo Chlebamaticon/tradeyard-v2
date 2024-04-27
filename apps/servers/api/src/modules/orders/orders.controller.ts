@@ -6,7 +6,9 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  Request,
 } from '@nestjs/common';
+import * as Express from 'express';
 
 import {
   CreateOrder,
@@ -60,9 +62,19 @@ export class OrdersController {
   }
 
   @Post()
-  async createOne(@Body() body: CreateOrderBodyDto): Promise<CreateOrderDto> {
-    const validatedBody = CreateOrderBody.strict().parse(body);
-    return CreateOrder.parse(await this.orderService.createOne(validatedBody));
+  async createOne(
+    @Body() body: CreateOrderBodyDto,
+    @Request() request: Express.Request
+  ): Promise<CreateOrderDto> {
+    const validatedBody = CreateOrderBody.strict().parse({
+      ...body,
+    });
+    return CreateOrder.parse(
+      await this.orderService.createOne({
+        ...validatedBody,
+        user_id: request.user.user_id,
+      })
+    );
   }
 
   constructor(readonly orderService: OrderService) {}

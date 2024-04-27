@@ -1,5 +1,7 @@
 import { Route } from '@angular/router';
 
+import { ConnectedOnly } from '../../modules/auth/guards';
+
 import { OfferPage } from './:offer_id/offer.page';
 import { OfferOrderPage } from './:offer_id/order/:offer_variant_id/offer-order.page';
 import { OfferCreatePage } from './offer-create.page';
@@ -24,6 +26,7 @@ export const offerRoutes: Route[] = [
         component: OfferPage,
       },
       {
+        canActivate: [ConnectedOnly],
         path: ':offer_id/order/:offer_variant_id',
         component: OfferOrderPage,
       },

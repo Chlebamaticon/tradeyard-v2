@@ -1,17 +1,23 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  ParseIntPipe,
+  Post,
+  Query,
+  Request,
+} from '@nestjs/common';
+import * as express from 'express';
 
 import {
   CreateUser,
-  CreateUserBody,
-  CreateUserBodyDto,
   CreateUserDto,
+  CreateUserWalletBody,
+  CreateUserWalletBodyDto,
   GetUserWallets,
   GetUserWalletsDto,
   GetUserWalletsQueryParams,
-  GetUserWalletsQueryParamsDto,
 } from '@tradeyard-v2/api-dtos';
-
-import { User } from '../auth';
 
 import { UserWalletService } from './user-wallet.service';
 
@@ -19,25 +25,35 @@ import { UserWalletService } from './user-wallet.service';
 export class UserWalletController {
   @Get()
   async getMany(
-    @Query() queryParams: GetUserWalletsQueryParamsDto,
-    @User('user_id') user_id: string
+    @Query('offset', new ParseIntPipe({ optional: true })) offset = 0,
+    @Query('timestamp', new ParseIntPipe({ optional: true }))
+    timestamp = Date.now(),
+    @Query('limit', new ParseIntPipe({ optional: true })) limit,
+    @Request() req: express.Request
   ): Promise<GetUserWalletsDto> {
-    const validatedQueryParams = GetUserWalletsQueryParams.parse(queryParams);
+    const validatedQueryParams = GetUserWalletsQueryParams.parse({
+      offset,
+      timestamp,
+      limit,
+    });
     return GetUserWallets.parse(
-      await this.userWalletService.getMany({ ...validatedQueryParams, user_id })
+      await this.userWalletService.getMany({
+        ...validatedQueryParams,
+        user_id: req.user.user_id,
+      })
     );
   }
 
   @Post()
   async createOne(
-    @Body() body: CreateUserBodyDto,
-    @User('user_id') user_id: string
+    @Body() body: CreateUserWalletBodyDto,
+    @Request() req: express.Request
   ): Promise<CreateUserDto> {
-    const validatedBody = CreateUserBody.parse(body);
+    const validatedBody = CreateUserWalletBody.parse(body);
     return CreateUser.parse(
       await this.userWalletService.createOne({
         ...validatedBody,
-        user_id,
+        user_id: req.user.user_id,
       })
     );
   }

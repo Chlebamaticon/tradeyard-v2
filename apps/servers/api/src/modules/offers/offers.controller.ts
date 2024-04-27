@@ -58,8 +58,10 @@ export class OffersController {
       timestamp,
       limit,
     });
-    const offers = await this.offersService.getMany(validatedQueryParams);
-    return GetOffers.parse(offers);
+
+    return GetOffers.parse(
+      await this.offersService.getMany(validatedQueryParams)
+    );
   }
 
   @Post()
@@ -67,10 +69,7 @@ export class OffersController {
     @Body() body: CreateOfferBodyDto,
     @User('merchant_id') merchant_id: string
   ): Promise<CreateOfferDto> {
-    console.log(body, merchant_id);
-    const validatedBody = CreateOfferBody.parse({ body });
-    console.log(validatedBody);
-
+    const validatedBody = CreateOfferBody.parse(body);
     return CreateOffer.parse(
       await this.offersService.createOne({ ...validatedBody, merchant_id })
     );

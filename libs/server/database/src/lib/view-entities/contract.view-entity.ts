@@ -3,6 +3,7 @@ import { PrimaryColumn, ViewColumn, ViewEntity } from 'typeorm';
 import { createAggregateEventsSelectQuery } from '../queries';
 
 import { ContractDeploymentViewEntity } from './contract-deployment.view-entity';
+import { OrderViewEntity } from './order.view-entity';
 
 @ViewEntity({
   expression: (connection) =>
@@ -15,6 +16,7 @@ import { ContractDeploymentViewEntity } from './contract-deployment.view-entity'
         'deployment_transaction_hash'
       )
       .addSelect(`"contract_deployment"."created_at"`, 'deployed_at')
+      .addSelect(`"event"."created_at"`, 'created_at')
       .from(
         createAggregateEventsSelectQuery({
           primaryPropertyName: 'contract_id',

@@ -7,7 +7,9 @@ export const order = zod.object({
   quantity: zod.number(),
   contract_id: zod.string().uuid(),
   customer_id: zod.string().uuid(),
+  customer_address: zod.string(),
   merchant_id: zod.string().uuid(),
+  merchant_address: zod.string(),
 });
 
 export default {

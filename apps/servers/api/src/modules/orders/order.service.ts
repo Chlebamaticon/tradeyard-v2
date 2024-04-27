@@ -1,5 +1,4 @@
 import assert from 'assert';
-import { randomUUID } from 'crypto';
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,7 +8,8 @@ import {
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
-import { isAddress, parseEther } from 'viem';
+import { formatUnits, isAddress, isHex, parseEther } from 'viem';
+import { polygonAmoy } from 'viem/chains';
 
 import {
   CreateOrderBodyDto,
@@ -21,14 +21,22 @@ import {
   OrderDto,
 } from '@tradeyard-v2/api-dtos';
 import {
+  ContractViewEntity,
   EventRepository,
+  MerchantViewEntity,
+  OfferVariantPriceViewEntity,
+  OfferVariantViewEntity,
+  OfferViewEntity,
   OrderViewEntity,
+  TokenViewEntity,
+  UserViewEntity,
 } from '@tradeyard-v2/server/database';
 
 import { CustomerService } from '../customers';
 import { MerchantService } from '../merchants';
 import { OfferService, OfferVariantService } from '../offers';
 import { OrdersContractService } from '../orders-contract';
+import { UserWalletService } from '../users/user-wallet.service';
 
 @Injectable()
 export class OrderService {
@@ -40,7 +48,8 @@ export class OrderService {
     readonly customerService: CustomerService,
     readonly offersService: OfferService,
     readonly offerVariantsService: OfferVariantService,
-    readonly orderContractService: OrdersContractService
+    readonly orderContractService: OrdersContractService,
+    readonly userWalletService: UserWalletService
   ) {}
 
   async getOne({ order_id }: { order_id?: string }): Promise<GetOrderDto> {
@@ -79,13 +88,14 @@ export class OrderService {
   }
 
   async createOne({
+    user_id,
     offer_id,
     offer_variant_id,
     quantity,
-    customer,
-  }: CreateOrderBodyDto): Promise<OrderDto> {
+    customer_address,
+  }: CreateOrderBodyDto & { user_id: string }): Promise<OrderDto> {
     const order_id = crypto.randomUUID();
-    const { merchant } = await this.offersService.getOne({
+    const { merchant_id } = await this.offersService.getOne({
       offer_id,
     });
     const variant = await this.offerVariantsService.getOne({
@@ -99,31 +109,39 @@ export class OrderService {
     );
 
     assert.ok(
-      isAddress(merchant.address),
-      "Merchant's address is not a valid ethereum address"
-    );
-
-    assert.ok(
-      isAddress(customer.address),
-      "Customer's address is not a valid ethereum address"
-    );
-
-    assert.ok(
       isAddress(variant.current_price.token.token_address),
       'Token address is not a valid ethereum address'
     );
 
+    const customer = await this.customerService.getOne({ user_id });
+    const customerWallet = await this.userWalletService.getOne({
+      user_id: customer.user_id,
+      address: customer_address,
+    });
+
+    const merchant = await this.merchantService.getOne({ merchant_id });
+    const merchantWallet = await this.userWalletService.getOne({
+      user_id: merchant.user_id,
+      type: 'turnkey',
+    });
+
+    const merchantAddress = isHex(merchantWallet.address)
+      ? merchantWallet.address
+      : (`0x${merchantWallet.address}` as const);
+    const customerAddress = isHex(customerWallet.address)
+      ? customerWallet.address
+      : (`0x${customerWallet.address}` as const);
     const { contract_id } = await this.orderContractService.deploy({
       target: {
-        merchant: merchant.address,
-        customer: customer.address,
+        merchant: merchantAddress,
+        customer: customerAddress,
       },
       conditions: {
         tokenAddress: variant.current_price.token.token_address,
         tokenAmountInWei: parseEther(`${variant.current_price.amount}`),
       },
       redemption: {
-        timeoutInSeconds: BigInt(0),
+        timeoutInSeconds: BigInt(1 * 24 * 60 * 60),
       },
       orderId: order_id,
     });
@@ -132,8 +150,10 @@ export class OrderService {
       order_id,
       offer_variant_id,
       offer_variant_price_id: variant.current_price.offer_variant_price_id,
-      customer_id: randomUUID(),
-      merchant_id: randomUUID(),
+      customer_id: customer.customer_id,
+      customer_address: customerAddress,
+      merchant_id: merchant.merchant_id,
+      merchant_address: merchantAddress,
       contract_id,
       quantity,
     });
@@ -143,9 +163,45 @@ export class OrderService {
     );
   }
 
-  mapToOrderDto(order: OrderViewEntity): OrderDto {
+  mapToOrderDto(
+    order: OrderViewEntity & {
+      merchant_user?: UserViewEntity;
+      merchant?: MerchantViewEntity;
+      contract?: ContractViewEntity;
+      offer_variant?: OfferVariantViewEntity;
+      offer_variant_price?: OfferVariantPriceViewEntity & {
+        token?: TokenViewEntity;
+      };
+      token?: TokenViewEntity;
+    }
+  ): OrderDto {
+    console.log(order);
     return {
       ...order,
+      merchant: {
+        merchant_id: order.merchant.merchant_id,
+        first_name: order.merchant_user.first_name,
+        last_name: order.merchant_user.last_name,
+      },
+      offer_variant: {
+        offer_variant_id: order.offer_variant.offer_variant_id,
+        title: order.offer_variant.title,
+        description: order.offer_variant.description,
+      },
+      offer_variant_price: {
+        offer_variant_price_id:
+          order.offer_variant_price.offer_variant_price_id,
+        amount: +formatUnits(
+          BigInt(order.offer_variant_price.amount),
+          order.token.precision
+        ),
+        token: order.token,
+      },
+      contract: {
+        contract_id: order.contract.contract_id,
+        address: order.contract.contract_address,
+        chain: `${polygonAmoy.id}`,
+      },
       quantity: parseInt(`${order.quantity}`),
     };
   }
@@ -156,6 +212,42 @@ export class OrderService {
     const { manager } = this.orderRepository;
     return manager
       .createQueryBuilder<OrderViewEntity>(OrderViewEntity, 'order')
-      .setFindOptions(options);
+      .setFindOptions(options)
+      .leftJoinAndMapOne(
+        'order.offer_variant',
+        OfferVariantViewEntity,
+        'offer_variant',
+        '"offer_variant"."offer_variant_id" = "order"."offer_variant_id"'
+      )
+      .leftJoinAndMapOne(
+        'order.offer_variant_price',
+        OfferVariantPriceViewEntity,
+        'offer_variant_price',
+        '"offer_variant_price"."offer_variant_price_id" = "order"."offer_variant_price_id"'
+      )
+      .leftJoinAndMapOne(
+        'order.merchant',
+        MerchantViewEntity,
+        'merchant',
+        '"merchant"."merchant_id" = "order"."merchant_id"'
+      )
+      .leftJoinAndMapOne(
+        'order.contract',
+        ContractViewEntity,
+        'contract',
+        '"contract"."contract_id" = "order"."contract_id"'
+      )
+      .leftJoinAndMapOne(
+        'order.merchant_user',
+        UserViewEntity,
+        'merchant_user',
+        '"merchant_user"."user_id" = "merchant"."user_id"'
+      )
+      .leftJoinAndMapOne(
+        'order.token',
+        TokenViewEntity,
+        'token',
+        '"token"."token_id" = "offer_variant_price"."token_id"'
+      );
   }
 }

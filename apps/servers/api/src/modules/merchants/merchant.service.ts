@@ -42,11 +42,9 @@ export class MerchantService {
   async getOne({
     merchant_id,
   }: GetMerchantPathParamsDto): Promise<GetMerchantDto> {
-    const merchant = await this.merchantRepository.findOneOrFail({
-      where: {
-        merchant_id,
-      },
-    });
+    const merchant = await this.#queryBuilder({
+      merchant_id,
+    }).getOneOrFail();
 
     return GetMerchant.parse(this.mapToMerchantDto(merchant));
   }
@@ -56,13 +54,14 @@ export class MerchantService {
     limit = 25,
     timestamp = Date.now(),
   }: GetMerchantsQueryParamsDto): Promise<GetMerchantsDto> {
-    const [merchants, total] = await this.merchantRepository.findAndCount({
-      where: {
-        created_at: new Date(timestamp),
-      },
-      skip: offset,
-      take: limit,
+    const qb = this.#queryBuilder({
+      created_at: new Date(timestamp),
     });
+
+    if (offset !== undefined) qb.skip(offset);
+    if (limit !== undefined) qb.take(limit);
+
+    const [merchants, total] = await qb.getManyAndCount();
 
     return {
       items: merchants.map((merchant) => this.mapToMerchantDto(merchant)),

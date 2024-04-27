@@ -11,6 +11,7 @@ import { CustomerModule } from '../customers';
 import { MerchantModule } from '../merchants';
 import { OffersModule } from '../offers';
 import { OrdersContractModule } from '../orders-contract';
+import { UserWalletModule } from '../users';
 
 import { OrderService } from './order.service';
 
@@ -22,6 +23,7 @@ import { OrderService } from './order.service';
     CustomerModule,
     OffersModule,
     OrdersContractModule,
+    UserWalletModule,
   ],
   providers: [OrderService],
   exports: [OrderService],
