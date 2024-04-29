@@ -1,9 +1,19 @@
-<ul>
+<nb-list>
   @for(order of (orders.data$ | async)?.items; track order) {
-  <li>
-    <a [routerLink]="['/orders', order.order_id]">
-      {{ order.order_id }}
-    </a>
-  </li>
+  <nb-list-item [routerLink]="['/orders', order.order_id]">
+    <nb-card>
+      <nb-card-body>
+        <h6>
+          {{ order.offer_variant.title || order.offer.title }}
+          <span>{{order.contract.address}}</span>
+        </h6>
+        <p>
+          {{ order.offer_variant.description || order.offer.description }}
+        </p>
+      </nb-card-body>
+    </nb-card>
+    <h6>
+    </h6>
+  </nb-list-item>
   }
-</ul>
+</nb-list>

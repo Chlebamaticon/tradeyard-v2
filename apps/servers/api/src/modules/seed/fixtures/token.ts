@@ -19,5 +19,15 @@ export const [TokenSeed, TokenSeedProvider] = createSeed(async (manager) => {
         precision: 18,
       },
     },
+    {
+      type: 'token:created',
+      body: {
+        token_id: randomUUID(),
+        token_address: '0x',
+        symbol: 'ETH',
+        name: 'Ethereum',
+        precision: 18,
+      },
+    },
   ]);
 });

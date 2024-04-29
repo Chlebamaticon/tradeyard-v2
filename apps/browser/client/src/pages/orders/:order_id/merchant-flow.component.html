@@ -1,0 +1,22 @@
+<nb-stepper orientation="horizontal" [linear]="true" disableStepNavigation>
+  <nb-step label="Deposit" content="deposit">
+    Customer does need to make a deposit first.
+  </nb-step>
+  <nb-step label="Confirmation">
+    Let the customer know, that you're fine with preparing his order.
+  </nb-step>
+  <nb-step label="Preparing" content="execution">
+    Once you finish preparing the order, let the customer know.
+  </nb-step>
+  <nb-step label="Shipping" content="shipping">
+    Order is on it's way to the customer. Provide tracking information if available. Once delivered, please confirm it
+    below.
+  </nb-step>
+  <nb-step label="Delivered" content="delivered">
+    Order has been delivered. The customer needs to confirm the delivery now, until then deposit is on hold. Unless
+    Customer won't respond in 7 days, the deposit will be released anyway.
+  </nb-step>
+  <nb-step label="Done" content="done">
+    Great job! You've successfully delivered the order. Thank you for your service.
+  </nb-step>
+</nb-stepper>

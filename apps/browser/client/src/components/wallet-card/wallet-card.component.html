@@ -1,0 +1,13 @@
+<nb-card>
+  <nb-card-body>
+    <pre>{{ address }}</pre>
+    <nb-tag-list>
+      @if (balance$ | async; as balance) {
+      <nb-tag size="small" appearance="outline" status="primary"
+        [text]="(balance.amount | unit:-18) + ' ' + balance.symbol" />
+      }
+      <nb-tag size="small" appearance="outline" status="primary" [text]="type | lowercase" />
+      <nb-tag size="small" appearance="outline" status="basic" [text]="(created_at | date:'short') ?? ''" />
+    </nb-tag-list>
+  </nb-card-body>
+</nb-card>

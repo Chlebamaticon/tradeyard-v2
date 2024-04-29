@@ -77,7 +77,6 @@ export class OfferCreatePage {
         async ([, formData]) =>
           [formData, await this.authService.createOrUsePasskey()] as const
       ),
-      tap(console.log),
       map(([formData, merchant_address]) =>
         CreateOfferBody.parse({ ...formData, merchant_address })
       ),

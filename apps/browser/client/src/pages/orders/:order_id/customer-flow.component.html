@@ -1,0 +1,21 @@
+<nb-stepper orientation="horizontal" [linear]="true" disableStepNavigation>
+  <nb-step label="Deposit" #depositRef>
+    @if ((depositAmount$|async); as amount) {
+    <button nbButton status="primary" size="small" (click)="deposit(amount)">Deposit {{amount | unit:-18}}
+      wei</button>
+    }
+    You need to make your deposit first.
+  </nb-step>
+  <nb-step label="Execution" #pending>
+    Merchant is preparing your order.
+  </nb-step>
+  <nb-step label="Shipping" #shipping>
+    Your order is on its way. Merchant did not provide tracking information.
+  </nb-step>
+  <nb-step label="Delivered" #delivered>
+    Your order has been delivered. Haven't received it yet? Click here. Otherwise, confirm it below.
+  </nb-step>
+  <nb-step label="Done" #done>
+    You have confirmed the delivery of your order. Thank you for shopping with us.
+  </nb-step>
+</nb-stepper>

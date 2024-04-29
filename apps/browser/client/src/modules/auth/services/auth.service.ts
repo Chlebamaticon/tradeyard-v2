@@ -4,9 +4,7 @@ import { EventEmitter, Inject, Injectable } from '@angular/core';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import {
   catchError,
-  defaultIfEmpty,
   defer,
-  EMPTY,
   exhaustMap,
   filter,
   firstValueFrom,
@@ -16,18 +14,25 @@ import {
   merge,
   Observable,
   of,
-  startWith,
   switchMap,
   tap,
 } from 'rxjs';
-import { createWalletClient, webSocket } from 'viem';
-import { polygonAmoy } from 'viem/chains';
+import {
+  Account,
+  Address,
+  createPublicClient,
+  createWalletClient,
+  getAddress,
+  isAddress,
+} from 'viem';
 
 import {
   AuthSignInBodyDto,
   AuthSignInDto,
   AuthSignUpBodyDto,
   AuthSignUpDto,
+  currentChain,
+  transports,
 } from '@tradeyard-v2/api-dtos';
 
 import { BasicHeaderEmitter } from '../../api/providers';
@@ -54,6 +59,21 @@ const signer = new AlchemySigner({
 export class AuthService {
   get signer(): AlchemySigner {
     return signer;
+  }
+
+  get publicClient() {
+    return createPublicClient({
+      chain: currentChain,
+      transport: transports[currentChain.id].wss,
+    });
+  }
+
+  get walletClient() {
+    return createWalletClient({
+      chain: currentChain,
+      transport: transports[currentChain.id].https,
+      account: signer.toViemAccount() as Account,
+    });
   }
 
   get accessToken(): string | undefined {
@@ -98,16 +118,6 @@ export class AuthService {
     readonly authApi: AuthApiService,
     readonly userWalletApiService: UserWalletApiService
   ) {}
-
-  getWalletClient() {
-    return createWalletClient({
-      transport: webSocket(
-        'wss://polygon-amoy.g.alchemy.com/v2/3qRz7cWG_qr34OFx7kyfYz79Htsm2inC'
-      ),
-      chain: chains.polygonAmoy,
-      account: signer.toViemAccount(),
-    });
-  }
 
   signOut() {
     this.accessToken = undefined;
@@ -164,7 +174,7 @@ export class AuthService {
     });
   }
 
-  async createOrUsePasskey(customEmail?: string): Promise<string> {
+  async createOrUsePasskey(customEmail?: string): Promise<Address> {
     const email = customEmail ?? this.payload?.email;
     if (!email) throw new Error('No email provided');
 
@@ -176,10 +186,10 @@ export class AuthService {
         this.userWalletApiService.create({
           address,
           type: 'turnkey',
-          chain: `${polygonAmoy.id}`,
+          chain: `${currentChain.id}`,
         })
       ),
-      map(({ address }) => address)
+      map(({ address }) => getAddress(address))
     );
 
     const usePasskey$ = defer(() => from(this.signer.getAddress())).pipe(

@@ -7,10 +7,9 @@ import { createAggregateEventsSelectQuery } from '../queries';
     connection
       .createQueryBuilder()
       .select(`("event"."body" ->> 'offer_id')::uuid`, 'offer_id')
-      .addSelect(`("event"."body" ->> 'user_id')::uuid`, 'user_id')
       .addSelect(`("event"."body" ->> 'title')`, 'title')
       .addSelect(`("event"."body" ->> 'description')`, 'description')
-      .addSelect(`("event"."body" ->> 'merchant_id')`, 'merchant_id')
+      .addSelect(`("event"."body" ->> 'merchant_id')::uuid`, 'merchant_id')
       .addSelect(`"event"."created_at"`, 'created_at')
       .from(
         createAggregateEventsSelectQuery({
@@ -24,9 +23,6 @@ export class OfferViewEntity {
   @ViewColumn()
   @PrimaryColumn()
   offer_id!: string;
-
-  @ViewColumn()
-  user_id!: string;
 
   @ViewColumn()
   merchant_id!: string;

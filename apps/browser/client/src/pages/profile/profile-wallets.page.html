@@ -3,15 +3,7 @@
 <nb-list>
   @for(wallet of (wallets.data$ | async)?.items; track wallet) {
   <nb-list-item>
-    <nb-card>
-      <nb-card-body>
-        <pre>{{ wallet.address }}</pre>
-        <nb-tag-list>
-          <nb-tag size="small" appearance="outline" status="primary" [text]="wallet.type | lowercase" />
-          <nb-tag size="small" appearance="outline" status="basic" [text]="(wallet.created_at | date:'short') ?? ''" />
-        </nb-tag-list>
-      </nb-card-body>
-    </nb-card>
+    <app-wallet-card [address]="wallet.address" [type]="wallet.type" [created_at]="wallet.created_at" />
   </nb-list-item>
   }
 </nb-list>

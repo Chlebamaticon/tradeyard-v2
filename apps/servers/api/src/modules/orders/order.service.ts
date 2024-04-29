@@ -9,10 +9,10 @@ import {
   SelectQueryBuilder,
 } from 'typeorm';
 import { formatUnits, isAddress, isHex, parseEther } from 'viem';
-import { polygonAmoy } from 'viem/chains';
 
 import {
   CreateOrderBodyDto,
+  currentChain,
   GetOrder,
   GetOrderDto,
   GetOrdersDto,
@@ -159,7 +159,7 @@ export class OrderService {
     });
 
     return this.mapToOrderDto(
-      await this.orderRepository.findOneByOrFail({ order_id })
+      await this.#queryBuilder({ where: { order_id } }).getOneOrFail()
     );
   }
 
@@ -168,6 +168,7 @@ export class OrderService {
       merchant_user?: UserViewEntity;
       merchant?: MerchantViewEntity;
       contract?: ContractViewEntity;
+      offer?: OfferViewEntity;
       offer_variant?: OfferVariantViewEntity;
       offer_variant_price?: OfferVariantPriceViewEntity & {
         token?: TokenViewEntity;
@@ -179,9 +180,14 @@ export class OrderService {
     return {
       ...order,
       merchant: {
-        merchant_id: order.merchant.merchant_id,
+        merchant_id: order.merchant_id,
         first_name: order.merchant_user.first_name,
         last_name: order.merchant_user.last_name,
+      },
+      offer: {
+        offer_id: order.offer.offer_id,
+        title: order.offer.title,
+        description: order.offer.description,
       },
       offer_variant: {
         offer_variant_id: order.offer_variant.offer_variant_id,
@@ -200,7 +206,7 @@ export class OrderService {
       contract: {
         contract_id: order.contract.contract_id,
         address: order.contract.contract_address,
-        chain: `${polygonAmoy.id}`,
+        chain: `${currentChain.id}`,
       },
       quantity: parseInt(`${order.quantity}`),
     };
@@ -218,6 +224,12 @@ export class OrderService {
         OfferVariantViewEntity,
         'offer_variant',
         '"offer_variant"."offer_variant_id" = "order"."offer_variant_id"'
+      )
+      .leftJoinAndMapOne(
+        'order.offer',
+        OfferViewEntity,
+        'offer',
+        '"offer"."offer_id" = "offer_variant"."offer_id"'
       )
       .leftJoinAndMapOne(
         'order.offer_variant_price',

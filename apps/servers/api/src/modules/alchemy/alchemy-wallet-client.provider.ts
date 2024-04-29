@@ -1,27 +1,40 @@
 import { Logger, Provider } from '@nestjs/common';
-import { createWalletClient, WalletClient, webSocket } from 'viem';
+import {
+  createWalletClient,
+  formatEther,
+  PublicClient,
+  WalletClient,
+} from 'viem';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
-import { polygonAmoy } from 'viem/chains';
+
+import { currentChain, transports } from '@tradeyard-v2/api-dtos';
+
+import { AlchemyPublicClient } from './alchemy-public-client.provider';
 
 export const AlchemyWalletClient = Symbol('alchemy:wallet:client');
 
 export default {
   provide: AlchemyWalletClient,
-  useFactory: () => {
+  useFactory: async (publicClient: PublicClient) => {
     const logger = new Logger('AlchemyWalletClient');
     const privateKey =
       (process.env['POLYGON_PRIVATE_KEY'] as `0x${string}`) ??
       generatePrivateKey();
     const account = privateKeyToAccount(privateKey);
-    logger.debug(`Using account ${account.address} for wallet client`);
-    return createWalletClient({
-      chain: polygonAmoy,
-      transport: webSocket(
-        'wss://polygon-amoy.g.alchemy.com/v2/3qRz7cWG_qr34OFx7kyfYz79Htsm2inC',
-        { key: 'alchemy' }
-      ),
+    const client = createWalletClient({
+      chain: currentChain,
+      transport: transports[currentChain.id].https,
       account,
     });
+
+    const balance = await publicClient.getBalance(account);
+    logger.debug(
+      `Using account "${account.address}" (${formatEther(balance)} ${
+        client.chain.nativeCurrency.symbol
+      }) as a wallet client.`,
+      { privateKey }
+    );
+    return client;
   },
-  inject: [],
+  inject: [AlchemyPublicClient],
 } satisfies Provider<WalletClient>;

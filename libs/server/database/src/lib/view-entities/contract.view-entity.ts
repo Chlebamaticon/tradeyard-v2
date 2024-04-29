@@ -28,8 +28,7 @@ import { OrderViewEntity } from './order.view-entity';
         (qb) =>
           qb
             .from(ContractDeploymentViewEntity, 'deployment')
-            .orderBy('"deployment"."created_at"', 'DESC')
-            .take(1),
+            .orderBy('"deployment"."created_at"', 'DESC'),
         'contract_deployment',
         `"contract_deployment"."contract_id" = ("event"."body" ->> 'contract_id')::uuid`
       ),

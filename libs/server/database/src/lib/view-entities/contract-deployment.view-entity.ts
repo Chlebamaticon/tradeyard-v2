@@ -22,7 +22,7 @@ import { createAggregateEventsSelectQuery } from '../queries';
       .addSelect(`"event"."created_at"`, 'created_at')
       .from(
         createAggregateEventsSelectQuery({
-          primaryPropertyName: 'transaction_hash',
+          primaryPropertyName: 'contract_id',
           eventTypes: [
             'contract:deployment:started',
             'contract:deployment:failed',

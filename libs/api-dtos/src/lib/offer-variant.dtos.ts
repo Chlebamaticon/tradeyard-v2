@@ -3,7 +3,7 @@ import * as zod from 'zod';
 import { pagination, queryParams } from './pagination.dtos';
 import { Token } from './token.dtos';
 
-export const TokenSymbol = zod.enum(['USD', 'EUR', 'GBP', 'MATIC']);
+export const TokenSymbol = zod.enum(['USD', 'EUR', 'GBP', 'MATIC', 'ETH']);
 
 export const OfferVariantPrice = zod.object({
   offer_variant_price_id: zod.string().uuid(),

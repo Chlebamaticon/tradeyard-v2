@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Hex, stringToHex, isHex, PublicClient } from 'viem';
 
 import { Order$Type } from '@tradeyard-v2/contracts/ecommerce/artifacts/Order.sol/Order';
@@ -53,6 +52,8 @@ export class OrdersContractService {
       bigint,
       `0x${string}`
     ];
+
+    console.debug('Running order deployment with following args', args);
 
     const contract_id = crypto.randomUUID();
     const result = await this.walletClient.deployContract({

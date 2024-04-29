@@ -1,5 +1,6 @@
-import { createPublicClient, webSocket } from 'viem';
-import { polygonAmoy } from 'viem/chains';
+import { createPublicClient } from 'viem';
+
+import { currentChain, transports } from '@tradeyard-v2/api-dtos';
 
 export const AlchemyPublicClient = Symbol('alchemy:public:client');
 
@@ -7,10 +8,7 @@ export default {
   provide: AlchemyPublicClient,
   useFactory: () =>
     createPublicClient({
-      chain: polygonAmoy,
-      transport: webSocket(
-        'wss://polygon-amoy.g.alchemy.com/v2/3qRz7cWG_qr34OFx7kyfYz79Htsm2inC',
-        { key: 'alchemy' }
-      ),
+      chain: currentChain,
+      transport: transports[currentChain.id].https,
     }),
 };

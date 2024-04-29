@@ -12,3 +12,5 @@ export * from './lib/token.dtos';
 export * from './lib/user-wallet.dto';
 export * from './lib/user.dtos';
 export * from './lib/order.dtos';
+
+export * from './lib/chain';

@@ -1,0 +1,13 @@
+@if ((whoami$ | async); as user) {
+@if ((order$ | async); as order) {
+<nb-card>
+  <nb-card-body>
+    @if(user.customer_id) {
+    <app-customer-flow [contractAddress]="order.contract.address"></app-customer-flow>
+    } @else if(user.merchant_id) {
+    <app-merchant-flow [contractAddress]="order.contract.address"></app-merchant-flow>
+    }
+  </nb-card-body>
+</nb-card>
+}
+}

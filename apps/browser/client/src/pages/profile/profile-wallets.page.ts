@@ -1,20 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, EventEmitter, Self } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { NbCardModule, NbListModule, NbTagModule } from '@nebular/theme';
+import { NbListModule } from '@nebular/theme';
 
+import { WalletCardComponent } from '../../components/wallet-card/wallet-card.component';
 import { UserWalletApiService } from '../../modules/api/services';
 import { OnDestroyNotifier$ } from '../../providers';
 
 @Component({
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    NbCardModule,
-    NbListModule,
-    NbTagModule,
-  ],
+  imports: [CommonModule, RouterModule, NbListModule, WalletCardComponent],
   selector: 'app-profile-wallets-page',
   templateUrl: './profile-wallets.page.html',
   styleUrls: ['./profile-wallets.page.scss'],

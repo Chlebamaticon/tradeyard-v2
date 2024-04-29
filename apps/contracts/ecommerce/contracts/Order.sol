@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-// Uncomment this line to use console.log
-import 'hardhat/console.sol';
 import './Escrow.sol';
 import './IEscrow.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
@@ -77,17 +75,17 @@ contract Order is Ownable {
     OrderStatus private beforeComplaintStatus;
     uint256 private lastTransitionAt;
 
-    address public customer;
-    address public merchant;
-    IEscrow public escrow;
+    address payable public customer;
+    address payable public merchant;
+    address payable public escrow;
     uint256 public tokenAmount;
     address public tokenAddress;
     uint256 public timeoutInSeconds;
     bytes public orderHash;
 
     constructor(
-        address _customer,
-        address _merchant,
+        address payable _customer,
+        address payable _merchant,
         uint256 _tokenAmount,
         address _tokenAddress,
         uint256 _timeoutInSeconds,
@@ -100,7 +98,7 @@ contract Order is Ownable {
         timeoutInSeconds = _timeoutInSeconds;
         orderHash = _orderHash;
 
-        escrow = new Escrow(_customer, _merchant, _tokenAddress, _tokenAmount);
+        escrow = payable(address(new Escrow(_customer, _merchant, _tokenAmount, _tokenAddress)));
         emit OrderCreated(
             block.timestamp,
             _customer,
@@ -111,16 +109,23 @@ contract Order is Ownable {
         );
     }
 
-    function deposit() external payable onlyCustomer {
+    function deposit() public payable onlyCustomer {
         transition(OrderStatus.CustomerDeposit);
 
-        IERC20(tokenAddress).transferFrom(
-            msg.sender,
-            address(this),
-            tokenAmount
-        );
-        IERC20(tokenAddress).approve(address(escrow), tokenAmount);
-        escrow.deposit();
+        // if (tokenAddress == address(0)) {
+        //   (bool success, bytes memory data) = escrow.call{
+        //     value:msg.value
+        //   }(abi.encodeWithSignature("deposit()"));
+        //   require(success, "Failed to deposit");
+        // } else {
+        //   IERC20(tokenAddress).transferFrom(
+        //       msg.sender,
+        //       address(this),
+        //       tokenAmount
+        //   );
+        //   IERC20(tokenAddress).approve(address(escrow), tokenAmount);
+        //   IEscrow(escrow).deposit();
+        // }
 
         emit CustomerOrderDeposit(block.timestamp, customer);
     }
@@ -134,7 +139,7 @@ contract Order is Ownable {
     function cancel() external onlyMerchant {
         transition(OrderStatus.MerchantCancelled);
 
-        escrow.refund();
+        // IEscrow(escrow).refund();
 
         emit MerchantOrderCancelled(block.timestamp, merchant);
     }

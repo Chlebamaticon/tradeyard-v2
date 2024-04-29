@@ -20,6 +20,12 @@
         "outputPath": "dist/apps/contracts/ecommerce"
       }
     },
+    "verify": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "hardhat --config apps/contracts/ecommerce/hardhat.config.ts --tsconfig apps/contracts/ecommerce/tsconfig.app.json verify 0x2f6F0B141490fbD368354807a292593F5c95b5c3 --network amoy --constructor-args apps/contracts/ecommerce/arguments.js"
+      }
+    },
     "hardhat": {
       "executor": "nx:run-commands",
       "options": {
