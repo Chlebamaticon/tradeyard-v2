@@ -4,14 +4,7 @@ import {
 } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers';
 import { expect } from 'chai';
 import hre from 'hardhat';
-import {
-  Address,
-  getAddress,
-  parseEther,
-  stringToHex,
-  TransactionReceipt,
-  zeroAddress,
-} from 'viem';
+import { getAddress, parseEther, stringToHex, zeroAddress } from 'viem';
 
 import chai from 'chai';
 import promises from 'chai-as-promised';
