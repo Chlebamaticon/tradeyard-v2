@@ -77,7 +77,6 @@ contract Order is Ownable {
 
     address payable public customer;
     address payable public merchant;
-    address payable public escrow;
     uint256 public tokenAmount;
     address public tokenAddress;
     uint256 public timeoutInSeconds;
@@ -98,7 +97,6 @@ contract Order is Ownable {
         timeoutInSeconds = _timeoutInSeconds;
         orderHash = _orderHash;
 
-        escrow = payable(address(new Escrow(_customer, _merchant, _tokenAmount, _tokenAddress)));
         emit OrderCreated(
             block.timestamp,
             _customer,
@@ -112,20 +110,7 @@ contract Order is Ownable {
     function deposit() public payable onlyCustomer {
         transition(OrderStatus.CustomerDeposit);
 
-        // if (tokenAddress == address(0)) {
-        //   (bool success, bytes memory data) = escrow.call{
-        //     value:msg.value
-        //   }(abi.encodeWithSignature("deposit()"));
-        //   require(success, "Failed to deposit");
-        // } else {
-        //   IERC20(tokenAddress).transferFrom(
-        //       msg.sender,
-        //       address(this),
-        //       tokenAmount
-        //   );
-        //   IERC20(tokenAddress).approve(address(escrow), tokenAmount);
-        //   IEscrow(escrow).deposit();
-        // }
+        _deposit();
 
         emit CustomerOrderDeposit(block.timestamp, customer);
     }
@@ -139,7 +124,7 @@ contract Order is Ownable {
     function cancel() external onlyMerchant {
         transition(OrderStatus.MerchantCancelled);
 
-        // IEscrow(escrow).refund();
+        _refund();
 
         emit MerchantOrderCancelled(block.timestamp, merchant);
     }
@@ -159,11 +144,11 @@ contract Order is Ownable {
     function release() external onlyCustomerOrMerchant {
         if (msg.sender == customer) {
             transition(OrderStatus.CustomerRelease);
-            IEscrow(escrow).release();
+            _release();
             emit CustomerOrderRelease(block.timestamp, merchant);
         } else if (msg.sender == merchant) {
             transition(OrderStatus.MerchantRelease);
-            IEscrow(escrow).release();
+            _release();
             emit MerchantOrderRelease(block.timestamp, merchant);
         }
     }
@@ -181,7 +166,7 @@ contract Order is Ownable {
     function releaseComplaint() external onlyOwner {
         transition(OrderStatus.ModeratorComplaintReleased);
 
-        IEscrow(escrow).release();
+        _release();
         emit ModeratorComplaintReleased(
             block.timestamp,
             _msgSender(),
@@ -192,7 +177,7 @@ contract Order is Ownable {
     function refundComplaint() external onlyOwner {
         transition(OrderStatus.ModeratorComplaintRefunded);
 
-        IEscrow(escrow).refund();
+        _refund();
         emit ModeratorComplaintRefunded(
             block.timestamp,
             _msgSender(),
@@ -223,6 +208,34 @@ contract Order is Ownable {
         );
     }
 
+    function _release() internal {
+        if (tokenAddress == address(0)) {
+          merchant.transfer(tokenAmount);
+        } else {
+          IERC20(tokenAddress).transfer(merchant, tokenAmount);
+        }
+    }
+
+    function _refund() internal {
+        if (tokenAddress == address(0)) {
+          customer.transfer(tokenAmount);
+        } else {
+          IERC20(tokenAddress).transfer(customer, tokenAmount);
+        }
+    }
+
+    function _deposit() internal {
+        if (tokenAddress == address(0)) {
+          require(msg.value == tokenAmount, "Insufficient deposit been made");
+        } else {
+          IERC20(tokenAddress).transferFrom(
+              msg.sender,
+              address(this),
+              tokenAmount
+          );
+        }
+    }
+
     modifier onlyCustomerOrMerchant() {
         require(
             msg.sender == customer || msg.sender == merchant,
@@ -249,10 +262,6 @@ contract Order is Ownable {
 
     function getLastTransitionAt() external view returns (uint256) {
         return lastTransitionAt;
-    }
-
-    function getEscrowAddress() external view returns (address) {
-        return address(escrow);
     }
 
     function getCustomerAddress() external view returns (address) {

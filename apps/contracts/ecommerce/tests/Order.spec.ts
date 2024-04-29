@@ -9,6 +9,7 @@ import {
   getAddress,
   parseEther,
   stringToHex,
+  TransactionReceipt,
   zeroAddress,
 } from 'viem';
 
@@ -86,7 +87,6 @@ describe('Order', function () {
       );
 
       const publicClient = await hre.viem.getPublicClient();
-      const escrowAddress = await ownerContract.read.getEscrowAddress();
 
       return {
         order: {
@@ -102,23 +102,18 @@ describe('Order', function () {
         tokenAmount,
         tokenAddress: ownerToken.address,
         orderTimeoutInSeconds,
-        escrowAddress,
         wallets: { owner, customer, merchant },
         publicClient,
         orderIdHash,
         getERC20Balances: async () => ({
           contract: await ownerToken.read.balanceOf([ownerContract.address]),
           customer: await ownerToken.read.balanceOf([customer.account.address]),
-          escrow: await ownerToken.read.balanceOf([escrowAddress]),
           merchant: await ownerToken.read.balanceOf([merchant.account.address]),
           owner: await ownerToken.read.balanceOf([owner.account.address]),
         }),
         getBalances: async () => ({
-          contract: await publicClient.getBalance(owner.account),
+          contract: await publicClient.getBalance(ownerContract),
           customer: await publicClient.getBalance(customer.account),
-          escrow: await publicClient.getBalance({
-            address: escrowAddress as Address,
-          }),
           merchant: await publicClient.getBalance(merchant.account),
           owner: await publicClient.getBalance(owner.account),
         }),
@@ -161,14 +156,6 @@ describe('Order', function () {
       expect(await order.asOwner.read.getMerchantAddress()).to.equal(
         getAddress(wallets.merchant.account.address)
       );
-    });
-
-    it('Should set escrow account', async function () {
-      const { order, wallets } = await loadFixture(
-        createOrderFixture({ ierc20: true })
-      );
-
-      expect(await order.asOwner.read.getEscrowAddress()).not.to.be.undefined;
     });
   });
 
@@ -216,14 +203,7 @@ describe('Order', function () {
         });
 
         it('Should ONLY transition to "CustomerDeposit"', async () => {
-          const {
-            order,
-            token,
-            tokenAmount,
-            tokenAddress,
-            escrowAddress,
-            wallets,
-          } = await fixture;
+          const { order, getERC20Balances, token, tokenAmount } = await fixture;
 
           await token.asCustomer.write.approve([
             order.asOwner.address,
@@ -234,17 +214,13 @@ describe('Order', function () {
           expect(await order.asOwner.read.getOrderStatus()).to.equal(
             OrderStatus.CustomerDeposit
           );
-          expect(
-            await token.asOwner.read.balanceOf([
-              wallets.customer.account.address,
-            ])
-          ).to.equal(0n);
-          expect(await token.asOwner.read.balanceOf([tokenAddress])).to.equal(
-            0n
-          );
-          expect(await token.asOwner.read.balanceOf([escrowAddress])).to.equal(
-            tokenAmount
-          );
+          const balancesAfter = await getERC20Balances();
+          expect(balancesAfter).to.deep.equal({
+            customer: 0n,
+            merchant: 0n,
+            owner: 0n,
+            contract: tokenAmount,
+          });
         });
       });
 
@@ -433,14 +409,7 @@ describe('Order', function () {
       });
 
       it('Should transition to "CustomerDeposit"', async () => {
-        const {
-          order,
-          token,
-          tokenAmount,
-          tokenAddress,
-          escrowAddress,
-          wallets,
-        } = await fixture;
+        const { order, token, tokenAmount, getERC20Balances } = await fixture;
 
         await token.asCustomer.write.approve([
           order.asOwner.address,
@@ -451,27 +420,18 @@ describe('Order', function () {
         expect(await order.asOwner.read.getOrderStatus()).to.equal(
           OrderStatus.CustomerDeposit
         );
-        expect(
-          await token.asOwner.read.balanceOf([wallets.customer.account.address])
-        ).to.equal(0n);
-        expect(
-          await token.asOwner.read.balanceOf([wallets.merchant.account.address])
-        ).to.equal(0n);
-        expect(await token.asOwner.read.balanceOf([tokenAddress])).to.equal(0n);
-        expect(await token.asOwner.read.balanceOf([escrowAddress])).to.equal(
-          tokenAmount
-        );
+
+        const balancesAfter = await getERC20Balances();
+        expect(balancesAfter).to.deep.equal({
+          customer: 0n,
+          merchant: 0n,
+          owner: 0n,
+          contract: tokenAmount,
+        });
       });
 
       it('Should transition to "MerchantCancelled"', async () => {
-        const {
-          token,
-          tokenAddress,
-          tokenAmount,
-          escrowAddress,
-          order,
-          wallets,
-        } = fixture;
+        const { tokenAmount, getERC20Balances, order } = fixture;
 
         await order.asMerchant.write.cancel();
 
@@ -479,16 +439,13 @@ describe('Order', function () {
           OrderStatus.MerchantCancelled
         );
 
-        expect(
-          await token.asOwner.read.balanceOf([wallets.customer.account.address])
-        ).to.equal(tokenAmount);
-        expect(
-          await token.asOwner.read.balanceOf([wallets.merchant.account.address])
-        ).to.equal(0n);
-        expect(await token.asOwner.read.balanceOf([tokenAddress])).to.equal(0n);
-        expect(await token.asOwner.read.balanceOf([escrowAddress])).to.equal(
-          0n
-        );
+        const balancesAfter = await getERC20Balances();
+        expect(balancesAfter).to.deep.equal({
+          customer: tokenAmount,
+          merchant: 0n,
+          owner: 0n,
+          contract: 0n,
+        });
       });
     });
 
@@ -517,8 +474,7 @@ describe('Order', function () {
           customer: 0n,
           merchant: 0n,
           owner: 0n,
-          escrow: tokenAmount,
-          contract: 0n,
+          contract: tokenAmount,
         });
       });
 
@@ -557,7 +513,6 @@ describe('Order', function () {
           customer: 0n,
           merchant: tokenAmount,
           owner: 0n,
-          escrow: 0n,
           contract: 0n,
         });
       });
@@ -588,8 +543,7 @@ describe('Order', function () {
           customer: 0n,
           merchant: 0n,
           owner: 0n,
-          escrow: tokenAmount,
-          contract: 0n,
+          contract: tokenAmount,
         });
       });
 
@@ -628,7 +582,6 @@ describe('Order', function () {
           customer: tokenAmount,
           merchant: 0n,
           owner: 0n,
-          escrow: 0n,
           contract: 0n,
         });
       });
@@ -679,13 +632,18 @@ describe('Order', function () {
         });
 
         it('Should ONLY transition to "CustomerDeposit"', async () => {
-          const { order, tokenAmount, getBalances } = await fixture;
+          const { order, tokenAmount, getBalances, publicClient } =
+            await fixture;
 
           const balancesBefore = await getBalances();
 
-          await order.asCustomer.write.deposit([], {
+          const hash = await order.asCustomer.write.deposit([], {
             value: tokenAmount,
           });
+          const { cumulativeGasUsed } =
+            await publicClient.waitForTransactionReceipt({
+              hash,
+            });
 
           expect(await order.asOwner.read.getOrderStatus()).to.equal(
             OrderStatus.CustomerDeposit
@@ -693,14 +651,14 @@ describe('Order', function () {
 
           const balancesAfter = await getBalances();
           expect(
-            balancesBefore.customer - tokenAmount >= balancesAfter.customer
+            balancesBefore.customer - tokenAmount - cumulativeGasUsed >=
+              balancesAfter.customer
           ).to.be.true;
           expect(balancesAfter).to.deep.equal({
+            contract: tokenAmount,
             customer: balancesAfter.customer,
             merchant: balancesBefore.merchant,
             owner: balancesBefore.owner,
-            escrow: balancesBefore.escrow + tokenAmount,
-            contract: balancesBefore.contract,
           });
         });
       });
@@ -909,37 +867,30 @@ describe('Order', function () {
           customer: balancesAfter.customer,
           merchant: balancesBefore.merchant,
           owner: balancesBefore.owner,
-          escrow: balancesBefore.escrow + tokenAmount,
-          contract: balancesBefore.contract,
+          contract: balancesBefore.contract + tokenAmount,
         });
       });
 
       it('Should transition to "MerchantCancelled"', async () => {
-        const {
-          token,
-          tokenAddress,
-          tokenAmount,
-          escrowAddress,
-          order,
-          wallets,
-        } = fixture;
+        const { tokenAmount, order, getBalances, publicClient } = fixture;
 
-        await order.asMerchant.write.cancel();
-
+        const balancesBefore = await getBalances();
+        const hash = await order.asMerchant.write.cancel();
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
         expect(await order.asOwner.read.getOrderStatus()).to.equal(
           OrderStatus.MerchantCancelled
         );
 
+        const balancesAfter = await getBalances();
         expect(
-          await token.asOwner.read.balanceOf([wallets.customer.account.address])
-        ).to.equal(tokenAmount);
-        expect(
-          await token.asOwner.read.balanceOf([wallets.merchant.account.address])
-        ).to.equal(0n);
-        expect(await token.asOwner.read.balanceOf([tokenAddress])).to.equal(0n);
-        expect(await token.asOwner.read.balanceOf([escrowAddress])).to.equal(
-          0n
-        );
+          balancesBefore.merchant - receipt.gasUsed >= balancesAfter.merchant
+        ).to.be.true;
+        expect(balancesAfter).to.deep.equal({
+          customer: balancesBefore.customer + tokenAmount,
+          merchant: balancesAfter.merchant,
+          owner: balancesBefore.owner,
+          contract: balancesBefore.contract - tokenAmount,
+        });
       });
     });
 
@@ -952,7 +903,7 @@ describe('Order', function () {
       });
 
       it('Should transition to "CustomerDeposit"', async () => {
-        const { order, token, tokenAmount, getBalances } = fixture;
+        const { order, tokenAmount, getBalances } = fixture;
 
         const balancesBefore = await getBalances();
 
@@ -969,8 +920,7 @@ describe('Order', function () {
           customer: balancesAfter.customer,
           merchant: balancesBefore.merchant,
           owner: balancesBefore.owner,
-          escrow: balancesBefore.escrow + tokenAmount,
-          contract: balancesBefore.contract,
+          contract: balancesBefore.contract + tokenAmount,
         });
       });
 
@@ -1009,10 +959,9 @@ describe('Order', function () {
         const balancesAfter = await getBalances();
         expect(balancesAfter).to.deep.equal({
           merchant: balancesBefore.merchant + tokenAmount,
-          escrow: balancesBefore.escrow - tokenAmount,
           customer: balancesBefore.customer,
           owner: balancesAfter.owner,
-          contract: balancesAfter.contract,
+          contract: balancesBefore.contract - tokenAmount,
         });
       });
     });
@@ -1042,8 +991,7 @@ describe('Order', function () {
           customer: balancesAfter.customer,
           merchant: balancesBefore.merchant,
           owner: balancesBefore.owner,
-          escrow: balancesBefore.escrow + tokenAmount,
-          contract: balancesBefore.contract,
+          contract: balancesBefore.contract + tokenAmount,
         });
       });
 
@@ -1084,7 +1032,6 @@ describe('Order', function () {
           customer: balancesBefore.customer + tokenAmount,
           merchant: balancesBefore.merchant,
           owner: balancesAfter.owner,
-          escrow: 0n,
           contract: balancesAfter.contract,
         });
       });
