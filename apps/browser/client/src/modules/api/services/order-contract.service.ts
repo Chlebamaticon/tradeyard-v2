@@ -1,19 +1,24 @@
 import { Injectable } from '@angular/core';
-import { hash } from 'bcrypt';
-import { defer, from, Observable, exhaustMap, catchError, EMPTY } from 'rxjs';
-import { Address, parseEther, parseGwei, TransactionReceipt } from 'viem';
+import { Alchemy, Network } from 'alchemy-sdk';
+import { defer, from, Observable, exhaustMap } from 'rxjs';
+import { Address, getAddress, TransactionReceipt } from 'viem';
 
-import { currentChain, OrderStatus } from '@tradeyard-v2/api-dtos';
+import { OrderStatus } from '@tradeyard-v2/api-dtos';
 import artifact from '@tradeyard-v2/contracts/ecommerce/artifacts/Order.sol/Order.json';
 
 import { AuthService } from '../../auth';
+
+const alchemy = new Alchemy({
+  apiKey: '6oy61c9A1D8Dm4e_rZ0KAAwf5KOZRCWM',
+  network: Network.ETH_SEPOLIA,
+});
 
 @Injectable()
 export class OrderContractService {
   getDepositAmount(address: Address): Observable<bigint> {
     return defer(
       () =>
-        this.auth.publicClient.readContract({
+        this.auth.walletClient.readContract({
           abi: artifact.abi,
           address,
           functionName: 'getOrderTokenAmount',
@@ -24,7 +29,7 @@ export class OrderContractService {
   getStatus(address: Address): Observable<OrderStatus> {
     return defer(
       () =>
-        this.auth.publicClient.readContract({
+        this.auth.walletClient.readContract({
           address,
           abi: artifact.abi,
           functionName: 'getOrderStatus',
@@ -35,7 +40,7 @@ export class OrderContractService {
   getCustomerAddress(address: Address): Observable<Address> {
     return defer(
       () =>
-        this.auth.publicClient.readContract({
+        this.auth.walletClient.readContract({
           address,
           abi: artifact.abi,
           functionName: 'getCustomerAddress',
@@ -46,7 +51,7 @@ export class OrderContractService {
   getMerchantAddress(address: Address): Observable<Address> {
     return defer(
       () =>
-        this.auth.publicClient.readContract({
+        this.auth.walletClient.readContract({
           address,
           abi: artifact.abi,
           functionName: 'getMerchantAddress',
@@ -54,44 +59,28 @@ export class OrderContractService {
     );
   }
 
-  getEscrowAddress(address: Address): Observable<Address> {
-    return defer(
-      () =>
-        this.auth.publicClient.readContract({
-          address,
-          abi: artifact.abi,
-          functionName: 'getEscrowAddress',
-        }) as Promise<Address>
+  deposit(address: Address, amount: bigint): Observable<TransactionReceipt> {
+    return defer(() =>
+      from(alchemy.core.getFeeData()).pipe(
+        exhaustMap((feeData) =>
+          this.auth.walletClient.simulateContract({
+            abi: artifact.abi,
+            address: getAddress(address),
+            functionName: 'deposit',
+            maxPriorityFeePerGas: feeData.maxPriorityFeePerGas!.toBigInt(),
+            maxFeePerGas: feeData.maxFeePerGas!.toBigInt(),
+            type: 'eip1559',
+          })
+        ),
+        exhaustMap(({ request }) =>
+          this.auth.walletClient.writeContract(request)
+        ),
+        exhaustMap((hash) =>
+          this.auth.walletClient.waitForTransactionReceipt({ hash })
+        )
+      )
     );
   }
 
   constructor(readonly auth: AuthService) {}
-
-  deposit(address: Address, amount: bigint): Observable<TransactionReceipt> {
-    return defer(() =>
-      from(
-        this.auth.publicClient.simulateContract({
-          abi: artifact.abi,
-          address,
-          functionName: 'deposit',
-          value: amount,
-          args: [],
-          chain: this.auth.walletClient.chain,
-          account: this.auth.walletClient.account,
-        })
-      ).pipe(
-        exhaustMap(({ request }) =>
-          this.auth.walletClient
-            .writeContract(request)
-            .then((hash) =>
-              this.auth.publicClient.waitForTransactionReceipt({ hash })
-            )
-        ),
-        catchError((error: any) => {
-          console.log({ error });
-          return EMPTY;
-        })
-      )
-    );
-  }
 }

@@ -51,34 +51,12 @@ export class CustomerFlowComponent implements AfterViewInit {
 
   async deposit(amount: bigint | null): Promise<void> {
     if (!amount) return;
-    const result = await firstValueFrom(
+    await firstValueFrom(
       this.orderContractService.deposit(this.contractAddress as Address, amount)
     );
   }
 
   ngAfterViewInit(): void {
-    combineLatest([
-      this.orderContractService.getCustomerAddress(
-        this.contractAddress as Address
-      ),
-      this.orderContractService.getMerchantAddress(
-        this.contractAddress as Address
-      ),
-      this.orderContractService.getEscrowAddress(
-        this.contractAddress as Address
-      ),
-    ])
-      .pipe(
-        tap(([customerAddress, merchantAddress, escrowAddress]) => {
-          console.log({
-            contractAddress: this.contractAddress,
-            customerAddress,
-            merchantAddress,
-            escrowAddress,
-          });
-        })
-      )
-      .subscribe();
     this.init$.emit();
     this.init$.complete();
   }

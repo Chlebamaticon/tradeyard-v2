@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   FindManyOptions,
+  FindOptionsWhere,
   LessThan,
   Repository,
   SelectQueryBuilder,
@@ -67,13 +68,14 @@ export class OrderService {
     merchant_id,
     customer_id,
   }: GetOrdersQueryParamsDto & GetOrdersParamsDto): Promise<GetOrdersDto> {
-    const [offers, total] = await this.#queryBuilder({
-      where: {
-        customer_id,
-        merchant_id,
+    const where: FindOptionsWhere<OrderViewEntity> = {};
+    if (merchant_id) where.merchant_id = merchant_id;
+    if (customer_id) where.customer_id = customer_id;
+    const [offers, total] = await this.#queryBuilder({})
+      .where({
+        ...where,
         created_at: LessThan(new Date(timestamp)),
-      },
-    })
+      })
       .skip(offset)
       .take(limit)
       .getManyAndCount();
@@ -176,7 +178,6 @@ export class OrderService {
       token?: TokenViewEntity;
     }
   ): OrderDto {
-    console.log(order);
     return {
       ...order,
       merchant: {
@@ -216,50 +217,53 @@ export class OrderService {
     options: FindManyOptions<OrderViewEntity> = {}
   ): SelectQueryBuilder<OrderViewEntity> {
     const { manager } = this.orderRepository;
-    return manager
-      .createQueryBuilder<OrderViewEntity>(OrderViewEntity, 'order')
-      .setFindOptions(options)
-      .leftJoinAndMapOne(
-        'order.offer_variant',
-        OfferVariantViewEntity,
-        'offer_variant',
-        '"offer_variant"."offer_variant_id" = "order"."offer_variant_id"'
-      )
-      .leftJoinAndMapOne(
-        'order.offer',
-        OfferViewEntity,
-        'offer',
-        '"offer"."offer_id" = "offer_variant"."offer_id"'
-      )
-      .leftJoinAndMapOne(
-        'order.offer_variant_price',
-        OfferVariantPriceViewEntity,
-        'offer_variant_price',
-        '"offer_variant_price"."offer_variant_price_id" = "order"."offer_variant_price_id"'
-      )
-      .leftJoinAndMapOne(
-        'order.merchant',
-        MerchantViewEntity,
-        'merchant',
-        '"merchant"."merchant_id" = "order"."merchant_id"'
-      )
-      .leftJoinAndMapOne(
-        'order.contract',
-        ContractViewEntity,
-        'contract',
-        '"contract"."contract_id" = "order"."contract_id"'
-      )
-      .leftJoinAndMapOne(
-        'order.merchant_user',
-        UserViewEntity,
-        'merchant_user',
-        '"merchant_user"."user_id" = "merchant"."user_id"'
-      )
-      .leftJoinAndMapOne(
-        'order.token',
-        TokenViewEntity,
-        'token',
-        '"token"."token_id" = "offer_variant_price"."token_id"'
-      );
+    return (
+      manager
+        .createQueryBuilder<OrderViewEntity>(OrderViewEntity, 'order')
+        // .setFindOptions(options)
+        .leftJoinAndMapOne(
+          'order.offer_variant',
+          OfferVariantViewEntity,
+          'offer_variant',
+          '"offer_variant"."offer_variant_id" = "order"."offer_variant_id"'
+        )
+        .leftJoinAndMapOne(
+          'order.offer',
+          OfferViewEntity,
+          'offer',
+          '"offer"."offer_id" = "offer_variant"."offer_id"'
+        )
+        .leftJoinAndMapOne(
+          'order.offer_variant_price',
+          OfferVariantPriceViewEntity,
+          'offer_variant_price',
+          '"offer_variant_price"."offer_variant_price_id" = "order"."offer_variant_price_id"'
+        )
+        .leftJoinAndMapOne(
+          'order.merchant',
+          MerchantViewEntity,
+          'merchant',
+          '"merchant"."merchant_id" = "order"."merchant_id"'
+        )
+        .leftJoinAndMapOne(
+          'order.contract',
+          ContractViewEntity,
+          'contract',
+          '"contract"."contract_id" = "order"."contract_id"'
+        )
+        .leftJoinAndMapOne(
+          'order.merchant_user',
+          UserViewEntity,
+          'merchant_user',
+          '"merchant_user"."user_id" = "merchant"."user_id"'
+        )
+        .leftJoinAndMapOne(
+          'order.token',
+          TokenViewEntity,
+          'token',
+          '"token"."token_id" = "offer_variant_price"."token_id"'
+        )
+    );
+    // .orderBy('"order"."created_at"', 'DESC');
   }
 }

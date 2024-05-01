@@ -1,5 +1,4 @@
 import { AlchemySigner } from '@alchemy/aa-alchemy';
-import { chains } from '@alchemy/aa-core';
 import { EventEmitter, Inject, Injectable } from '@angular/core';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import {
@@ -20,10 +19,9 @@ import {
 import {
   Account,
   Address,
-  createPublicClient,
   createWalletClient,
   getAddress,
-  isAddress,
+  publicActions,
 } from 'viem';
 
 import {
@@ -61,19 +59,12 @@ export class AuthService {
     return signer;
   }
 
-  get publicClient() {
-    return createPublicClient({
-      chain: currentChain,
-      transport: transports[currentChain.id].wss,
-    });
-  }
-
   get walletClient() {
     return createWalletClient({
       chain: currentChain,
       transport: transports[currentChain.id].https,
       account: signer.toViemAccount() as Account,
-    });
+    }).extend(publicActions);
   }
 
   get accessToken(): string | undefined {
