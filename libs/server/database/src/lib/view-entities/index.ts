@@ -1,3 +1,5 @@
+export * from './complaint-message.view-entity';
+export * from './complaint.view-entity';
 export * from './customer.view-entity';
 export * from './merchant.view-entity';
 export * from './moderator.view-entity';

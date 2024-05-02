@@ -1,3 +1,7 @@
+import exp = require('constants');
+
+import complaintSchema from './complaint';
+import complaintMessageSchema from './complaint-message';
 import contractSchema from './contract';
 import customerSchema from './customer';
 import merchantSchema from './merchant';
@@ -13,6 +17,8 @@ import userWalletSchema from './user-wallet';
 
 export * from './contract';
 export * from './customer';
+export * from './complaint';
+export * from './complaint-message';
 export * from './merchant';
 export * from './moderator';
 export * from './offer';
@@ -26,6 +32,8 @@ export * from './user-wallet';
 
 export default {
   ...contractSchema,
+  ...complaintSchema,
+  ...complaintMessageSchema,
   ...customerSchema,
   ...merchantSchema,
   ...moderatorSchema,
