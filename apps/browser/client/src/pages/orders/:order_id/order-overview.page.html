@@ -3,9 +3,9 @@
 <nb-card>
   <nb-card-body>
     @if(user.customer_id) {
-    <app-customer-flow [contractAddress]="order.contract.address"></app-customer-flow>
+    <app-customer-flow></app-customer-flow>
     } @else if(user.merchant_id) {
-    <app-merchant-flow [contractAddress]="order.contract.address"></app-merchant-flow>
+    <app-merchant-flow></app-merchant-flow>
     }
   </nb-card-body>
 </nb-card>

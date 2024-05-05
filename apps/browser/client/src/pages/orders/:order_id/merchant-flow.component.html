@@ -1,22 +1,48 @@
-<nb-stepper orientation="horizontal" [linear]="true" disableStepNavigation>
-  <nb-step label="Deposit" content="deposit">
+@if ((status$ | async); as status) {
+<nb-stepper orientation="horizontal" [linear]="true" disableStepNavigation #stepper>
+  <nb-step label="Awaiting deposit" #depositRef [completed]="isCompleted('deposit', status)">
     Customer does need to make a deposit first.
   </nb-step>
-  <nb-step label="Confirmation">
-    Let the customer know, that you're fine with preparing his order.
+  <nb-step label="Confirm" #confirmRef [completed]="isCompleted('confirm', status)">
+    @if ((depositAmount$ | async); as amount) {
+    <p>Customer just made a deposit of {{amount | unit:-18}} ETH. Now it's your turn to confirm that you can execute the
+      order, or cancel.</p>
+
+    <div class="button-wrapper">
+      <button nbButton (click)="cancel()">
+        Cancel
+      </button>
+      <button nbButton status="success" (click)="confirm()">
+        Confirm
+      </button>
+    </div>
+    }
   </nb-step>
-  <nb-step label="Preparing" content="execution">
-    Once you finish preparing the order, let the customer know.
+  <nb-step label="Preparing" #prepareRef [completed]="isCompleted('preparing', status)">
+    Have you already prepared & sent the order? Please confirm it below.
+
+    <div class="button-wrapper">
+      <button nbButton status="success" (click)="shipping()">
+        Ship
+      </button>
+    </div>
   </nb-step>
-  <nb-step label="Shipping" content="shipping">
-    Order is on it's way to the customer. Provide tracking information if available. Once delivered, please confirm it
-    below.
+  <nb-step label="Shipping" #shippingRef [completed]="isCompleted('shipping', status)">
+    Order is on it's way to the customer. Provide tracking information if available. Once you receive confirmation from
+    a carrier, please confrim it below.
+
+    <div class="button-wrapper">
+      <button nbButton status="success" (click)="shipped()">
+        Shipped
+      </button>
+    </div>
   </nb-step>
-  <nb-step label="Delivered" content="delivered">
-    Order has been delivered. The customer needs to confirm the delivery now, until then deposit is on hold. Unless
-    Customer won't respond in 7 days, the deposit will be released anyway.
+  <nb-step label="Shipped" #shippedRef [completed]="isCompleted('shipped', status)">
+    Order has been delivered. Customer deposit will be released once he confirms receiving it, or after redemption
+    period fades.
   </nb-step>
-  <nb-step label="Done" content="done">
+  <nb-step label="Done" #doneRef [completed]="isCompleted('done', status)">
     Great job! You've successfully delivered the order. Thank you for your service.
   </nb-step>
 </nb-stepper>
+}

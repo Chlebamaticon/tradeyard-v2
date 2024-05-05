@@ -1,21 +1,24 @@
-<nb-stepper orientation="horizontal" [linear]="true" disableStepNavigation>
-  <nb-step label="Deposit" #depositRef>
+@if ((status$ | async); as status) {
+<nb-stepper orientation="horizontal" [linear]="true" disableStepNavigation #stepper>
+  <nb-step label="Deposit" #depositRef [completed]="isCompleted('deposit', status)">
     @if ((depositAmount$|async); as amount) {
-    <button nbButton status="primary" size="small" (click)="deposit(amount)">Deposit {{amount | unit:-18}}
-      wei</button>
+    <button nbButton status="primary" size="small" (click)="deposit(amount)">Deposit {{amount | unit:-18}} ETH</button>
     }
     You need to make your deposit first.
   </nb-step>
-  <nb-step label="Execution" #pending>
+  <nb-step label="Preparing" #executionRef [completed]="isCompleted('execution', status)">
     Merchant is preparing your order.
   </nb-step>
-  <nb-step label="Shipping" #shipping>
+  <nb-step label="Shipping" #shippingRef [completed]="isCompleted('shipping', status)">
     Your order is on its way. Merchant did not provide tracking information.
   </nb-step>
-  <nb-step label="Delivered" #delivered>
+  <nb-step label="Shipped" #shippedRef [completed]="isCompleted('shipped', status)">
     Your order has been delivered. Haven't received it yet? Click here. Otherwise, confirm it below.
+
+    <button nbButton status="success" (click)="release()">Confirm</button>
   </nb-step>
-  <nb-step label="Done" #done>
-    You have confirmed the delivery of your order. Thank you for shopping with us.
+  <nb-step label="Done" #doneRef [completed]="isCompleted('done', status)">
+    Thanks for making shopping with us. We hope you come back soon. :)
   </nb-step>
 </nb-stepper>
+}

@@ -7,6 +7,7 @@ import { exhaustMap, merge } from 'rxjs';
 import { AuthApiService, OrderApiService } from '../../../modules/api/services';
 import { OnDestroyNotifier$ } from '../../../providers';
 
+import { BaseContract } from './contracts/base-contract.class';
 import { CustomerFlowComponent } from './customer-flow.component';
 import { MerchantFlowComponent } from './merchant-flow.component';
 
@@ -23,7 +24,7 @@ import { MerchantFlowComponent } from './merchant-flow.component';
     CustomerFlowComponent,
     MerchantFlowComponent,
   ],
-  providers: [OnDestroyNotifier$],
+  providers: [BaseContract, OnDestroyNotifier$],
 })
 export class OrderOverviewPage {
   readonly init$ = new EventEmitter<void>();

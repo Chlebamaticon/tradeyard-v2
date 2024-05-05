@@ -57,6 +57,7 @@ export class OrderService {
     const order = await this.#queryBuilder({
       where: { order_id },
     }).getOneOrFail();
+    console.log(order);
 
     return GetOrder.parse(this.mapToOrderDto(order));
   }
@@ -217,53 +218,50 @@ export class OrderService {
     options: FindManyOptions<OrderViewEntity> = {}
   ): SelectQueryBuilder<OrderViewEntity> {
     const { manager } = this.orderRepository;
-    return (
-      manager
-        .createQueryBuilder<OrderViewEntity>(OrderViewEntity, 'order')
-        // .setFindOptions(options)
-        .leftJoinAndMapOne(
-          'order.offer_variant',
-          OfferVariantViewEntity,
-          'offer_variant',
-          '"offer_variant"."offer_variant_id" = "order"."offer_variant_id"'
-        )
-        .leftJoinAndMapOne(
-          'order.offer',
-          OfferViewEntity,
-          'offer',
-          '"offer"."offer_id" = "offer_variant"."offer_id"'
-        )
-        .leftJoinAndMapOne(
-          'order.offer_variant_price',
-          OfferVariantPriceViewEntity,
-          'offer_variant_price',
-          '"offer_variant_price"."offer_variant_price_id" = "order"."offer_variant_price_id"'
-        )
-        .leftJoinAndMapOne(
-          'order.merchant',
-          MerchantViewEntity,
-          'merchant',
-          '"merchant"."merchant_id" = "order"."merchant_id"'
-        )
-        .leftJoinAndMapOne(
-          'order.contract',
-          ContractViewEntity,
-          'contract',
-          '"contract"."contract_id" = "order"."contract_id"'
-        )
-        .leftJoinAndMapOne(
-          'order.merchant_user',
-          UserViewEntity,
-          'merchant_user',
-          '"merchant_user"."user_id" = "merchant"."user_id"'
-        )
-        .leftJoinAndMapOne(
-          'order.token',
-          TokenViewEntity,
-          'token',
-          '"token"."token_id" = "offer_variant_price"."token_id"'
-        )
-    );
-    // .orderBy('"order"."created_at"', 'DESC');
+    return manager
+      .createQueryBuilder<OrderViewEntity>(OrderViewEntity, 'order')
+      .leftJoinAndMapOne(
+        'order.offer_variant',
+        OfferVariantViewEntity,
+        'offer_variant',
+        '"offer_variant"."offer_variant_id" = "order"."offer_variant_id"'
+      )
+      .leftJoinAndMapOne(
+        'order.offer',
+        OfferViewEntity,
+        'offer',
+        '"offer"."offer_id" = "offer_variant"."offer_id"'
+      )
+      .leftJoinAndMapOne(
+        'order.offer_variant_price',
+        OfferVariantPriceViewEntity,
+        'offer_variant_price',
+        '"offer_variant_price"."offer_variant_price_id" = "order"."offer_variant_price_id"'
+      )
+      .leftJoinAndMapOne(
+        'order.merchant',
+        MerchantViewEntity,
+        'merchant',
+        '"merchant"."merchant_id" = "order"."merchant_id"'
+      )
+      .leftJoinAndMapOne(
+        'order.contract',
+        ContractViewEntity,
+        'contract',
+        '"contract"."contract_id" = "order"."contract_id"'
+      )
+      .leftJoinAndMapOne(
+        'order.merchant_user',
+        UserViewEntity,
+        'merchant_user',
+        '"merchant_user"."user_id" = "merchant"."user_id"'
+      )
+      .leftJoinAndMapOne(
+        'order.token',
+        TokenViewEntity,
+        'token',
+        '"token"."token_id" = "offer_variant_price"."token_id"'
+      )
+      .setFindOptions(options);
   }
 }

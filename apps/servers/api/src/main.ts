@@ -6,6 +6,8 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
+import artifact from '@tradeyard-v2/contracts/ecommerce/artifacts/Order.sol/Order.json';
+
 import { AppModule } from './app/app.module';
 import { HttpExceptionFilter } from './app/http-exception.filter';
 
@@ -22,4 +24,5 @@ async function bootstrap() {
   );
 }
 
+console.log(artifact);
 bootstrap();
