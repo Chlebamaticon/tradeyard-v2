@@ -1,11 +1,13 @@
-@if ((status$ | async); as status) {
-<nb-stepper orientation="horizontal" [linear]="true" disableStepNavigation #stepper>
-  <nb-step label="Awaiting deposit" #depositRef [completed]="isCompleted('deposit', status)">
+@if ((data$ | async); as data) {
+<nb-stepper orientation="horizontal" [linear]="true" disableStepNavigation #stepper
+  [class.content-hidden]="isComplaint(data.currentStatus)">
+  <nb-step label="Awaiting deposit" #depositRef [completed]="isCompleted('deposit', data)">
     Customer does need to make a deposit first.
   </nb-step>
-  <nb-step label="Confirm" #confirmRef [completed]="isCompleted('confirm', status)">
-    @if ((depositAmount$ | async); as amount) {
-    <p>Customer just made a deposit of {{amount | unit:-18}} ETH. Now it's your turn to confirm that you can execute the
+  <nb-step label="Confirm" #confirmRef [completed]="isCompleted('confirm', data)">
+
+    <p>Customer just made a deposit of {{data.tokenAmount | unit:-18}} ETH. Now it's your turn to confirm that you can
+      execute the
       order, or cancel.</p>
 
     <div class="button-wrapper">
@@ -16,9 +18,8 @@
         Confirm
       </button>
     </div>
-    }
   </nb-step>
-  <nb-step label="Preparing" #prepareRef [completed]="isCompleted('preparing', status)">
+  <nb-step label="Preparing" #prepareRef [completed]="isCompleted('preparing', data)">
     Have you already prepared & sent the order? Please confirm it below.
 
     <div class="button-wrapper">
@@ -27,7 +28,7 @@
       </button>
     </div>
   </nb-step>
-  <nb-step label="Shipping" #shippingRef [completed]="isCompleted('shipping', status)">
+  <nb-step label="Shipping" #shippingRef [completed]="isCompleted('shipping', data)">
     Order is on it's way to the customer. Provide tracking information if available. Once you receive confirmation from
     a carrier, please confrim it below.
 
@@ -37,12 +38,16 @@
       </button>
     </div>
   </nb-step>
-  <nb-step label="Shipped" #shippedRef [completed]="isCompleted('shipped', status)">
+  <nb-step label="Shipped" #shippedRef [completed]="isCompleted('shipped', data)">
     Order has been delivered. Customer deposit will be released once he confirms receiving it, or after redemption
     period fades.
   </nb-step>
-  <nb-step label="Done" #doneRef [completed]="isCompleted('done', status)">
+  <nb-step label="Done" #doneRef [completed]="isCompleted('done', data)">
     Great job! You've successfully delivered the order. Thank you for your service.
   </nb-step>
 </nb-stepper>
+
+@if (isComplaint(data.currentStatus)) {
+<app-complaint-thread author="You (Merchant)"></app-complaint-thread>
+}
 }

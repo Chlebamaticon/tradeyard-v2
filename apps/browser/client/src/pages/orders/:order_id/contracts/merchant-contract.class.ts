@@ -35,21 +35,8 @@ export class MerchantContract {
   }
 
   #transition(functionName: string) {
-    return defer(() =>
-      this.base.simulateContract(this.#wallet, { functionName }).pipe(
-        /**
-         * Alchemy does limit the RPC throughput; therefore
-         * we need to add artifical delay to avoid rate limiting.
-         * @todo To be removed once Alchemy upgrade plan.
-         */
-        delay(1000),
-        exhaustMap(() =>
-          this.base.writeContract(this.#wallet, {
-            functionName,
-          })
-        )
-      )
-    );
+    const method = this.base.createTransitionMethod(this.#wallet);
+    return method(functionName);
   }
 
   constructor(readonly base: BaseContract) {}

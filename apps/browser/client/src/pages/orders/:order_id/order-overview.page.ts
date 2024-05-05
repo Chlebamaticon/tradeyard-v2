@@ -1,8 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Self } from '@angular/core';
+import {
+  Component,
+  contentChild,
+  EventEmitter,
+  Self,
+  viewChild,
+} from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { NbCardModule, NbStepperModule } from '@nebular/theme';
-import { exhaustMap, merge } from 'rxjs';
+import {
+  NbButton,
+  NbButtonModule,
+  NbCardModule,
+  NbStepperModule,
+} from '@nebular/theme';
+import { combineLatest, exhaustMap, merge } from 'rxjs';
 
 import { AuthApiService, OrderApiService } from '../../../modules/api/services';
 import { OnDestroyNotifier$ } from '../../../providers';
@@ -19,6 +30,7 @@ import { MerchantFlowComponent } from './merchant-flow.component';
   imports: [
     CommonModule,
     RouterModule,
+    NbButtonModule,
     NbCardModule,
     NbStepperModule,
     CustomerFlowComponent,
@@ -27,13 +39,19 @@ import { MerchantFlowComponent } from './merchant-flow.component';
   providers: [BaseContract, OnDestroyNotifier$],
 })
 export class OrderOverviewPage {
-  readonly init$ = new EventEmitter<void>();
+  readonly data$ = combineLatest({
+    order: merge(this.router.params).pipe(
+      exhaustMap(({ order_id }) => this.orderApiService.one({ order_id }))
+    ),
+    whoami: this.authApiService.whoami(),
+  });
 
-  readonly order$ = merge(this.router.params).pipe(
-    exhaustMap(({ order_id }) => this.orderApiService.one({ order_id }))
-  );
-
-  readonly whoami$ = this.authApiService.whoami();
+  readonly customerFlow = viewChild('customerFlow', {
+    read: CustomerFlowComponent,
+  });
+  readonly merchantFlow = viewChild('merchantFlow', {
+    read: MerchantFlowComponent,
+  });
 
   constructor(
     readonly router: ActivatedRoute,
@@ -42,8 +60,21 @@ export class OrderOverviewPage {
     readonly orderApiService: OrderApiService
   ) {}
 
-  ngAfterViewInit(): void {
-    this.init$.emit();
-    this.init$.complete();
+  /**
+   * @todo Once we start using turnkey wallet instead of the static one,
+   * this method can be slimmed to just one.
+   * `complaint` method at contract distinguish sides automatically.
+   */
+  async submitComplaintAsCustomer() {
+    const customerFlow = this.customerFlow();
+    console.log(this.customerFlow());
+    if (!customerFlow) return;
+    await customerFlow.complaint();
+  }
+
+  async submitComplaintAsMerchant() {
+    const merchantFlow = this.customerFlow();
+    if (!merchantFlow) return;
+    await merchantFlow.complaint();
   }
 }

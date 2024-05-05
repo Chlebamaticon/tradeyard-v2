@@ -10,6 +10,7 @@ import {
   Observable,
   combineLatestWith,
   defer,
+  delay,
   exhaustMap,
   from,
   map,
@@ -43,8 +44,12 @@ export class BaseContract {
 
   stateChanges = new BehaviorSubject<void>(undefined);
 
-  getOrderTokenAmount(): Observable<bigint> {
-    return defer(() => this.readContractOnce<bigint>('getOrderTokenAmount'));
+  getTokenAmount(): Observable<bigint> {
+    return defer(() => this.readContractOnce<bigint>('getTokenAmount'));
+  }
+
+  getTokenAddress(): Observable<bigint> {
+    return defer(() => this.readContractOnce<bigint>('getTokenAddress'));
   }
 
   getLastTransitionAt(): Observable<bigint> {
@@ -52,7 +57,11 @@ export class BaseContract {
   }
 
   getStatus(): Observable<OrderStatus> {
-    return defer(() => this.readContract<OrderStatus>('getOrderStatus'));
+    return defer(() => this.readContract<OrderStatus>('getStatus'));
+  }
+
+  getPreviousStatus(): Observable<OrderStatus> {
+    return defer(() => this.readContract<OrderStatus>('getPreviousStatus'));
   }
 
   getCustomerAddress(): Observable<Address> {
@@ -65,7 +74,7 @@ export class BaseContract {
 
   readContractOnce<T = unknown>(functionName: string): Observable<T> {
     return from(this.contractAddress).pipe(
-      tap((args) => console.log('readContractOnce', args)),
+      tap((args) => console.debug('readContractOnce', functionName, args)),
       exhaustMap(
         (address) =>
           this.auth.walletClient.readContract({
@@ -80,7 +89,7 @@ export class BaseContract {
   readContract<T = unknown>(functionName: string): Observable<T> {
     return from(this.contractAddress).pipe(
       combineLatestWith(this.stateChanges),
-      tap((args) => console.log('readContract', args)),
+      tap((args) => console.debug('readContract', functionName, args)),
       exhaustMap(
         ([address]) =>
           this.auth.walletClient.readContract({
@@ -95,6 +104,12 @@ export class BaseContract {
   simulateContract(fromWallet: Wallet, init: ContractInit) {
     return defer(() =>
       from(this.contractAddress).pipe(
+        tap((toAddress) =>
+          console.debug('simulateContract', init, {
+            from: fromWallet,
+            to: toAddress,
+          })
+        ),
         exhaustMap((toAddress) =>
           from(
             this.alchemy.transact.simulateExecution({
@@ -130,6 +145,12 @@ export class BaseContract {
   writeContract(fromWallet: Wallet, init: ContractInit) {
     return defer(() =>
       from(this.contractAddress).pipe(
+        tap((toAddress) =>
+          console.debug('writeContract', init, {
+            from: fromWallet,
+            to: toAddress,
+          })
+        ),
         combineLatestWith(
           this.alchemy.core.getTransactionCount(fromWallet.address, 'latest'),
           this.alchemy.core.getFeeData()
@@ -159,6 +180,25 @@ export class BaseContract {
         tap(() => this.stateChanges.next())
       )
     );
+  }
+
+  createTransitionMethod(wallet: Wallet) {
+    return (functionName: string) =>
+      defer(() =>
+        this.simulateContract(wallet, { functionName }).pipe(
+          /**
+           * Alchemy does limit the RPC throughput; therefore
+           * we need to add artifical delay to avoid rate limiting.
+           * @todo To be removed once Alchemy upgrade plan.
+           */
+          delay(1000),
+          exhaustMap(() =>
+            this.writeContract(wallet, {
+              functionName,
+            })
+          )
+        )
+      );
   }
 
   constructor(

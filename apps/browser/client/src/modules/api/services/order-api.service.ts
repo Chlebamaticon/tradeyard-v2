@@ -5,6 +5,7 @@ import {
   CreateOrderBodyDto,
   GetOrderDto,
   GetOrdersDto,
+  OrderDto,
 } from '@tradeyard-v2/api-dtos';
 
 import { pagination, PaginationInit } from '..';
@@ -27,7 +28,7 @@ export class OrderApiService {
     initialParams: { offset = 0, limit = 20, timestamp = Date.now() },
     ...notifiers
   }: PaginationInit) {
-    return pagination({
+    return pagination<OrderDto>({
       ...notifiers,
       initialParams: { offset, limit },
       initialSearch: { timestamp },

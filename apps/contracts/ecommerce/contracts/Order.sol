@@ -70,7 +70,7 @@ contract Order is Ownable {
     error RedemptionPeriodNotOverYet(uint256 endsAt);
 
     OrderStatus public status = OrderStatus.Created;
-    OrderStatus private beforeComplaintStatus;
+    OrderStatus private previousStatus;
     uint256 private lastTransitionAt;
 
     address payable public customer;
@@ -184,8 +184,6 @@ contract Order is Ownable {
     }
 
     function rejectComplaint() external onlyOwner {
-        status = beforeComplaintStatus;
-        lastTransitionAt = block.timestamp;
         emit ModeratorComplaintRejected(
             block.timestamp,
             _msgSender(),
@@ -198,6 +196,7 @@ contract Order is Ownable {
     ) internal validateTransition(_nextStatus) {
         OrderStatus _currentStatus = status;
         status = _nextStatus;
+        previousStatus = _currentStatus;
         lastTransitionAt = block.timestamp;
         emit OrderStatusTransition(
             lastTransitionAt,
@@ -242,19 +241,23 @@ contract Order is Ownable {
         _;
     }
 
-    function getOrderStatus() external view returns (OrderStatus) {
+    function getStatus() external view returns (OrderStatus) {
         return status;
+    }
+
+    function getPreviousStatus() external view returns (OrderStatus) {
+        return previousStatus;
     }
 
     function getOrderHash() external view returns (bytes memory) {
         return orderHash;
     }
 
-    function getOrderTokenAmount() external view returns (uint256) {
+    function getTokenAmount() external view returns (uint256) {
         return tokenAmount;
     }
 
-    function getOrderTokenAddress() external view returns (address) {
+    function getTokenAddress() external view returns (address) {
         return tokenAddress;
     }
 
@@ -292,7 +295,6 @@ contract Order is Ownable {
             ) {
                 revert InvalidStatusTransition(_currentStatus, _nextStatus);
             }
-            beforeComplaintStatus = _currentStatus;
         } else if (_currentStatus == OrderStatus.Created) {
             if (_nextStatus != OrderStatus.CustomerDeposit) {
                 revert InvalidStatusTransition(_currentStatus, _nextStatus);

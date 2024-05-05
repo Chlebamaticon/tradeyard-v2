@@ -15,6 +15,11 @@ import { Pagination } from '@tradeyard-v2/api-dtos';
 
 export type PaginationParams = { offset?: number; limit?: number };
 export type PaginationSearchParams = { timestamp: number };
+
+export type PaginationTransformer<Input = unknown, Output = unknown> = (
+  items: Input[]
+) => Output[];
+
 export interface PaginationNotifierInit {
   initNotifier?: Observable<void>;
   destroyNotifier?: Observable<void>;

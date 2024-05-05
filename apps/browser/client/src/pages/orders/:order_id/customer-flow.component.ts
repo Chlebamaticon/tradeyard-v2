@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, viewChild } from '@angular/core';
+import { Component, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
   NbButtonModule,
@@ -8,13 +8,22 @@ import {
   NbStepperComponent,
   NbStepperModule,
 } from '@nebular/theme';
-import { firstValueFrom, map, switchMap, tap, withLatestFrom } from 'rxjs';
+import {
+  combineLatest,
+  firstValueFrom,
+  map,
+  shareReplay,
+  switchMap,
+  tap,
+  withLatestFrom,
+} from 'rxjs';
 
 import { OrderStatus } from '@tradeyard-v2/api-dtos';
 
 import { AuthService } from '../../../modules/auth';
 import { UnitPipe } from '../../../pipes/unit.pipe';
 
+import { ComplaintThreadComponent } from './complaint-thread.component';
 import {
   CustomerStep,
   customerStepToCompleted,
@@ -32,9 +41,9 @@ import { BaseContract, CustomerContract } from './contracts';
     NbButtonModule,
     NbCardModule,
     NbStepperModule,
+    ComplaintThreadComponent,
     UnitPipe,
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [CustomerContract],
 })
 export class CustomerFlowComponent {
@@ -56,13 +65,19 @@ export class CustomerFlowComponent {
   readonly doneStepRef = viewChild('doneRef', { read: NbStepComponent });
   readonly doneStep$ = toObservable(this.doneStepRef);
 
-  readonly depositAmount$ = this.baseContract.getOrderTokenAmount();
-  readonly status$ = this.baseContract.getStatus();
+  readonly data$ = combineLatest({
+    previousStatus: this.baseContract.getPreviousStatus(),
+    currentStatus: this.baseContract.getStatus(),
+    tokenAmount: this.baseContract.getTokenAmount(),
+    tokenAddress: this.baseContract.getTokenAddress(),
+  }).pipe(shareReplay(1));
 
-  readonly activeStep$ = this.status$.pipe(
-    map((status) =>
+  readonly activeStep$ = this.data$.pipe(
+    map(({ currentStatus, previousStatus }) =>
       Object.keys(customerStepToStatus).find((step) =>
-        customerStepToStatus[step as CustomerStep].includes(status)
+        customerStepToStatus[step as CustomerStep].includes(
+          this.isComplaint(currentStatus) ? previousStatus : currentStatus
+        )
       )
     )
   );
@@ -120,7 +135,20 @@ export class CustomerFlowComponent {
     await firstValueFrom(this.customerContract.complaint());
   }
 
-  isCompleted(step: CustomerStep, currentStatus: OrderStatus): boolean {
-    return customerStepToCompleted[step].includes(currentStatus);
+  isCompleted(
+    step: CustomerStep,
+    data: { previousStatus: OrderStatus; currentStatus: OrderStatus }
+  ): boolean {
+    const status = this.isComplaint(data.currentStatus)
+      ? data.previousStatus
+      : data.currentStatus;
+    return customerStepToCompleted[step].includes(status);
+  }
+
+  isComplaint(status: OrderStatus): boolean {
+    return [
+      OrderStatus.MerchantComplaint,
+      OrderStatus.CustomerComplaint,
+    ].includes(status);
   }
 }

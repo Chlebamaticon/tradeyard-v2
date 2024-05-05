@@ -1,13 +1,25 @@
-@if ((whoami$ | async); as user) {
-@if ((order$ | async); as order) {
+@if ((data$ | async); as data) {
+<div class="orders-header">
+  <h4><span routerLink="/orders">Orders</span> > <span
+      [routerLink]="['/orders', data.order.order_id]">{{data.order.offer_variant.title ||
+      data.order.offer.title}}</span></h4>
+
+  @if(data.whoami.customer_id) {
+  <button nbButton size="small" ghost (click)="submitComplaintAsCustomer()">Something is wrong? Submit
+    complaint</button>
+  } @else if(data.whoami.merchant_id) {
+  <button nbButton size="small" ghost (click)="submitComplaintAsMerchant()">Something is wrong? Submit
+    complaint</button>
+  }
+</div>
+
 <nb-card>
   <nb-card-body>
-    @if(user.customer_id) {
-    <app-customer-flow></app-customer-flow>
-    } @else if(user.merchant_id) {
-    <app-merchant-flow></app-merchant-flow>
+    @if(data.whoami.customer_id) {
+    <app-customer-flow #customerFlow></app-customer-flow>
+    } @else if(data.whoami.merchant_id) {
+    <app-merchant-flow #merchantFlow></app-merchant-flow>
     }
   </nb-card-body>
 </nb-card>
-}
 }

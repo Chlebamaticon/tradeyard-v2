@@ -6,7 +6,6 @@ import {
   CompleteAuthentication,
   UnauthenticatedOnly,
 } from '../modules/auth/guards';
-import { DashboardPage } from '../pages/dashboard/dashboard.page';
 
 export const appRoutes: Route[] = [
   {
@@ -28,7 +27,8 @@ export const appRoutes: Route[] = [
         children: [
           {
             path: '',
-            component: DashboardPage,
+            redirectTo: 'offers',
+            pathMatch: 'full',
           },
           {
             path: 'offers',

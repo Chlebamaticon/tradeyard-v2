@@ -1,0 +1,23 @@
+<div class="thread">
+  <div class="thread__message">
+    @for(message of (messages$ | async); track message) {
+    <div class="message" [class.message--own]="message.own" [class.message--sent]="message.synced">
+      <label for="" class="message__author">{{ message.from }}</label>
+      <p class="message__content">{{ message.body }}</p>
+      <span class="message__timestamp">{{ message.sent_at | date }}</span>
+    </div>
+    }
+  </div>
+
+  <div class="thread__textbox">
+    <form class="textbox" (submit)="send($event)" [formGroup]="group">
+      <p class="textbox__author">{{author$ | async}}</p>
+      <div class="textbox__control">
+        <input nbInput fullWidth formControlName="textbox" shape="semi-round" class="textbox__input"
+          placeholder="Type your message here" />
+        <button nbButton status="primary" class="textbox__submit" shape="semi-round" type="submit">Send</button>
+      </div>
+      <div class="textbox__footer"></div>
+    </form>
+  </div>
+</div>

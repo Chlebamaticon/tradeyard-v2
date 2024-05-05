@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NbLayoutModule } from '@nebular/theme';
 
@@ -8,5 +8,6 @@ import { NbLayoutModule } from '@nebular/theme';
   selector: 'app-orders-page',
   templateUrl: './orders.page.html',
   styleUrls: ['./orders.page.scss'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class OrdersPage {}

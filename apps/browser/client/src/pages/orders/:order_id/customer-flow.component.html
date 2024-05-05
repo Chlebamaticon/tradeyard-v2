@@ -1,24 +1,30 @@
-@if ((status$ | async); as status) {
-<nb-stepper orientation="horizontal" [linear]="true" disableStepNavigation #stepper>
-  <nb-step label="Deposit" #depositRef [completed]="isCompleted('deposit', status)">
-    @if ((depositAmount$|async); as amount) {
-    <button nbButton status="primary" size="small" (click)="deposit(amount)">Deposit {{amount | unit:-18}} ETH</button>
-    }
+@if ((data$ | async); as data) {
+<nb-stepper orientation="horizontal" [linear]="true" disableStepNavigation #stepper
+  [class.content-hidden]="isComplaint(data.currentStatus)">
+  <nb-step label="Deposit" #depositRef [completed]="isCompleted('deposit', data)">
+
+    <button nbButton status="primary" size="small" (click)="deposit(data.tokenAmount)">Deposit {{data.tokenAmount |
+      unit:-18}} ETH</button>
+
     You need to make your deposit first.
   </nb-step>
-  <nb-step label="Preparing" #executionRef [completed]="isCompleted('execution', status)">
+  <nb-step label="Preparing" #executionRef [completed]="isCompleted('execution', data)">
     Merchant is preparing your order.
   </nb-step>
-  <nb-step label="Shipping" #shippingRef [completed]="isCompleted('shipping', status)">
+  <nb-step label="Shipping" #shippingRef [completed]="isCompleted('shipping', data)">
     Your order is on its way. Merchant did not provide tracking information.
   </nb-step>
-  <nb-step label="Shipped" #shippedRef [completed]="isCompleted('shipped', status)">
+  <nb-step label="Shipped" #shippedRef [completed]="isCompleted('shipped', data)">
     Your order has been delivered. Haven't received it yet? Click here. Otherwise, confirm it below.
 
     <button nbButton status="success" (click)="release()">Confirm</button>
   </nb-step>
-  <nb-step label="Done" #doneRef [completed]="isCompleted('done', status)">
-    Thanks for making shopping with us. We hope you come back soon. :)
+  <nb-step label="Done" #doneRef [completed]="isCompleted('done', data)">
+    Thanks for making shopping with us. We hope you come back soon.
   </nb-step>
 </nb-stepper>
+
+@if (isComplaint(data.currentStatus)) {
+<app-complaint-thread author="You (Customer)"></app-complaint-thread>
+}
 }
