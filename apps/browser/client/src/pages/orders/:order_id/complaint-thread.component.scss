@@ -2,8 +2,16 @@
   display: flex;
   flex-flow: column nowrap;
   gap: 1rem;
+  max-height: 60vh;
+  overflow: hidden;
 
-  &__message {
+  &__messages {
+    flex: 1 1 auto;
+    overflow: hidden;
+    overflow-y: auto;
+  }
+
+  &__messages-wrapper {
     display: flex;
     flex-flow: column nowrap;
     align-items: flex-start;
@@ -11,6 +19,7 @@
   }
 
   &__textbox {
+    flex: 0 0 auto;
     border-top: 1px solid rgba(0, 0, 0, 0.08);
     padding-top: 0.5rem;
   }

@@ -24,5 +24,4 @@ async function bootstrap() {
   );
 }
 
-console.log(artifact);
 bootstrap();

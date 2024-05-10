@@ -2,13 +2,11 @@
 <nb-stepper orientation="horizontal" [linear]="true" disableStepNavigation #stepper
   [class.content-hidden]="isComplaint(data.currentStatus)">
   <nb-step label="Awaiting deposit" #depositRef [completed]="isCompleted('deposit', data)">
-    Customer does need to make a deposit first.
+    <p>Customer does need to make a deposit first.</p>
   </nb-step>
   <nb-step label="Confirm" #confirmRef [completed]="isCompleted('confirm', data)">
-
     <p>Customer just made a deposit of {{data.tokenAmount | unit:-18}} ETH. Now it's your turn to confirm that you can
-      execute the
-      order, or cancel.</p>
+      execute the order, or cancel.</p>
 
     <div class="button-wrapper">
       <button nbButton (click)="cancel()">
@@ -20,7 +18,7 @@
     </div>
   </nb-step>
   <nb-step label="Preparing" #prepareRef [completed]="isCompleted('preparing', data)">
-    Have you already prepared & sent the order? Please confirm it below.
+    <p>Have you already prepared & sent the order? Please confirm it below.</p>
 
     <div class="button-wrapper">
       <button nbButton status="success" (click)="shipping()">
@@ -29,8 +27,8 @@
     </div>
   </nb-step>
   <nb-step label="Shipping" #shippingRef [completed]="isCompleted('shipping', data)">
-    Order is on it's way to the customer. Provide tracking information if available. Once you receive confirmation from
-    a carrier, please confrim it below.
+    <p>Order is on it's way to the customer. Provide tracking information if available. Once you receive confirmation
+      from a carrier, please confrim it below.</p>
 
     <div class="button-wrapper">
       <button nbButton status="success" (click)="shipped()">
@@ -39,11 +37,11 @@
     </div>
   </nb-step>
   <nb-step label="Shipped" #shippedRef [completed]="isCompleted('shipped', data)">
-    Order has been delivered. Customer deposit will be released once he confirms receiving it, or after redemption
-    period fades.
+    <p>Order has been delivered. Customer deposit will be released once he confirms receiving it, or after redemption
+      period fades.</p>
   </nb-step>
   <nb-step label="Done" #doneRef [completed]="isCompleted('done', data)">
-    Great job! You've successfully delivered the order. Thank you for your service.
+    <p>Great job! You've successfully delivered the order. Thank you for your service.</p>
   </nb-step>
 </nb-stepper>
 

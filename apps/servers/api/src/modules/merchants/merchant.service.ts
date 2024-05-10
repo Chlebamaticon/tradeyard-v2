@@ -7,20 +7,15 @@ import { FindOptionsWhere, Repository } from 'typeorm';
 
 import {
   CreateMerchant,
-  CreateMerchantBody,
   CreateMerchantBodyDto,
   CreateMerchantDto,
   Merchant,
   MerchantDto,
   GetMerchant,
   GetMerchantDto,
-  GetMerchantPathParams,
   GetMerchantPathParamsDto,
-  GetMerchants,
   GetMerchantsDto,
-  GetMerchantsQueryParams,
   GetMerchantsQueryParamsDto,
-  UpdateMerchantBody,
   UpdateMerchantBodyDto,
   UpdateMerchantDto,
 } from '@tradeyard-v2/api-dtos';

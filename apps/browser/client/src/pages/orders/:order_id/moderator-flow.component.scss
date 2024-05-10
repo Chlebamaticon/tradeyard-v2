@@ -1,0 +1,9 @@
+.button-wrapper {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 1rem;
+}
+
+nb-stepper.content-hidden ::ng-deep .step-content {
+  display: none;
+}

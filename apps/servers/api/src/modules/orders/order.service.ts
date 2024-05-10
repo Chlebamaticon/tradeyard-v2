@@ -2,18 +2,11 @@ import assert from 'assert';
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  FindManyOptions,
-  FindOptionsWhere,
-  LessThan,
-  Repository,
-  SelectQueryBuilder,
-} from 'typeorm';
-import { formatUnits, isAddress, isHex, parseEther } from 'viem';
+import { FindOptionsWhere, LessThan, Repository } from 'typeorm';
+import { isAddress, isHex, parseEther } from 'viem';
 
 import {
   CreateOrderBodyDto,
-  currentChain,
   GetOrder,
   GetOrderDto,
   GetOrdersDto,
@@ -22,17 +15,11 @@ import {
   OrderDto,
 } from '@tradeyard-v2/api-dtos';
 import {
-  ContractViewEntity,
   EventRepository,
-  MerchantViewEntity,
-  OfferVariantPriceViewEntity,
-  OfferVariantViewEntity,
-  OfferViewEntity,
   OrderViewEntity,
-  TokenViewEntity,
-  UserViewEntity,
 } from '@tradeyard-v2/server/database';
 
+import { mapToOrderDto } from '../../mappers';
 import { CustomerService } from '../customers';
 import { MerchantService } from '../merchants';
 import { OfferService, OfferVariantService } from '../offers';
@@ -54,12 +41,23 @@ export class OrderService {
   ) {}
 
   async getOne({ order_id }: { order_id?: string }): Promise<GetOrderDto> {
-    const order = await this.#queryBuilder({
+    const order = await this.orderRepository.findOne({
       where: { order_id },
-    }).getOneOrFail();
-    console.log(order);
+      relations: {
+        complaints: true,
+        contract: true,
+        customer: { user: true },
+        merchant: { user: true },
+        offerVariant: {
+          offer: true,
+          offerVariantPrices: {
+            token: true,
+          },
+        },
+      },
+    });
 
-    return GetOrder.parse(this.mapToOrderDto(order));
+    return GetOrder.parse(mapToOrderDto(order));
   }
 
   async getMany({
@@ -72,17 +70,29 @@ export class OrderService {
     const where: FindOptionsWhere<OrderViewEntity> = {};
     if (merchant_id) where.merchant_id = merchant_id;
     if (customer_id) where.customer_id = customer_id;
-    const [offers, total] = await this.#queryBuilder({})
-      .where({
+    const [offers, total] = await this.orderRepository.findAndCount({
+      where: {
         ...where,
         created_at: LessThan(new Date(timestamp)),
-      })
-      .skip(offset)
-      .take(limit)
-      .getManyAndCount();
+      },
+      relations: {
+        complaints: true,
+        contract: true,
+        customer: { user: true },
+        merchant: { user: true },
+        offerVariant: {
+          offer: true,
+          offerVariantPrices: {
+            token: true,
+          },
+        },
+      },
+      skip: offset,
+      take: limit,
+    });
 
     return {
-      items: offers.map((order) => this.mapToOrderDto(order)),
+      items: offers.map(mapToOrderDto),
       total,
       offset,
       limit,
@@ -161,107 +171,8 @@ export class OrderService {
       quantity,
     });
 
-    return this.mapToOrderDto(
-      await this.#queryBuilder({ where: { order_id } }).getOneOrFail()
+    return mapToOrderDto(
+      await this.orderRepository.findOneByOrFail({ order_id })
     );
-  }
-
-  mapToOrderDto(
-    order: OrderViewEntity & {
-      merchant_user?: UserViewEntity;
-      merchant?: MerchantViewEntity;
-      contract?: ContractViewEntity;
-      offer?: OfferViewEntity;
-      offer_variant?: OfferVariantViewEntity;
-      offer_variant_price?: OfferVariantPriceViewEntity & {
-        token?: TokenViewEntity;
-      };
-      token?: TokenViewEntity;
-    }
-  ): OrderDto {
-    return {
-      ...order,
-      merchant: {
-        merchant_id: order.merchant_id,
-        first_name: order.merchant_user.first_name,
-        last_name: order.merchant_user.last_name,
-      },
-      offer: {
-        offer_id: order.offer.offer_id,
-        title: order.offer.title,
-        description: order.offer.description,
-      },
-      offer_variant: {
-        offer_variant_id: order.offer_variant.offer_variant_id,
-        title: order.offer_variant.title,
-        description: order.offer_variant.description,
-      },
-      offer_variant_price: {
-        offer_variant_price_id:
-          order.offer_variant_price.offer_variant_price_id,
-        amount: +formatUnits(
-          BigInt(order.offer_variant_price.amount),
-          order.token.precision
-        ),
-        token: order.token,
-      },
-      contract: {
-        contract_id: order.contract.contract_id,
-        address: order.contract.contract_address,
-        chain: `${currentChain.id}`,
-      },
-      quantity: parseInt(`${order.quantity}`),
-    };
-  }
-
-  #queryBuilder(
-    options: FindManyOptions<OrderViewEntity> = {}
-  ): SelectQueryBuilder<OrderViewEntity> {
-    const { manager } = this.orderRepository;
-    return manager
-      .createQueryBuilder<OrderViewEntity>(OrderViewEntity, 'order')
-      .leftJoinAndMapOne(
-        'order.offer_variant',
-        OfferVariantViewEntity,
-        'offer_variant',
-        '"offer_variant"."offer_variant_id" = "order"."offer_variant_id"'
-      )
-      .leftJoinAndMapOne(
-        'order.offer',
-        OfferViewEntity,
-        'offer',
-        '"offer"."offer_id" = "offer_variant"."offer_id"'
-      )
-      .leftJoinAndMapOne(
-        'order.offer_variant_price',
-        OfferVariantPriceViewEntity,
-        'offer_variant_price',
-        '"offer_variant_price"."offer_variant_price_id" = "order"."offer_variant_price_id"'
-      )
-      .leftJoinAndMapOne(
-        'order.merchant',
-        MerchantViewEntity,
-        'merchant',
-        '"merchant"."merchant_id" = "order"."merchant_id"'
-      )
-      .leftJoinAndMapOne(
-        'order.contract',
-        ContractViewEntity,
-        'contract',
-        '"contract"."contract_id" = "order"."contract_id"'
-      )
-      .leftJoinAndMapOne(
-        'order.merchant_user',
-        UserViewEntity,
-        'merchant_user',
-        '"merchant_user"."user_id" = "merchant"."user_id"'
-      )
-      .leftJoinAndMapOne(
-        'order.token',
-        TokenViewEntity,
-        'token',
-        '"token"."token_id" = "offer_variant_price"."token_id"'
-      )
-      .setFindOptions(options);
   }
 }

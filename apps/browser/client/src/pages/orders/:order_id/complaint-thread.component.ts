@@ -1,18 +1,33 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, input } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Inject,
+  input,
+  viewChild,
+} from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NbButtonModule, NbInputModule } from '@nebular/theme';
-import { subHours } from 'date-fns';
-import { map, merge, Observable, of, scan, shareReplay } from 'rxjs';
+import {
+  combineLatest,
+  combineLatestWith,
+  exhaustMap,
+  filter,
+  from,
+  map,
+  skip,
+  tap,
+  withLatestFrom,
+} from 'rxjs';
 
-type Message = {
-  from: 'merchant' | 'customer' | 'moderator' | string;
-  body: string;
-  own: boolean;
-  sent_at: Date;
-  synced: boolean;
-};
+import { ComplaintDto, ComplaintMessageDto } from '@tradeyard-v2/api-dtos';
+
+import { ComplaintApiService } from '../../../modules/api/services/complaint-api.service';
+
+import { ActiveOrderComplaint } from './providers';
 
 @Component({
   standalone: true,
@@ -21,7 +36,9 @@ type Message = {
   imports: [CommonModule, NbButtonModule, NbInputModule, ReactiveFormsModule],
   styleUrls: ['./complaint-thread.component.scss'],
 })
-export class ComplaintThreadComponent {
+export class ComplaintThreadComponent implements AfterViewInit {
+  init$ = new EventEmitter<void>();
+
   group = this.builder.group({
     textbox: this.builder.control('', [Validators.required]),
   });
@@ -29,27 +46,77 @@ export class ComplaintThreadComponent {
   author = input('unknown');
   author$ = toObservable(this.author);
 
-  sendMessage$ = new EventEmitter<Message>();
+  container = viewChild.required<ElementRef<HTMLDivElement>>('container');
 
-  messages$: Observable<Message[]> = merge(
-    of([
-      {
-        from: 'merchant' as const,
-        body: 'Hello, how can I help you?',
-        own: false,
-        sent_at: subHours(Date.now(), 1),
-        synced: true,
-      },
-    ]),
-    this.sendMessage$.pipe(map((message) => [message]))
-  ).pipe(
-    scan(
-      (acc: Message[], messages: Message[]) =>
-        [...acc, ...messages].sort((a, b) => +a.sent_at - +b.sent_at),
-      []
+  submit$ = new EventEmitter<
+    Pick<ComplaintMessageDto, 'body' | 'own' | 'sent_at'>
+  >();
+
+  messages = this.complaintApiService.manyMessages({
+    initialParams: { offset: 0, limit: 20, timestamp: Date.now() },
+    initNotifier: this.init$,
+    paramsNotifier: from(this.complaint).pipe(
+      map((complaint) => ({ complaintId: complaint?.complaint_id }))
     ),
-    shareReplay(1)
-  );
+  });
+  data$ = combineLatest({
+    messages: this.messages.data$.pipe(
+      map(({ items }) =>
+        items.sort((a, b) => +new Date(a.sent_at) - +new Date(b.sent_at))
+      )
+    ),
+  });
+
+  readonly scrollBottomOnInit = this.init$
+    .pipe(
+      combineLatestWith(this.data$),
+      takeUntilDestroyed(),
+      tap(() => this.scrollToBottom())
+    )
+    .subscribe();
+
+  readonly scrollBottomOnceSentMessage = this.submit$
+    .pipe(
+      combineLatestWith(this.data$.pipe(skip(1))),
+      takeUntilDestroyed(),
+      tap(() => this.scrollToBottom())
+    )
+    .subscribe();
+
+  readonly onSubmitSendMessage = this.submit$
+    .pipe(
+      withLatestFrom(from(this.complaint).pipe(filter(Boolean))),
+      exhaustMap(([message, { complaint_id }]) =>
+        this.complaintApiService.createMessage({
+          complaint_id,
+          body: message.body,
+        })
+      ),
+      takeUntilDestroyed(),
+      tap(() => this.messages.refresh())
+    )
+    .subscribe();
+
+  constructor(
+    @Inject(ActiveOrderComplaint)
+    private complaint: Promise<ComplaintDto | null>,
+    readonly builder: FormBuilder,
+    private complaintApiService: ComplaintApiService
+  ) {}
+
+  ngAfterViewInit(): void {
+    this.init$.emit();
+    this.init$.complete();
+  }
+
+  scrollToBottom(): void {
+    const { nativeElement } = this.container();
+    if (nativeElement) {
+      setTimeout(() => {
+        nativeElement.scrollTop = nativeElement.scrollHeight;
+      }, 0);
+    }
+  }
 
   async send($event: Event): Promise<void> {
     $event.preventDefault();
@@ -60,16 +127,12 @@ export class ComplaintThreadComponent {
 
     if (!textbox) return;
 
-    this.sendMessage$.emit({
-      from: this.author(),
+    this.submit$.emit({
       body: textbox,
       sent_at: new Date(),
       own: true,
-      synced: false,
     });
 
     this.group.reset();
   }
-
-  constructor(readonly builder: FormBuilder) {}
 }

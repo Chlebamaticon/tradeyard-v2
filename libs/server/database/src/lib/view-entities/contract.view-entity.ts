@@ -1,4 +1,10 @@
-import { PrimaryColumn, ViewColumn, ViewEntity } from 'typeorm';
+import {
+  JoinColumn,
+  OneToOne,
+  PrimaryColumn,
+  ViewColumn,
+  ViewEntity,
+} from 'typeorm';
 
 import { createAggregateEventsSelectQuery } from '../queries';
 
@@ -49,4 +55,8 @@ export class ContractViewEntity {
 
   @ViewColumn()
   created_at!: Date;
+
+  @OneToOne(() => OrderViewEntity, (order) => order.contract)
+  @JoinColumn({ name: 'contract_id', referencedColumnName: 'contract_id' })
+  order?: OrderViewEntity;
 }

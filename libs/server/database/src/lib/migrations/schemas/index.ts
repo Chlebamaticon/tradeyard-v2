@@ -13,3 +13,4 @@ export * from './1714252092003-updated-order-customer-id';
 export * from './1714252706603-updated-contract-created-at';
 export * from './1714296842985-updated-order-with-merchant-id';
 export * from './1714298628843-updated-deployment-with-contract-id';
+export * from './1715266274594-added-complaint-view';

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Wallet } from 'alchemy-sdk';
 import { defer, exhaustMap } from 'rxjs';
 
-import { BaseContract } from './base-contract.class';
+import { BaseContract } from './base-contract.facade';
 
 @Injectable()
 export class CustomerContract {

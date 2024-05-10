@@ -5,7 +5,7 @@ export const complaintMessage = zod.object({
   complaint_message_id: zod.string().uuid(),
   user_id: zod.string().uuid(),
   sent_at: zod.date(),
-  markdown: zod.string(),
+  body: zod.string(),
 });
 
 export default {

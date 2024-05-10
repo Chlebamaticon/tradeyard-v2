@@ -19,6 +19,8 @@
     <app-customer-flow #customerFlow></app-customer-flow>
     } @else if(data.whoami.merchant_id) {
     <app-merchant-flow #merchantFlow></app-merchant-flow>
+    } @else if(data.whoami.moderator_id) {
+    <app-moderator-flow #moderatorFlow></app-moderator-flow>
     }
   </nb-card-body>
 </nb-card>

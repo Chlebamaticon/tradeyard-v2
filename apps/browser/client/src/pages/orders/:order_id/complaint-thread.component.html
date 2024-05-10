@@ -1,12 +1,16 @@
 <div class="thread">
-  <div class="thread__message">
-    @for(message of (messages$ | async); track message) {
-    <div class="message" [class.message--own]="message.own" [class.message--sent]="message.synced">
-      <label for="" class="message__author">{{ message.from }}</label>
-      <p class="message__content">{{ message.body }}</p>
-      <span class="message__timestamp">{{ message.sent_at | date }}</span>
+  <div class="thread__messages" #container>
+    <div class="thread__messages-wrapper">
+      @if (data$ | async; as data) {
+      @for(message of data.messages; track message) {
+      <div class="message" [class.message--own]="message.own" [class.message--sent]="message.created_at">
+        <label for="" class="message__author">{{ message.user_id }}</label>
+        <p class="message__content">{{ message.body }}</p>
+        <span class="message__timestamp">{{ message.sent_at | date:"MMM d 'at' hh:mm a" }}</span>
+      </div>
+      }
+      }
     </div>
-    }
   </div>
 
   <div class="thread__textbox">

@@ -21,7 +21,7 @@ export type AuthSignInBodyDto = zod.infer<typeof AuthSignInBody>;
 export const AuthSignUp = jwt.merge(zod.object({}));
 export const AuthSignUpBody = zod
   .object({
-    type: zod.enum(['customer', 'merchant']),
+    type: zod.enum(['customer', 'merchant', 'moderator']),
     password: zod.string(),
   })
   .merge(CreateUserBody)

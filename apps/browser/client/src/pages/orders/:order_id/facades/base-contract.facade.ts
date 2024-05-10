@@ -30,8 +30,7 @@ import { currentChain, OrderStatus } from '@tradeyard-v2/api-dtos';
 import artifact from '@tradeyard-v2/contracts/ecommerce/artifacts/Order.sol/Order.json';
 
 import { AuthService } from '../../../../modules/auth';
-
-import { OrderContractAddress } from './contract-address.provider';
+import { ActiveOrderContractAddress } from '../providers';
 
 type ContractInit = { functionName: string; args?: unknown[]; value?: bigint };
 
@@ -203,6 +202,7 @@ export class BaseContract {
 
   constructor(
     readonly auth: AuthService,
-    @Inject(OrderContractAddress) readonly contractAddress: Promise<Address>
+    @Inject(ActiveOrderContractAddress)
+    readonly contractAddress: Promise<Address>
   ) {}
 }

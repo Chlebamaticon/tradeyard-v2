@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 
 import {
   CreateOrderBodyDto,
+  CreateOrderDto,
   GetOrderDto,
   GetOrdersDto,
   OrderDto,
@@ -16,7 +17,7 @@ import { BaseApiService } from './base-api.service';
 export class OrderApiService {
   constructor(readonly baseApiService: BaseApiService) {}
 
-  create(dto: CreateOrderBodyDto) {
+  create(dto: CreateOrderBodyDto): Observable<CreateOrderDto> {
     return this.baseApiService.post('/orders', dto, {});
   }
 
@@ -30,7 +31,7 @@ export class OrderApiService {
   }: PaginationInit) {
     return pagination<OrderDto>({
       ...notifiers,
-      initialParams: { offset, limit },
+      initialPage: { offset, limit },
       initialSearch: { timestamp },
       request: (search, params) =>
         this.baseApiService.get<GetOrdersDto>('/orders', {

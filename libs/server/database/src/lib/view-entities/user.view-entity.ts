@@ -1,6 +1,16 @@
-import { PrimaryColumn, ViewColumn, ViewEntity } from 'typeorm';
+import {
+  JoinColumn,
+  OneToOne,
+  PrimaryColumn,
+  ViewColumn,
+  ViewEntity,
+} from 'typeorm';
 
 import { createAggregateEventsSelectQuery } from '../queries';
+
+import { CustomerViewEntity } from './customer.view-entity';
+import { MerchantViewEntity } from './merchant.view-entity';
+import { ModeratorViewEntity } from './moderator.view-entity';
 
 @ViewEntity({
   expression: (connection) =>
@@ -35,4 +45,16 @@ export class UserViewEntity {
 
   @ViewColumn()
   created_at!: Date;
+
+  @OneToOne(() => CustomerViewEntity, (customer) => customer.user)
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'user_id' })
+  customer?: CustomerViewEntity;
+
+  @OneToOne(() => MerchantViewEntity, (merchant) => merchant.user)
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'user_id' })
+  merchant?: MerchantViewEntity;
+
+  @OneToOne(() => ModeratorViewEntity, (moderator) => moderator.user)
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'user_id' })
+  moderator?: ModeratorViewEntity;
 }

@@ -1,5 +1,3 @@
-import exp = require('constants');
-
 import complaintSchema from './complaint';
 import complaintMessageSchema from './complaint-message';
 import contractSchema from './contract';

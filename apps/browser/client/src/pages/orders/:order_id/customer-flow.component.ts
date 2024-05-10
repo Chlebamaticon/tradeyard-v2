@@ -29,7 +29,7 @@ import {
   customerStepToCompleted,
   customerStepToStatus,
 } from './constants/steps';
-import { BaseContract, CustomerContract } from './contracts';
+import { BaseContract, CustomerContract } from './facades';
 
 @Component({
   standalone: true,

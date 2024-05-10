@@ -6,11 +6,12 @@ import {
   map,
   merge,
   shareReplay,
-  switchMap,
   scan,
   Observable,
+  switchMap,
 } from 'rxjs';
-import { Address, getAddress } from 'viem';
+
+import { OrderDto } from '@tradeyard-v2/api-dtos';
 
 import { OrderApiService } from '../../../../modules/api/services';
 
@@ -28,17 +29,16 @@ const collectParams$ = (
   );
 };
 
-export const OrderContractAddress = new InjectionToken('OrderContractAddress', {
+export const ActiveOrder = new InjectionToken('ActiveOrder', {
   providedIn: 'any',
-  factory: (): Promise<Address> => {
+  factory: (): Promise<OrderDto> => {
     const activatedRoute = inject(ActivatedRoute);
-    const orders = inject(OrderApiService);
+    const orderApiService = inject(OrderApiService);
     return firstValueFrom(
       collectParams$(activatedRoute).pipe(
         map(({ order_id }) => order_id),
         filter((order_id) => !!order_id),
-        switchMap((order_id) => orders.one({ order_id })),
-        map(({ contract }) => getAddress(contract.address)),
+        switchMap((order_id) => orderApiService.one({ order_id })),
         shareReplay(1)
       )
     );

@@ -5,8 +5,13 @@ import { DatabaseModule } from '@tradeyard-v2/server/database';
 
 import { AlchemyModule } from '../modules/alchemy';
 import { AuthGuardModule, AuthRouteModule } from '../modules/auth';
+import {
+  ComplaintMessagesRouteModule,
+  ComplaintsRouteModule,
+} from '../modules/complaints';
 import { CustomersRouteModule } from '../modules/customers';
 import { MerchantsRouteModule } from '../modules/merchants';
+import { ModeratorsRouteModule } from '../modules/moderators';
 import { OffersRouteModule } from '../modules/offers';
 import { OrdersRouteModule } from '../modules/orders';
 import { SeedModule } from '../modules/seed';
@@ -22,6 +27,8 @@ import { AppService } from './app.service';
     SeedModule,
     AlchemyModule,
     AuthGuardModule,
+    ComplaintsRouteModule,
+    ComplaintMessagesRouteModule,
     CustomersRouteModule,
     MerchantsRouteModule,
     OffersRouteModule,
@@ -44,6 +51,10 @@ import { AppService } from './app.service';
         module: MerchantsRouteModule,
       },
       {
+        path: 'moderators',
+        module: ModeratorsRouteModule,
+      },
+      {
         path: 'offers',
         module: OffersRouteModule,
       },
@@ -62,6 +73,16 @@ import { AppService } from './app.service';
       {
         path: 'tokens',
         module: TokensRouteModule,
+      },
+      {
+        path: 'complaints',
+        module: ComplaintsRouteModule,
+        children: [
+          {
+            path: ':complaint_id/messages',
+            module: ComplaintMessagesRouteModule,
+          },
+        ],
       },
     ]),
   ],

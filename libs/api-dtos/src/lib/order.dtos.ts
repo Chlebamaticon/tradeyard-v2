@@ -1,5 +1,6 @@
 import * as zod from 'zod';
 
+import { Complaint } from './complaint.dtos';
 import { Contract } from './contract.dtos';
 import { Merchant } from './merchant.dtos';
 import { OfferVariant, OfferVariantPrice } from './offer-variant.dtos';
@@ -50,6 +51,7 @@ export const Order = zod.object({
       token: true,
     })
   ),
+  complaints: zod.array(Complaint),
 });
 export type OrderDto = zod.infer<typeof Order>;
 

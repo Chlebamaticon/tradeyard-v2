@@ -24,6 +24,10 @@ import { NbButtonModule, NbCardModule } from '@nebular/theme';
         <button nbButton outline routerLink="/auth/merchant/sign-up">
           Sign up as Merchant
         </button>
+
+        <!-- <button nbButton outline routerLink="/auth/moderator/sign-up">
+          Sign up as Moderator
+        </button> -->
       </div>
     </nb-card-body>
   </nb-card>`,

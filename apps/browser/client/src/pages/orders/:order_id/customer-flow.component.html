@@ -2,25 +2,24 @@
 <nb-stepper orientation="horizontal" [linear]="true" disableStepNavigation #stepper
   [class.content-hidden]="isComplaint(data.currentStatus)">
   <nb-step label="Deposit" #depositRef [completed]="isCompleted('deposit', data)">
+    <p>You need to make your deposit first.</p>
 
     <button nbButton status="primary" size="small" (click)="deposit(data.tokenAmount)">Deposit {{data.tokenAmount |
       unit:-18}} ETH</button>
-
-    You need to make your deposit first.
   </nb-step>
   <nb-step label="Preparing" #executionRef [completed]="isCompleted('execution', data)">
-    Merchant is preparing your order.
+    <p>Merchant is preparing your order.</p>
   </nb-step>
   <nb-step label="Shipping" #shippingRef [completed]="isCompleted('shipping', data)">
-    Your order is on its way. Merchant did not provide tracking information.
+    <p>Your order is on its way. Merchant did not provide tracking information.</p>
   </nb-step>
   <nb-step label="Shipped" #shippedRef [completed]="isCompleted('shipped', data)">
-    Your order has been delivered. Haven't received it yet? Click here. Otherwise, confirm it below.
+    <p>Your order has been delivered. Haven't received it yet? Click here. Otherwise, confirm it below.</p>
 
     <button nbButton status="success" (click)="release()">Confirm</button>
   </nb-step>
   <nb-step label="Done" #doneRef [completed]="isCompleted('done', data)">
-    Thanks for making shopping with us. We hope you come back soon.
+    <p>Thanks for making shopping with us. We hope you come back soon.</p>
   </nb-step>
 </nb-stepper>
 

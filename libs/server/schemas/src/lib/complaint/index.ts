@@ -11,15 +11,14 @@ export type ComplaintDecision = zod.infer<typeof complaintDecision>;
 export const complaint = zod.object({
   complaint_id: zod.string().uuid(),
   order_id: zod.string().uuid(),
+  user_id: zod.string().uuid(),
   decision: complaintDecision.optional().nullable(),
 });
 
 export default {
-  'complaint:created': complaint
-    .omit({
-      decision: true,
-    })
-    .merge(zod.object({ status: zod.enum(['open']) })),
+  'complaint:created': complaint.omit({
+    decision: true,
+  }),
   'complaint:decision:released': complaint
     .pick({
       complaint_id: true,

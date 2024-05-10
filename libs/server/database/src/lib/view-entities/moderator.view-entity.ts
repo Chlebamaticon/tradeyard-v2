@@ -1,6 +1,14 @@
-import { PrimaryColumn, ViewColumn, ViewEntity } from 'typeorm';
+import {
+  JoinColumn,
+  OneToOne,
+  PrimaryColumn,
+  ViewColumn,
+  ViewEntity,
+} from 'typeorm';
 
 import { createAggregateEventsSelectQuery } from '../queries';
+
+import { UserViewEntity } from './user.view-entity';
 
 @ViewEntity({
   expression: (connection) =>
@@ -31,4 +39,8 @@ export class ModeratorViewEntity {
 
   @ViewColumn()
   created_at!: Date;
+
+  @OneToOne(() => UserViewEntity, (user) => user.moderator)
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'user_id' })
+  user?: UserViewEntity;
 }

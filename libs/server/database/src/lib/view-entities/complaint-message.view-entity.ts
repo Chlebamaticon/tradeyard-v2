@@ -1,6 +1,14 @@
-import { PrimaryColumn, ViewColumn, ViewEntity } from 'typeorm';
+import {
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+  ViewColumn,
+  ViewEntity,
+} from 'typeorm';
 
 import { createAggregateEventsSelectQuery } from '../queries';
+
+import { ComplaintViewEntity } from './complaint.view-entity';
 
 @ViewEntity({
   expression: (connection) =>
@@ -13,7 +21,7 @@ import { createAggregateEventsSelectQuery } from '../queries';
       .addSelect(`("event"."body" ->> 'complaint_id')::uuid`, 'complaint_id')
       .addSelect(`("event"."body" ->> 'user_id')::uuid`, 'user_id')
       .addSelect(`("event"."body" ->> 'sent_at')::timestamp`, 'sent_at')
-      .addSelect(`("event"."body" ->> 'markdown')`, 'markdown')
+      .addSelect(`("event"."body" ->> 'body')`, 'body')
       .addSelect(`"event"."created_at"`, 'created_at')
       .from(
         createAggregateEventsSelectQuery({
@@ -35,11 +43,15 @@ export class ComplaintMessageViewEntity {
   user_id!: string;
 
   @ViewColumn()
-  markdown!: string;
+  body!: string;
 
   @ViewColumn()
   sent_at!: Date;
 
   @ViewColumn()
   created_at!: Date;
+
+  @ManyToOne(() => ComplaintViewEntity, (complaint) => complaint.messages)
+  @JoinColumn({ name: 'complaint_id', referencedColumnName: 'complaint_id' })
+  complaint?: ComplaintViewEntity[];
 }

@@ -3,8 +3,6 @@ import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
 
-import { UserDto } from '@tradeyard-v2/api-dtos';
-
 import { IS_PUBLIC_KEY } from '../decorators';
 
 @Injectable()

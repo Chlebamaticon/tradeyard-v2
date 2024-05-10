@@ -7,8 +7,10 @@
     </div>
 
     <div class="offer__price-tag">
-      <p>{{ selection.variant?.current_price?.amount }} <span>{{ selection.variant?.current_price?.token?.symbol
-          }}</span></p>
+      <p>
+        {{ selection.variant?.current_price?.amount }}
+        <span>{{ selection.variant?.current_price?.token?.symbol }}</span>
+      </p>
     </div>
   </nb-card-body>
 </nb-card>
@@ -16,18 +18,21 @@
 
 <div class="summary">
   <div class="summary__body">
-    <p><span>{{ snapshot.queryParams['quantity'] }}</span> x <span>{{ selection.variant?.current_price?.amount }}
-        {{selection.variant?.current_price?.token?.symbol}}</span> =</p>
-    <h5> {{
-      (selection.variant?.current_price?.amount ?? 0) * snapshot.queryParams['quantity'] }} <span>{{
-        selection.variant?.current_price?.token?.symbol
-        }}</span>
+    <p>
+      <span>{{ snapshot.queryParams['quantity'] }}</span> x
+      <span>{{ selection.variant?.current_price?.amount }} {{selection.variant?.current_price?.token?.symbol}}</span>
+      =
+    </p>
+    <h5>
+      {{(selection.variant?.current_price?.amount ?? 0) * snapshot.queryParams['quantity'] }}
+      <span>{{ selection.variant?.current_price?.token?.symbol}}</span>
     </h5>
   </div>
   <div class="summary__actions">
     @if (selection.variant) {
     <button nbButton status="success"
-      (click)="order$.emit([selection.variant.offer_id, selection.variant.offer_variant_id])">Order</button>
+      (click)="order$.emit([selection.variant.offer_id, selection.variant.offer_variant_id])"
+      [nbSpinner]="(loading$ | async) ?? false">Order</button>
     }
   </div>
 </div>

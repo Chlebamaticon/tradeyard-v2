@@ -290,8 +290,10 @@ contract Order is Ownable {
             _nextStatus == OrderStatus.CustomerComplaint
         ) {
             if (
-                _currentStatus == OrderStatus.Created &&
-                _currentStatus == OrderStatus.Closed
+                _currentStatus == OrderStatus.Created ||
+                _currentStatus == OrderStatus.Closed ||
+                _currentStatus == OrderStatus.MerchantComplaint ||
+                _currentStatus == OrderStatus.CustomerComplaint
             ) {
                 revert InvalidStatusTransition(_currentStatus, _nextStatus);
             }
@@ -339,14 +341,16 @@ contract Order is Ownable {
         } else if (_currentStatus == OrderStatus.CustomerComplaint) {
             if (
                 _nextStatus != OrderStatus.ModeratorComplaintReleased &&
-                _nextStatus != OrderStatus.ModeratorComplaintRefunded
+                _nextStatus != OrderStatus.ModeratorComplaintRefunded &&
+                _nextStatus != previousStatus
             ) {
                 revert InvalidStatusTransition(_currentStatus, _nextStatus);
             }
         } else if (_currentStatus == OrderStatus.MerchantComplaint) {
             if (
                 _nextStatus != OrderStatus.ModeratorComplaintReleased &&
-                _nextStatus != OrderStatus.ModeratorComplaintRefunded
+                _nextStatus != OrderStatus.ModeratorComplaintRefunded &&
+                _nextStatus != previousStatus
             ) {
                 revert InvalidStatusTransition(_currentStatus, _nextStatus);
             }

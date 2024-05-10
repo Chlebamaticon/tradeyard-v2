@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal, viewChild } from '@angular/core';
+import { Component, input, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
   NbButtonModule,
@@ -29,7 +29,7 @@ import {
   merchantStepToCompleted,
   merchantStepToStatus,
 } from './constants/steps';
-import { BaseContract, MerchantContract } from './contracts';
+import { BaseContract, MerchantContract } from './facades';
 
 @Component({
   standalone: true,

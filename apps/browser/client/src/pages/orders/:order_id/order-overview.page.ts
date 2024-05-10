@@ -1,26 +1,20 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  contentChild,
-  EventEmitter,
-  Self,
-  viewChild,
-} from '@angular/core';
+import { Component, Self, viewChild } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import {
-  NbButton,
-  NbButtonModule,
-  NbCardModule,
-  NbStepperModule,
-} from '@nebular/theme';
-import { combineLatest, exhaustMap, merge } from 'rxjs';
+import { NbButtonModule, NbCardModule, NbStepperModule } from '@nebular/theme';
+import { combineLatest, exhaustMap, firstValueFrom, merge } from 'rxjs';
 
-import { AuthApiService, OrderApiService } from '../../../modules/api/services';
+import {
+  AuthApiService,
+  ComplaintApiService,
+  OrderApiService,
+} from '../../../modules/api/services';
 import { OnDestroyNotifier$ } from '../../../providers';
 
-import { BaseContract } from './contracts/base-contract.class';
 import { CustomerFlowComponent } from './customer-flow.component';
+import { BaseContract } from './facades/base-contract.facade';
 import { MerchantFlowComponent } from './merchant-flow.component';
+import { ModeratorFlowComponent } from './moderator-flow.component';
 
 @Component({
   standalone: true,
@@ -35,6 +29,7 @@ import { MerchantFlowComponent } from './merchant-flow.component';
     NbStepperModule,
     CustomerFlowComponent,
     MerchantFlowComponent,
+    ModeratorFlowComponent,
   ],
   providers: [BaseContract, OnDestroyNotifier$],
 })
@@ -52,12 +47,16 @@ export class OrderOverviewPage {
   readonly merchantFlow = viewChild('merchantFlow', {
     read: MerchantFlowComponent,
   });
+  readonly moderatorFlow = viewChild('moderatorFlow', {
+    read: ModeratorFlowComponent,
+  });
 
   constructor(
     readonly router: ActivatedRoute,
     @Self() readonly destroy$: OnDestroyNotifier$,
     readonly authApiService: AuthApiService,
-    readonly orderApiService: OrderApiService
+    readonly orderApiService: OrderApiService,
+    readonly complaintApiService: ComplaintApiService
   ) {}
 
   /**
@@ -67,14 +66,36 @@ export class OrderOverviewPage {
    */
   async submitComplaintAsCustomer() {
     const customerFlow = this.customerFlow();
-    console.log(this.customerFlow());
+
     if (!customerFlow) return;
     await customerFlow.complaint();
+    const {
+      snapshot: {
+        params: { order_id },
+      },
+    } = this.router;
+    await firstValueFrom(
+      this.complaintApiService.create({
+        order_id,
+        body: `Something isn't right; I'd like to submit a complaint.`,
+      })
+    );
   }
 
   async submitComplaintAsMerchant() {
     const merchantFlow = this.customerFlow();
     if (!merchantFlow) return;
     await merchantFlow.complaint();
+    const {
+      snapshot: {
+        params: { order_id },
+      },
+    } = this.router;
+    await firstValueFrom(
+      this.complaintApiService.create({
+        order_id,
+        body: `Something isn't right; I'd like to submit a complaint.`,
+      })
+    );
   }
 }

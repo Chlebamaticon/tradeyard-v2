@@ -29,7 +29,7 @@ export class OfferApiService {
   }: PaginationInit) {
     return pagination({
       ...notifiers,
-      initialParams: { offset, limit },
+      initialPage: { offset, limit },
       initialSearch: { timestamp },
       request: (search, params) =>
         this.baseApiService.get<GetOffersDto>('/offers', {

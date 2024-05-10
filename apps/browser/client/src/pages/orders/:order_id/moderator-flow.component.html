@@ -1,0 +1,5 @@
+@if ((data$ | async); as data) {
+@if (isComplaint(data.currentStatus)) {
+<app-complaint-thread author="You (Moderator)"></app-complaint-thread>
+}
+}

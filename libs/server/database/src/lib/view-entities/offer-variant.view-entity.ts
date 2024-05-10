@@ -1,6 +1,17 @@
-import { PrimaryColumn, ViewColumn, ViewEntity } from 'typeorm';
+import {
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryColumn,
+  ViewColumn,
+  ViewEntity,
+} from 'typeorm';
 
 import { createAggregateEventsSelectQuery } from '../queries';
+
+import { OfferVariantPriceViewEntity } from './offer-variant-price.view-entity';
+import { OfferViewEntity } from './offer.view-entity';
+import { OrderViewEntity } from './order.view-entity';
 
 @ViewEntity({
   expression: (connection) =>
@@ -42,4 +53,25 @@ export class OfferVariantViewEntity {
 
   @ViewColumn()
   created_at!: Date;
+
+  @ManyToOne(() => OfferViewEntity, (offer) => offer.variants)
+  @JoinColumn({ name: 'offer_id', referencedColumnName: 'offer_id' })
+  offer?: OfferViewEntity;
+
+  @OneToMany(() => OrderViewEntity, (order) => order.offerVariant)
+  @JoinColumn({
+    name: 'offer_variant_id',
+    referencedColumnName: 'offer_variant_id',
+  })
+  orders?: OrderViewEntity[];
+
+  @OneToMany(
+    () => OfferVariantPriceViewEntity,
+    (offerVariantPrice) => offerVariantPrice.offerVariant
+  )
+  @JoinColumn({
+    name: 'offer_variant_id',
+    referencedColumnName: 'offer_variant_id',
+  })
+  offerVariantPrices?: OfferVariantPriceViewEntity[];
 }

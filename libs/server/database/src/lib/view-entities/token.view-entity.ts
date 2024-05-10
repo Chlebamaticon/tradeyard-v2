@@ -1,6 +1,14 @@
-import { PrimaryColumn, ViewColumn, ViewEntity } from 'typeorm';
+import {
+  JoinColumn,
+  OneToMany,
+  PrimaryColumn,
+  ViewColumn,
+  ViewEntity,
+} from 'typeorm';
 
 import { createAggregateEventsSelectQuery } from '../queries';
+
+import { OfferVariantPriceViewEntity } from './offer-variant-price.view-entity';
 
 @ViewEntity({
   expression: (connection) =>
@@ -46,4 +54,11 @@ export class TokenViewEntity {
 
   @ViewColumn()
   created_at!: Date;
+
+  @OneToMany(
+    () => OfferVariantPriceViewEntity,
+    (offerVariantPrice) => offerVariantPrice.token
+  )
+  @JoinColumn({ name: 'token_id' })
+  offerVariantPrices?: OfferVariantPriceViewEntity[];
 }

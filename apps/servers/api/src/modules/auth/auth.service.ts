@@ -5,18 +5,21 @@ import {
   AuthSignUpBodyDto,
   CustomerDto,
   MerchantDto,
+  ModeratorDto,
   UserDto,
 } from '@tradeyard-v2/api-dtos';
 
 import { UserCredentialService } from '../../modules/users';
 import { CustomerService } from '../customers';
 import { MerchantService } from '../merchants';
+import { ModeratorService } from '../moderators';
 
 @Injectable()
 export class AuthService {
   constructor(
     private customerService: CustomerService,
     private merchantService: MerchantService,
+    private moderatorService: ModeratorService,
     private userCredentialService: UserCredentialService,
     private jwtService: JwtService
   ) {}
@@ -37,7 +40,9 @@ export class AuthService {
     access_token: string;
   }> {
     const user =
-      type === 'merchant'
+      type === 'moderator'
+        ? await this.#signUpAsModerator(body)
+        : type === 'merchant'
         ? await this.#signUpAsMerchant(body)
         : await this.#signUpAsCustomer(body);
 
@@ -62,6 +67,16 @@ export class AuthService {
     });
     await this.#saveCredentials(body.email, body.password);
     return merchant;
+  }
+
+  async #signUpAsModerator(
+    body: Omit<AuthSignUpBodyDto, 'type'>
+  ): Promise<ModeratorDto> {
+    const moderator = await this.moderatorService.createOne({
+      ...body,
+    });
+    await this.#saveCredentials(body.email, body.password);
+    return moderator;
   }
 
   async #saveCredentials(email: string, password: string): Promise<void> {
