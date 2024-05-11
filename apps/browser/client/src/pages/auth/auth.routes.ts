@@ -6,6 +6,8 @@ import { AuthIndexPage } from './index.page';
 import { AuthLayoutPage } from './layout.page';
 import { MerchantAuthPage } from './merchant/merchant-auth.page';
 import { MerchantSignUpPage } from './merchant/sign-up/sign-up.page';
+import { ModeratorAuthPage } from './moderator/moderator-auth.page';
+import { ModeratorSignUpPage } from './moderator/sign-up/sign-up.page';
 import { SignInPage } from './sign-in.page';
 
 export const authRoutes: Route[] = [
@@ -45,6 +47,21 @@ export const authRoutes: Route[] = [
       {
         path: 'sign-up',
         component: CustomerSignUpPage,
+      },
+      {
+        path: '**',
+        redirectTo: 'sign-up',
+        pathMatch: 'full',
+      },
+    ],
+  },
+  {
+    path: 'moderator',
+    component: ModeratorAuthPage,
+    children: [
+      {
+        path: 'sign-up',
+        component: ModeratorSignUpPage,
       },
       {
         path: '**',

@@ -184,6 +184,8 @@ contract Order is Ownable {
     }
 
     function rejectComplaint() external onlyOwner {
+        transition(previousStatus);
+
         emit ModeratorComplaintRejected(
             block.timestamp,
             _msgSender(),

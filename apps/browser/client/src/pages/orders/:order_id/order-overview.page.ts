@@ -1,8 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, Self, viewChild } from '@angular/core';
+import { Component, Self, viewChild, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { NbButtonModule, NbCardModule, NbStepperModule } from '@nebular/theme';
-import { combineLatest, exhaustMap, firstValueFrom, merge } from 'rxjs';
+import {
+  NbButtonModule,
+  NbCardModule,
+  NbDialogService,
+  NbStepperModule,
+} from '@nebular/theme';
+import { combineLatest, exhaustMap, map, merge } from 'rxjs';
+
+import { OrderStatus } from '@tradeyard-v2/api-dtos';
 
 import {
   AuthApiService,
@@ -11,6 +18,7 @@ import {
 } from '../../../modules/api/services';
 import { OnDestroyNotifier$ } from '../../../providers';
 
+import { CreateComplaintDialogComponent } from './create-complaint-dialog.component';
 import { CustomerFlowComponent } from './customer-flow.component';
 import { BaseContract } from './facades/base-contract.facade';
 import { MerchantFlowComponent } from './merchant-flow.component';
@@ -30,16 +38,29 @@ import { ModeratorFlowComponent } from './moderator-flow.component';
     CustomerFlowComponent,
     MerchantFlowComponent,
     ModeratorFlowComponent,
+    CreateComplaintDialogComponent,
   ],
   providers: [BaseContract, OnDestroyNotifier$],
+  encapsulation: ViewEncapsulation.None,
 })
 export class OrderOverviewPage {
+  readonly status$ = this.baseContract.getStatus();
   readonly data$ = combineLatest({
     order: merge(this.router.params).pipe(
       exhaustMap(({ order_id }) => this.orderApiService.one({ order_id }))
     ),
     whoami: this.authApiService.whoami(),
   });
+
+  readonly isNotComplaint$ = this.status$.pipe(
+    map(
+      (status) =>
+        ![
+          OrderStatus.CustomerComplaint,
+          OrderStatus.MerchantComplaint,
+        ].includes(status)
+    )
+  );
 
   readonly customerFlow = viewChild('customerFlow', {
     read: CustomerFlowComponent,
@@ -56,7 +77,9 @@ export class OrderOverviewPage {
     @Self() readonly destroy$: OnDestroyNotifier$,
     readonly authApiService: AuthApiService,
     readonly orderApiService: OrderApiService,
-    readonly complaintApiService: ComplaintApiService
+    readonly baseContract: BaseContract,
+    readonly complaintApiService: ComplaintApiService,
+    readonly dialogService: NbDialogService
   ) {}
 
   /**
@@ -65,37 +88,22 @@ export class OrderOverviewPage {
    * `complaint` method at contract distinguish sides automatically.
    */
   async submitComplaintAsCustomer() {
-    const customerFlow = this.customerFlow();
-
-    if (!customerFlow) return;
-    await customerFlow.complaint();
-    const {
-      snapshot: {
-        params: { order_id },
+    this.dialogService.open(CreateComplaintDialogComponent, {
+      dialogClass: 'dialog',
+      context: {
+        flow: this.customerFlow(),
+        orderId: this.router.snapshot.params['order_id'],
       },
-    } = this.router;
-    await firstValueFrom(
-      this.complaintApiService.create({
-        order_id,
-        body: `Something isn't right; I'd like to submit a complaint.`,
-      })
-    );
+    });
   }
 
   async submitComplaintAsMerchant() {
-    const merchantFlow = this.customerFlow();
-    if (!merchantFlow) return;
-    await merchantFlow.complaint();
-    const {
-      snapshot: {
-        params: { order_id },
+    this.dialogService.open(CreateComplaintDialogComponent, {
+      dialogClass: 'dialog',
+      context: {
+        flow: this.merchantFlow(),
+        orderId: this.router.snapshot.params['order_id'],
       },
-    } = this.router;
-    await firstValueFrom(
-      this.complaintApiService.create({
-        order_id,
-        body: `Something isn't right; I'd like to submit a complaint.`,
-      })
-    );
+    });
   }
 }

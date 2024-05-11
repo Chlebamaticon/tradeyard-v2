@@ -21,7 +21,13 @@
           placeholder="Type your message here" />
         <button nbButton status="primary" class="textbox__submit" shape="semi-round" type="submit">Send</button>
       </div>
-      <div class="textbox__footer"></div>
+      <div class="textbox__footer">
+        @if ((role$ | async) ==='moderator') {
+        <button nbButton status="danger" ghost (click)="reject.emit()">Reject</button>
+        <button nbButton status="warning" outline (click)="refund.emit()">Refund</button>
+        <button nbButton status="success" outline (click)="release.emit()">Release</button>
+        }
+      </div>
     </form>
   </div>
 </div>

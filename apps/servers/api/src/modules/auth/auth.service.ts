@@ -83,8 +83,14 @@ export class AuthService {
     await this.userCredentialService.create(email, password);
   }
 
-  async #issueJwtToken(user: UserDto): Promise<{ access_token: string }> {
-    const payload = { sub: user.user_id, email: user.email };
+  async #issueJwtToken({
+    user_id: sub,
+    ...user
+  }: UserDto): Promise<{ access_token: string }> {
+    const payload = {
+      sub,
+      ...user,
+    };
     return {
       access_token: await this.jwtService.signAsync(payload),
     };

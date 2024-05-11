@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 
@@ -17,10 +18,14 @@ import {
   GetComplaints,
   GetComplaintsQueryParams,
   GetComplaintsQueryParamsDto,
+  UpdateComplaintBody,
+  UpdateComplaintBodyDto,
+  UpdateComplaintDto,
   UserDto,
+  UserExtendedDto,
 } from '@tradeyard-v2/api-dtos';
 
-import { User } from '../auth';
+import { ModeratorOnly, User } from '../auth';
 
 import { ComplaintService } from './complaint.service';
 
@@ -38,6 +43,21 @@ export class ComplaintsController {
       sent_at: new Date(body.sent_at),
     });
     return this.complaint.create({ ...validatedBody, user_id: user.user_id });
+  }
+
+  @ModeratorOnly
+  @Put(':complaint_id')
+  updateOne(
+    @Param('complaint_id') complaint_id: string,
+    @Body() body: UpdateComplaintBodyDto,
+    @User() user: UserExtendedDto
+  ): Promise<UpdateComplaintDto> {
+    const validatedBody = UpdateComplaintBody.parse(body);
+    return this.complaint.updateOne({
+      complaint_id,
+      moderator_id: user.moderator_id!,
+      ...validatedBody,
+    });
   }
 
   @Get(':complaint_id')

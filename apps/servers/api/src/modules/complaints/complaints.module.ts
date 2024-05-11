@@ -10,6 +10,9 @@ import {
   OrderViewEntity,
 } from '@tradeyard-v2/server/database';
 
+import { AlchemyModule } from '../alchemy';
+
+import { ComplaintContractFacade } from './complaint-contract.facade';
 import { ComplaintMessageService } from './complaint-message.service';
 import { ComplaintService } from './complaint.service';
 
@@ -22,9 +25,14 @@ import { ComplaintService } from './complaint.service';
       ComplaintViewEntity,
       ComplaintMessageViewEntity,
     ]),
+    AlchemyModule,
     CommonDatabaseModule,
   ],
-  providers: [ComplaintService, ComplaintMessageService],
-  exports: [ComplaintService, ComplaintMessageService],
+  providers: [
+    ComplaintService,
+    ComplaintMessageService,
+    ComplaintContractFacade,
+  ],
+  exports: [ComplaintService, ComplaintMessageService, ComplaintContractFacade],
 })
 export class ComplaintsModule {}

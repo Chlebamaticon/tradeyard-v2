@@ -1,0 +1,28 @@
+a {
+  text-decoration: none;
+  color: inherit;
+  font-size: 0.75em;
+  letter-spacing: 1px;
+  font-weight: 300;
+
+  &:hover {
+    color: inherit;
+    text-decoration: underline;
+  }
+}
+
+.header {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.body {
+}
+
+nb-card-body {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.5rem;
+}

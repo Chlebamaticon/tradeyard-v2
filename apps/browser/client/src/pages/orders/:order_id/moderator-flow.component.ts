@@ -1,16 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, Inject, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { NbButtonModule, NbCardModule, NbStepperModule } from '@nebular/theme';
-import { combineLatest, shareReplay } from 'rxjs';
+import { combineLatest, firstValueFrom, shareReplay } from 'rxjs';
 
-import { OrderStatus } from '@tradeyard-v2/api-dtos';
+import { ComplaintDto, OrderStatus } from '@tradeyard-v2/api-dtos';
 
+import { ComplaintDecisionApiService } from '../../../modules/api/services';
 import { AuthService } from '../../../modules/auth';
 import { UnitPipe } from '../../../pipes/unit.pipe';
 
 import { ComplaintThreadComponent } from './complaint-thread.component';
 import { BaseContract } from './facades';
+import { ActiveOrderComplaint } from './providers';
 
 @Component({
   standalone: true,
@@ -39,25 +41,42 @@ export class ModeratorFlowComponent {
   }).pipe(shareReplay(1));
 
   constructor(
+    @Inject(ActiveOrderComplaint) readonly complaint: ComplaintDto,
     readonly auth: AuthService,
-    readonly baseContract: BaseContract
+    readonly baseContract: BaseContract,
+    readonly complaintDecisionApi: ComplaintDecisionApiService
   ) {}
 
   async refund() {
+    const { complaint_id } = await this.complaint;
     this.pending.set(true);
-    // await firstValueFrom(this.baseContract.cancel());
+    await firstValueFrom(
+      this.complaintDecisionApi.refund({
+        complaint_id,
+      })
+    );
     this.pending.set(false);
   }
 
   async release() {
+    const { complaint_id } = await this.complaint;
     this.pending.set(true);
-    // await firstValueFrom(this.baseContract.confirm());
+    await firstValueFrom(
+      this.complaintDecisionApi.release({
+        complaint_id,
+      })
+    );
     this.pending.set(false);
   }
 
   async reject() {
+    const { complaint_id } = await this.complaint;
     this.pending.set(true);
-    // await firstValueFrom(this.baseContract.shipping());
+    await firstValueFrom(
+      this.complaintDecisionApi.reject({
+        complaint_id,
+      })
+    );
     this.pending.set(false);
   }
 

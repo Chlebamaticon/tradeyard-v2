@@ -42,6 +42,13 @@ export type CreateComplaintMessageDto = zod.infer<
   typeof CreateComplaintMessage
 >;
 
+export const UpdateComplaintBody = zod.object({
+  decision: zod.enum(['refunded', 'released', 'rejected']),
+});
+export type UpdateComplaintBodyDto = zod.infer<typeof UpdateComplaintBody>;
+export const UpdateComplaint = zod.object({}).merge(Complaint);
+export type UpdateComplaintDto = zod.infer<typeof UpdateComplaint>;
+
 export const GetComplaint = zod.object({}).merge(Complaint);
 export type GetComplaintDto = zod.infer<typeof GetComplaint>;
 export const GetComplaintParams = zod

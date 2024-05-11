@@ -25,9 +25,9 @@ import { NbButtonModule, NbCardModule } from '@nebular/theme';
           Sign up as Merchant
         </button>
 
-        <!-- <button nbButton outline routerLink="/auth/moderator/sign-up">
+        <button nbButton outline routerLink="/auth/moderator/sign-up">
           Sign up as Moderator
-        </button> -->
+        </button>
       </div>
     </nb-card-body>
   </nb-card>`,

@@ -1,0 +1,15 @@
+<form [formGroup]="group">
+  <nb-card>
+    <nb-card-header>
+      <h6>Make complaint</h6>
+    </nb-card-header>
+    <nb-card-body>
+      <textarea formControlName="body" nbInput fullWidth placeholder="Describe your issue here..."></textarea>
+    </nb-card-body>
+    <nb-card-footer>
+      <button nbButton status="basic" (click)="close()">Cancel</button>
+      <button nbButton status="primary" (click)="submit()" [nbSpinner]="(pending$ | async) ?? false"
+        [disabled]="!group.valid">Submit</button>
+    </nb-card-footer>
+  </nb-card>
+</form>

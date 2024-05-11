@@ -10,6 +10,15 @@ export const User = zod.object({
 });
 export type UserDto = zod.infer<typeof User>;
 
+export const UserExtended = zod
+  .object({
+    customer_id: zod.string().uuid().optional(),
+    moderator_id: zod.string().uuid().optional(),
+    merchant_id: zod.string().uuid().optional(),
+  })
+  .merge(User);
+export type UserExtendedDto = zod.infer<typeof UserExtended>;
+
 export const GetUserPathParams = zod
   .object({})
   .merge(User.pick({ user_id: true }));

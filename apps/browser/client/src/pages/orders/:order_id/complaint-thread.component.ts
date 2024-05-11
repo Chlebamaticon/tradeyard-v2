@@ -6,6 +6,7 @@ import {
   EventEmitter,
   Inject,
   input,
+  output,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
@@ -43,6 +44,12 @@ export class ComplaintThreadComponent implements AfterViewInit {
     textbox: this.builder.control('', [Validators.required]),
   });
 
+  refund = output<void>();
+  release = output<void>();
+  reject = output<void>();
+
+  role = input<'user' | 'moderator'>('user' as const);
+  role$ = toObservable(this.role);
   author = input('unknown');
   author$ = toObservable(this.author);
 

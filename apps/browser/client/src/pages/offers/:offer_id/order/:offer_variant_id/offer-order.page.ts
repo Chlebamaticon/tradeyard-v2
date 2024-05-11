@@ -87,7 +87,7 @@ export class OfferOrderPage implements AfterViewInit {
         })
       ),
       tap(() => this.loading.set(false)),
-      tap((order) => this.router.navigate(['/orders', order.order_id]))
+      tap((order) => this.router.navigateByUrl(`/orders/${order.order_id}`))
     )
     .subscribe();
 

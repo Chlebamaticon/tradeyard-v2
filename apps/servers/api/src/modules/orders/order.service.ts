@@ -2,7 +2,7 @@ import assert from 'assert';
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, LessThan, Repository } from 'typeorm';
+import { FindOptionsWhere, IsNull, LessThan, Not, Repository } from 'typeorm';
 import { isAddress, isHex, parseEther } from 'viem';
 
 import {
@@ -66,10 +66,13 @@ export class OrderService {
     timestamp = Date.now(),
     merchant_id,
     customer_id,
-  }: GetOrdersQueryParamsDto & GetOrdersParamsDto): Promise<GetOrdersDto> {
+    moderator_id,
+  }: GetOrdersQueryParamsDto &
+    GetOrdersParamsDto & { moderator_id?: string }): Promise<GetOrdersDto> {
     const where: FindOptionsWhere<OrderViewEntity> = {};
     if (merchant_id) where.merchant_id = merchant_id;
     if (customer_id) where.customer_id = customer_id;
+    if (moderator_id) where.complaints = { decision: IsNull() };
     const [offers, total] = await this.orderRepository.findAndCount({
       where: {
         ...where,

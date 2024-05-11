@@ -31,6 +31,7 @@ import {
   AuthSignUpDto,
   currentChain,
   transports,
+  UserExtendedDto,
 } from '@tradeyard-v2/api-dtos';
 
 import { BasicHeaderEmitter } from '../../api/providers';
@@ -79,7 +80,7 @@ export class AuthService {
     }
   }
 
-  get payload(): (JwtPayload & { email?: string }) | null {
+  get payload(): (JwtPayload & UserExtendedDto) | null {
     return this.accessToken ? jwtDecode(this.accessToken) : null;
   }
 
@@ -169,6 +170,7 @@ export class AuthService {
     const email = customEmail ?? this.payload?.email;
     if (!email) throw new Error('No email provided');
 
+    console.log(email);
     const createPasskey$ = defer(() =>
       from(this.signupWithPasskey(email))
     ).pipe(

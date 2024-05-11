@@ -9,6 +9,7 @@ import { UserDto } from '@tradeyard-v2/api-dtos';
 import {
   CustomerViewEntity,
   MerchantViewEntity,
+  ModeratorViewEntity,
   UserViewEntity,
 } from '@tradeyard-v2/server/database';
 
@@ -20,7 +21,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     @InjectRepository(CustomerViewEntity)
     private customerRepository: Repository<CustomerViewEntity>,
     @InjectRepository(MerchantViewEntity)
-    private merchantRepository: Repository<MerchantViewEntity>
+    private merchantRepository: Repository<MerchantViewEntity>,
+    @InjectRepository(ModeratorViewEntity)
+    private moderatorRepository: Repository<ModeratorViewEntity>
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -31,12 +34,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
   async validate(payload: JwtPayload) {
     const { sub: user_id } = payload;
-    const [user, customer, merchant] = await Promise.all([
+    const [user, customer, merchant, moderator] = await Promise.all([
       this.userRepository.findOneByOrFail({
         user_id,
       }),
       this.customerRepository.findOneBy({ user_id }),
       this.merchantRepository.findOneBy({ user_id }),
+      this.moderatorRepository.findOneBy({ user_id }),
     ]);
 
     if (!user) {
@@ -47,12 +51,17 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       ...user,
       customer_id: customer?.customer_id ?? null,
       merchant_id: merchant?.merchant_id ?? null,
+      moderator_id: moderator?.moderator_id ?? null,
     };
   }
 }
 
 declare module 'express' {
   interface Request {
-    user: UserDto & { merchant_id?: string; customer_id?: string };
+    user: UserDto & {
+      merchant_id?: string;
+      customer_id?: string;
+      moderator_id?: string;
+    };
   }
 }

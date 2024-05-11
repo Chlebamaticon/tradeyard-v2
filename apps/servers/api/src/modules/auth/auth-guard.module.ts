@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   CustomerViewEntity,
   MerchantViewEntity,
+  ModeratorViewEntity,
   UserCredentialViewEntity,
   UserViewEntity,
 } from '@tradeyard-v2/server/database';
@@ -22,6 +23,7 @@ import { JwtStrategy, LocalStrategy } from './strategies';
       UserViewEntity,
       CustomerViewEntity,
       MerchantViewEntity,
+      ModeratorViewEntity,
     ]),
     PassportModule,
     JwtModule.register({

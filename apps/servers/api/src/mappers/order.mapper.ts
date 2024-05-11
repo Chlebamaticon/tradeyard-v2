@@ -8,7 +8,7 @@ import { mapToComplaintDto } from './complaint.mapper';
 export function mapToOrderDto(order: OrderViewEntity): OrderDto {
   return {
     ...order,
-    complaints: order.complaints.map(mapToComplaintDto),
+    complaints: order.complaints ? order.complaints.map(mapToComplaintDto) : [],
     merchant: {
       merchant_id: order.merchant_id,
       first_name: order.merchant.user.first_name,

@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 
-import { User, UserDto } from '@tradeyard-v2/api-dtos';
+import { User, UserDto, UserExtended } from '@tradeyard-v2/api-dtos';
 import {
   EventRepository,
   UserCredentialViewEntity,
@@ -23,15 +23,28 @@ export class UserCredentialService {
   ) {}
 
   async matchOrFail(email: string, password: string): Promise<UserDto> {
-    const user = await this.userRepository.findOneBy({ email });
-    const credential = await this.userCredentialRepository.findOne({
+    const { moderator, merchant, customer, ...user } =
+      await this.userRepository.findOneOrFail({
+        where: { email },
+        relations: {
+          customer: true,
+          merchant: true,
+          moderator: true,
+        },
+      });
+    const credential = await this.userCredentialRepository.findOneOrFail({
       where: { user_id: user.user_id, type: 'password' },
       order: { created_at: 'DESC' },
     });
 
     const doesMatch = await bcrypt.compare(password, credential.hash);
     if (doesMatch) {
-      return User.parse(user);
+      return UserExtended.parse({
+        ...user,
+        customer_id: customer?.customer_id,
+        merchant_id: merchant?.merchant_id,
+        moderator_id: moderator?.moderator_id,
+      });
     }
     throw new UnauthorizedException();
   }

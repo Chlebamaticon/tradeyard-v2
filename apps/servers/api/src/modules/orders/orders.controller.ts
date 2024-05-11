@@ -45,7 +45,8 @@ export class OrdersController {
     timestamp = Date.now(),
     @Query('limit', new ParseIntPipe({ optional: true })) limit,
     @User('customer_id') customer_id: string,
-    @User('merchant_id') merchant_id: string
+    @User('merchant_id') merchant_id: string,
+    @User('moderator_id') moderator_id: string
   ): Promise<GetOrdersDto> {
     const validatedQueryParams = GetOrdersQueryParams.parse({
       offset,
@@ -56,6 +57,7 @@ export class OrdersController {
       await this.orderService.getMany({
         customer_id,
         merchant_id,
+        moderator_id,
         ...validatedQueryParams,
       })
     );

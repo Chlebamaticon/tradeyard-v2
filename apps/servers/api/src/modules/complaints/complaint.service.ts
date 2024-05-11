@@ -3,6 +3,7 @@ import assert from 'assert';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LessThan, Repository } from 'typeorm';
+import { getAddress } from 'viem';
 
 import {
   ComplaintDto,
@@ -12,6 +13,7 @@ import {
   GetComplaintsDto,
   GetComplaintsParamsDto,
   GetComplaintsQueryParamsDto,
+  UpdateComplaintBodyDto,
 } from '@tradeyard-v2/api-dtos';
 import {
   ComplaintViewEntity,
@@ -23,6 +25,7 @@ import {
 
 import { mapToComplaintDto } from '../../mappers';
 
+import { ComplaintContractFacade } from './complaint-contract.facade';
 import { ComplaintMessageService } from './complaint-message.service';
 
 @Injectable()
@@ -37,6 +40,7 @@ export class ComplaintService {
     @InjectRepository(ComplaintViewEntity)
     readonly complaintViewRepository: Repository<ComplaintViewEntity>,
     readonly complaintMessageService: ComplaintMessageService,
+    readonly complaintContractFacade: ComplaintContractFacade,
     readonly eventRepository: EventRepository
   ) {}
 
@@ -129,5 +133,68 @@ export class ComplaintService {
       limit,
       timestamp,
     };
+  }
+
+  async updateOne({
+    complaint_id,
+    moderator_id,
+    decision,
+  }: UpdateComplaintBodyDto & {
+    complaint_id: string;
+    moderator_id: string;
+  }): Promise<ComplaintDto> {
+    console.log('complaint_id', complaint_id);
+    console.log('moderator_id', moderator_id);
+    console.log('decision', decision);
+    const complaint = await this.complaintViewRepository.findOneOrFail({
+      where: { complaint_id },
+    });
+    console.log('complaint', complaint);
+    const { contract } = await this.orderViewRepository.findOneOrFail({
+      where: { order_id: complaint.order_id },
+      relations: {
+        contract: true,
+      },
+    });
+    console.log('contract', contract);
+    switch (decision) {
+      case 'refunded':
+        await this.complaintContractFacade.refund({
+          address: getAddress(contract.contract_address),
+        });
+        await this.eventRepository.publish('complaint:decision:refunded', {
+          complaint_id,
+          moderator_id,
+          status: 'refunded',
+          status_at: new Date(),
+        });
+        break;
+      case 'released':
+        await this.complaintContractFacade.release({
+          address: getAddress(contract.contract_address),
+        });
+        await this.eventRepository.publish('complaint:decision:released', {
+          complaint_id,
+          moderator_id,
+          status: 'released',
+          status_at: new Date(),
+        });
+        break;
+      case 'rejected':
+        await this.complaintContractFacade.reject({
+          address: getAddress(contract.contract_address),
+        });
+        await this.eventRepository.publish('complaint:decision:rejected', {
+          complaint_id,
+          moderator_id,
+          status: 'rejected',
+          status_at: new Date(),
+        });
+        break;
+      default:
+        throw new Error(`Unknown "${decision}" decision`);
+    }
+
+    return this.getOne({ complaint_id });
   }
 }

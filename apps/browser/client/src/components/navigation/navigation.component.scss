@@ -9,4 +9,7 @@
 }
 
 .navigation__actions {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 1rem;
 }

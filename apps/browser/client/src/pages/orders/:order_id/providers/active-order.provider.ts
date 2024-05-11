@@ -34,6 +34,7 @@ export const ActiveOrder = new InjectionToken('ActiveOrder', {
   factory: (): Promise<OrderDto> => {
     const activatedRoute = inject(ActivatedRoute);
     const orderApiService = inject(OrderApiService);
+    console.log(activatedRoute);
     return firstValueFrom(
       collectParams$(activatedRoute).pipe(
         map(({ order_id }) => order_id),

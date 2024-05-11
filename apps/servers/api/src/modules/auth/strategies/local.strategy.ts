@@ -5,7 +5,12 @@ import * as bcrypt from 'bcrypt';
 import { Strategy } from 'passport-local';
 import { Repository } from 'typeorm';
 
-import { User, UserDto } from '@tradeyard-v2/api-dtos';
+import {
+  User,
+  UserDto,
+  UserExtended,
+  UserExtendedDto,
+} from '@tradeyard-v2/api-dtos';
 import {
   UserCredentialViewEntity,
   UserViewEntity,
@@ -33,16 +38,30 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
     return user;
   }
 
-  async #matchUser(email: string, password: string): Promise<UserDto> {
-    const user = await this.userRepository.findOneBy({ email });
+  async #matchUser(email: string, password: string): Promise<UserExtendedDto> {
+    const { customer, merchant, moderator, ...user } =
+      await this.userRepository.findOne({
+        where: { email },
+        relations: {
+          customer: true,
+          merchant: true,
+          moderator: true,
+        },
+      });
     const credential = await this.userCredentialRepository.findOne({
       where: { user_id: user.user_id, type: 'password' },
       order: { created_at: 'DESC' },
     });
 
     const doesMatch = await bcrypt.compare(password, credential.hash);
+    console.log(user);
     if (doesMatch) {
-      return User.parse(user);
+      return UserExtended.parse({
+        ...user,
+        customer_id: customer?.customer_id ?? null,
+        merchant_id: merchant?.merchant_id ?? null,
+        moderator_id: moderator?.moderator_id ?? null,
+      });
     }
     throw new UnauthorizedException();
   }

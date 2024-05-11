@@ -1,5 +1,5 @@
-h6 span {
-  font-size: 0.625em;
-  letter-spacing: 1px;
-  font-weight: 300;
+.orders-list {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.5rem;
 }

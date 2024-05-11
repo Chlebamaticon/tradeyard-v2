@@ -1,7 +1,7 @@
 import { ApplicationConfig, importProvidersFrom } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
-import { NbThemeModule } from '@nebular/theme';
+import { NbDialogModule, NbThemeModule } from '@nebular/theme';
 
 import { ApiModule } from '../modules/api';
 import { AuthModule } from '../modules/auth';
@@ -15,5 +15,11 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(NbThemeModule.forRoot({ name: 'default' })),
     importProvidersFrom(ApiModule),
     importProvidersFrom(AuthModule),
+    importProvidersFrom(
+      NbDialogModule.forRoot({
+        hasBackdrop: true,
+        closeOnBackdropClick: true,
+      })
+    ),
   ],
 };

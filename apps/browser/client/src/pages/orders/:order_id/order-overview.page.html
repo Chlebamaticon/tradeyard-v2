@@ -4,12 +4,14 @@
       [routerLink]="['/orders', data.order.order_id]">{{data.order.offer_variant.title ||
       data.order.offer.title}}</span></h4>
 
+  @if(isNotComplaint$ | async) {
   @if(data.whoami.customer_id) {
   <button nbButton size="small" ghost (click)="submitComplaintAsCustomer()">Something is wrong? Submit
     complaint</button>
   } @else if(data.whoami.merchant_id) {
   <button nbButton size="small" ghost (click)="submitComplaintAsMerchant()">Something is wrong? Submit
     complaint</button>
+  }
   }
 </div>
 

@@ -2,16 +2,8 @@
   <h4 routerLink="/orders">Orders</h4>
 </div>
 
-@for(order of (orders.data$ | async)?.items; track order) {
-<nb-card [routerLink]="['/orders', order.order_id]">
-  <nb-card-body>
-    <h6>
-      {{ order.offer_variant.title || order.offer.title }}
-      <span>{{order.contract.address}}</span>
-    </h6>
-    <p>
-      {{ order.offer_variant.description || order.offer.description }}
-    </p>
-  </nb-card-body>
-</nb-card>
-}
+<div class="orders-list">
+  @for(order of (orders.data$ | async)?.items; track order) {
+  <app-order-item class="orders-list__item" [order]="order"></app-order-item>
+  }
+</div>

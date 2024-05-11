@@ -161,6 +161,12 @@ export class MerchantFlowComponent {
     this.pending.set(false);
   }
 
+  async complaint() {
+    this.pending.set(true);
+    await firstValueFrom(this.merchantContract.complaint());
+    this.pending.set(false);
+  }
+
   isCompleted(
     step: MerchantStep,
     data: { previousStatus: OrderStatus; currentStatus: OrderStatus }
