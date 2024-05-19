@@ -136,10 +136,11 @@ export class OfferService {
 
   async updateOne({
     offer_id,
+    merchant_id,
     ...body
-  }: UpdateOfferBodyDto): Promise<UpdateOfferDto> {
+  }: UpdateOfferBodyDto & { merchant_id: string }): Promise<UpdateOfferDto> {
     const offer = await this.offerRepository.findOneOrFail({
-      where: { offer_id },
+      where: { offer_id, merchant_id },
     });
 
     await this.eventRepository.publish('offer:updated', {

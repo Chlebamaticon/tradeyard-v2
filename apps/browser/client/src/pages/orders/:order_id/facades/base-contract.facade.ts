@@ -154,6 +154,40 @@ export class BaseContract {
           this.alchemy.core.getTransactionCount(fromWallet.address, 'latest'),
           this.alchemy.core.getFeeData()
         ),
+        exhaustMap(([to, nonce, feeData]) =>
+          this.auth.walletClient.sendTransaction({
+            to,
+            nonce,
+            value: init.value ? init.value : 0n,
+            data: encodeFunctionData({
+              abi: artifact.abi,
+              functionName: init.functionName,
+              args: init.args ? init.args : [],
+            }),
+            type: 'eip1559',
+            maxPriorityFeePerGas: feeData.maxPriorityFeePerGas!.toBigInt(),
+            maxFeePerGas: feeData.maxFeePerGas!.toBigInt(),
+          } as const)
+        ),
+        exhaustMap((hash) => this.alchemy.core.waitForTransaction(hash)),
+        tap(() => this.stateChanges.next())
+      )
+    );
+  }
+
+  writeContractViaStaticWallet(fromWallet: Wallet, init: ContractInit) {
+    return defer(() =>
+      from(this.contractAddress).pipe(
+        tap((toAddress) =>
+          console.debug('writeContract', init, {
+            from: fromWallet,
+            to: toAddress,
+          })
+        ),
+        combineLatestWith(
+          this.alchemy.core.getTransactionCount(fromWallet.address, 'latest'),
+          this.alchemy.core.getFeeData()
+        ),
         map(([to, nonce, feeData]) => ({
           chainId: currentChain.id,
           to,
@@ -169,14 +203,16 @@ export class BaseContract {
           maxPriorityFeePerGas: feeData.maxPriorityFeePerGas!.toBigInt(),
           maxFeePerGas: feeData.maxFeePerGas!.toBigInt(),
         })),
+        tap(console.debug),
         exhaustMap((unsignedTransaction) =>
           fromWallet.signTransaction(unsignedTransaction)
         ),
-        exhaustMap((signedTransaction) =>
-          this.alchemy.core.sendTransaction(signedTransaction)
-        ),
-        exhaustMap(({ hash }) => this.alchemy.core.waitForTransaction(hash)),
-        tap(() => this.stateChanges.next())
+        tap(console.debug)
+        // exhaustMap((signedTransaction) =>
+        //   this.alchemy.core.sendTransaction(signedTransaction)
+        // ),
+        // exhaustMap(({ hash }) => this.alchemy.core.waitForTransaction(hash)),
+        // tap(() => this.stateChanges.next())
       )
     );
   }

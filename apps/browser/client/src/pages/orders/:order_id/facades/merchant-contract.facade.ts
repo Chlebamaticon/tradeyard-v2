@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Wallet } from 'alchemy-sdk';
-import { defer, delay, exhaustMap } from 'rxjs';
 
 import { BaseContract } from './base-contract.facade';
 

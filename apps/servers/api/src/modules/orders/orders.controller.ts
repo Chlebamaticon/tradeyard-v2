@@ -24,7 +24,7 @@ import {
   GetOrdersQueryParams,
 } from '@tradeyard-v2/api-dtos';
 
-import { User } from '../auth';
+import { CustomerOnly, User } from '../auth';
 
 import { OrderService } from './order.service';
 
@@ -44,9 +44,9 @@ export class OrdersController {
     @Query('timestamp', new ParseIntPipe({ optional: true }))
     timestamp = Date.now(),
     @Query('limit', new ParseIntPipe({ optional: true })) limit,
-    @User('customer_id') customer_id: string,
-    @User('merchant_id') merchant_id: string,
-    @User('moderator_id') moderator_id: string
+    @User('customer_id') customer_id?: string,
+    @User('merchant_id') merchant_id?: string,
+    @User('moderator_id') moderator_id?: string
   ): Promise<GetOrdersDto> {
     const validatedQueryParams = GetOrdersQueryParams.parse({
       offset,
@@ -64,6 +64,7 @@ export class OrdersController {
   }
 
   @Post()
+  @CustomerOnly
   async createOne(
     @Body() body: CreateOrderBodyDto,
     @Request() request: Express.Request

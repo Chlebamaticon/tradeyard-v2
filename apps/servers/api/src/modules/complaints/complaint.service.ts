@@ -143,20 +143,15 @@ export class ComplaintService {
     complaint_id: string;
     moderator_id: string;
   }): Promise<ComplaintDto> {
-    console.log('complaint_id', complaint_id);
-    console.log('moderator_id', moderator_id);
-    console.log('decision', decision);
     const complaint = await this.complaintViewRepository.findOneOrFail({
       where: { complaint_id },
     });
-    console.log('complaint', complaint);
     const { contract } = await this.orderViewRepository.findOneOrFail({
       where: { order_id: complaint.order_id },
       relations: {
         contract: true,
       },
     });
-    console.log('contract', contract);
     switch (decision) {
       case 'refunded':
         await this.complaintContractFacade.refund({

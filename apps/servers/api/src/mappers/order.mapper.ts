@@ -9,11 +9,20 @@ export function mapToOrderDto(order: OrderViewEntity): OrderDto {
   return {
     ...order,
     complaints: order.complaints ? order.complaints.map(mapToComplaintDto) : [],
-    merchant: {
-      merchant_id: order.merchant_id,
-      first_name: order.merchant.user.first_name,
-      last_name: order.merchant.user.last_name,
-    },
+    merchant: order.merchant
+      ? {
+          merchant_id: order.merchant_id,
+          first_name: order.merchant.user.first_name,
+          last_name: order.merchant.user.last_name,
+        }
+      : undefined,
+    customer: order.customer
+      ? {
+          customer_id: order.customer_id,
+          first_name: order.customer.user.first_name,
+          last_name: order.customer.user.last_name,
+        }
+      : undefined,
     offer: {
       offer_id: order.offerVariant.offer.offer_id,
       title: order.offerVariant.offer.title,

@@ -30,7 +30,9 @@ export class WalletCardComponent implements AfterViewInit {
   readonly balance$ = defer(() =>
     from(this.authService.createOrUsePasskey()).pipe(
       exhaustMap(async (address) => ({
-        amount: await this.authService.walletClient.getBalance({ address }),
+        amount: await this.authService.walletClient.getBalance({
+          address,
+        }),
         symbol: this.authService.walletClient.chain.nativeCurrency.symbol,
       }))
     )

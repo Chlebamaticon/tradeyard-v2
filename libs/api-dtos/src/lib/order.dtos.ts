@@ -2,6 +2,7 @@ import * as zod from 'zod';
 
 import { Complaint } from './complaint.dtos';
 import { Contract } from './contract.dtos';
+import { Customer } from './customer.dtos';
 import { Merchant } from './merchant.dtos';
 import { OfferVariant, OfferVariantPrice } from './offer-variant.dtos';
 import { Offer } from './offer.dtos';
@@ -30,6 +31,11 @@ export const Order = zod.object({
     .object({})
     .merge(
       Merchant.pick({ merchant_id: true, first_name: true, last_name: true })
+    ),
+  customer: zod
+    .object({})
+    .merge(
+      Customer.pick({ customer_id: true, first_name: true, last_name: true })
     ),
   contract: zod
     .object({})
@@ -80,5 +86,7 @@ export const CreateOrderBody = zod.object({
   customer_address: zod.string(),
 });
 export type CreateOrderBodyDto = zod.infer<typeof CreateOrderBody>;
-export const CreateOrder = zod.object({}).merge(Order);
+export const CreateOrder = zod
+  .object({})
+  .merge(Order.omit({ customer: true, merchant: true }));
 export type CreateOrderDto = zod.infer<typeof CreateOrder>;

@@ -30,7 +30,7 @@ import {
   UpdateOfferPathParamsDto,
 } from '@tradeyard-v2/api-dtos';
 
-import { User } from '../auth';
+import { MerchantOnly, User } from '../auth';
 
 import { OfferService } from './offers.service';
 
@@ -64,6 +64,7 @@ export class OffersController {
     );
   }
 
+  @MerchantOnly
   @Post()
   async createOne(
     @Body() body: CreateOfferBodyDto,
@@ -75,10 +76,12 @@ export class OffersController {
     );
   }
 
+  @MerchantOnly
   @Patch(':offer_id')
   async updateOne(
     @Param() pathParams: UpdateOfferPathParamsDto,
-    @Body() body: UpdateOfferBodyDto
+    @Body() body: UpdateOfferBodyDto,
+    @User('merchant_id') merchant_id: string
   ): Promise<UpdateOfferDto> {
     const validatedPathParams = UpdateOfferPathParams.parse(pathParams);
     const validatedBody = UpdateOfferBody.parse(body);
@@ -86,6 +89,7 @@ export class OffersController {
       await this.offersService.updateOne({
         ...validatedPathParams,
         ...validatedBody,
+        merchant_id,
       })
     );
   }

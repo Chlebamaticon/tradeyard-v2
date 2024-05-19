@@ -16,7 +16,7 @@ export class CustomerContract {
         .simulateContract(this.#wallet, { functionName: 'deposit', value })
         .pipe(
           exhaustMap(() =>
-            this.base.writeContract(this.#wallet, {
+            this.base.writeContractViaStaticWallet(this.#wallet, {
               functionName: 'deposit',
               value,
             })
