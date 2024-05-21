@@ -1,18 +1,4 @@
 @if ((data$ | async); as data) {
-<!-- <nb-card>
-  <nb-card-header>
-    <h6>{{ offer.title }}</h6>
-    <a [routerLink]="['/offers', offer.offer_id, 'edit']">Edit</a>
-  </nb-card-header>
-  <nb-card-body>
-    <p>{{ offer.description }}</p>
-  </nb-card-body>
-</nb-card> -->
-
-<pre>
-  {{ data.user | json}}
-</pre>
-
 @for (variant of data.offer.variants; track variant.offer_variant_id) {
 <nb-card>
   <nb-card-header>
@@ -26,10 +12,12 @@
     <p>
       {{ variant.current_price?.amount }} <span>{{ variant.current_price?.token?.symbol }}</span>
     </p>
+    @if (data.user.customer_id) {
     <nb-button-group status="success">
       <button nbButton [routerLink]="['/offers', data.offer.offer_id, 'order', variant.offer_variant_id]"
         [queryParams]="{quantity: 1}">Order</button>
     </nb-button-group>
+    }
   </nb-card-footer>
 </nb-card>
 }

@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Self } from '@angular/core';
+import { Component, EventEmitter, Inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
@@ -15,8 +16,9 @@ import {
   BehaviorSubject,
   exhaustMap,
   filter,
+  firstValueFrom,
   map,
-  takeUntil,
+  Observable,
   tap,
   withLatestFrom,
 } from 'rxjs';
@@ -25,8 +27,11 @@ import { CreateOfferBody, TokenDto } from '@tradeyard-v2/api-dtos';
 
 import { TokenSelectComponent } from '../../components/token-select/token-select.component';
 import { OfferApiService } from '../../modules/api/services';
-import { AuthService } from '../../modules/auth';
-import { OnDestroyNotifier$ } from '../../providers';
+import {
+  AuthService,
+  TurnkeyWalletClient,
+  TurnkeyWalletClientType,
+} from '../../modules/auth';
 
 @Component({
   standalone: true,
@@ -45,7 +50,6 @@ import { OnDestroyNotifier$ } from '../../providers';
   selector: 'app-offer-create-page',
   templateUrl: './offer-create.page.html',
   styleUrls: ['./offer-create.page.scss'],
-  providers: [OnDestroyNotifier$],
 })
 export class OfferCreatePage {
   readonly variants = this.builder.array([
@@ -73,17 +77,11 @@ export class OfferCreatePage {
     .pipe(
       withLatestFrom(this.form.valueChanges, this.form.statusChanges),
       filter(([_, __, status]) => status === 'VALID'),
-      exhaustMap(
-        async ([, formData]) =>
-          [formData, await this.authService.createOrUsePasskey()] as const
-      ),
-      map(([formData, merchant_address]) =>
-        CreateOfferBody.parse({ ...formData, merchant_address })
-      ),
+      map(([, formData]) => CreateOfferBody.parse({ ...formData })),
       exhaustMap((body) => this.offerApiService.create(body)),
       tap(() => this.form.reset()),
       tap(() => this.router.navigateByUrl('/offers')),
-      takeUntil(this.destroy$)
+      takeUntilDestroyed()
     )
     .subscribe();
 
@@ -92,7 +90,8 @@ export class OfferCreatePage {
     readonly authService: AuthService,
     readonly builder: FormBuilder,
     readonly offerApiService: OfferApiService,
-    @Self() readonly destroy$: OnDestroyNotifier$
+    @Inject(TurnkeyWalletClient)
+    readonly turnkeyWalletClient: Observable<TurnkeyWalletClientType>
   ) {}
 
   addVariant() {

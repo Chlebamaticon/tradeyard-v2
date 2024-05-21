@@ -3,13 +3,14 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  Inject,
   Input,
   Self,
 } from '@angular/core';
 import { NbCardModule, NbTagModule } from '@nebular/theme';
-import { defer, exhaustMap, from } from 'rxjs';
+import { defer, exhaustMap, from, Observable } from 'rxjs';
 
-import { AuthService } from '../../modules/auth';
+import { AuthService, TurnkeyWalletClient } from '../../modules/auth';
 import { UnitPipe } from '../../pipes/unit.pipe';
 import { OnDestroyNotifier$ } from '../../providers';
 
@@ -28,17 +29,19 @@ export class WalletCardComponent implements AfterViewInit {
   readonly init$ = new EventEmitter<void>();
 
   readonly balance$ = defer(() =>
-    from(this.authService.createOrUsePasskey()).pipe(
-      exhaustMap(async (address) => ({
-        amount: await this.authService.walletClient.getBalance({
-          address,
+    this.walletClient.pipe(
+      exhaustMap(async (walletClient) => ({
+        amount: await walletClient.getBalance({
+          address: walletClient.account.address,
         }),
-        symbol: this.authService.walletClient.chain.nativeCurrency.symbol,
+        symbol: walletClient.chain.nativeCurrency.symbol,
       }))
     )
   );
 
   constructor(
+    @Inject(TurnkeyWalletClient)
+    readonly walletClient: Observable<any>,
     @Self() readonly destroy$: OnDestroyNotifier$,
     readonly authService: AuthService
   ) {}

@@ -1,27 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Wallet } from 'alchemy-sdk';
-import { defer, exhaustMap } from 'rxjs';
+import { defer } from 'rxjs';
 
 import { BaseContract } from './base-contract.facade';
 
 @Injectable()
 export class CustomerContract {
-  #wallet = new Wallet(
-    'c9d90837bd63948e6f18c52373602c95057348eb9afe13e4abf39701a2db1dd8'
-  );
-
   deposit(value: bigint) {
     return defer(() =>
-      this.base
-        .simulateContract(this.#wallet, { functionName: 'deposit', value })
-        .pipe(
-          exhaustMap(() =>
-            this.base.writeContractViaStaticWallet(this.#wallet, {
-              functionName: 'deposit',
-              value,
-            })
-          )
-        )
+      this.base.writeContract({ functionName: 'deposit', value })
     );
   }
 
@@ -34,7 +20,7 @@ export class CustomerContract {
   }
 
   #transition(functionName: string) {
-    const method = this.base.createTransitionMethod(this.#wallet);
+    const method = this.base.createTransitionMethod();
     return method(functionName);
   }
 

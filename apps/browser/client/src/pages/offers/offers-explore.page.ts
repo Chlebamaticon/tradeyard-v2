@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, EventEmitter, Self } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Inject,
+  Self,
+} from '@angular/core';
 import { RouterModule } from '@angular/router';
 import {
   NbButtonGroupModule,
@@ -8,8 +14,12 @@ import {
   NbLayoutModule,
   NbListModule,
 } from '@nebular/theme';
+import { combineLatest, Observable } from 'rxjs';
+
+import { GetWhoamiDto } from '@tradeyard-v2/api-dtos';
 
 import { OfferApiService } from '../../modules/api/services';
+import { Whoami } from '../../modules/auth';
 import { OnDestroyNotifier$ } from '../../providers';
 
 @Component({

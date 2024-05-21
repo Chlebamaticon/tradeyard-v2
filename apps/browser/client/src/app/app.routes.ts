@@ -1,16 +1,11 @@
 import { Route } from '@angular/router';
 
 import { LayoutComponent } from '../components/layout/layout.component';
-import {
-  AuthenticatedOnly,
-  CompleteAuthentication,
-  UnauthenticatedOnly,
-} from '../modules/auth/guards';
+import { AuthenticatedOnly, UnauthenticatedOnly } from '../modules/auth/guards';
 
 export const appRoutes: Route[] = [
   {
     path: '',
-    canActivate: [CompleteAuthentication],
     children: [
       {
         path: 'auth',

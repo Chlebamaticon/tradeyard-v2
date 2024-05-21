@@ -51,18 +51,6 @@ export class SignInPage implements OnDestroy {
   readonly submit$ = new EventEmitter<void>();
   readonly passkey$ = new EventEmitter<void>();
   readonly loading$ = new BehaviorSubject<boolean>(false);
-  readonly authenticateUponPasskey$ = this.passkey$
-    .pipe(
-      tap(() => this.loading$.next(true)),
-      exhaustMap(() =>
-        this.auth
-          .authenticateWithPasskey()
-          .catch((error) => console.warn(error))
-      ),
-      takeUntil(this.destroy$),
-      tap(() => this.loading$.next(false))
-    )
-    .subscribe();
   readonly authenticateUponSubmit$ = this.submit$
     .pipe(
       withLatestFrom(

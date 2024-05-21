@@ -1,13 +1,19 @@
+@if (data$ | async; as data) {
 <div class="offers-header">
   <div class="offers-header__breadcrumbs">
     <h4 routerLink="/offers">Offers</h4>
   </div>
 
+
+
   <nb-button-group class="offers-header__actions">
+    @if (data.whoami.merchant_id) {
     <button nbButton outline status="primary" routerLink="create">
       Create offer
     </button>
+    }
   </nb-button-group>
 </div>
+}
 
 <router-outlet></router-outlet>

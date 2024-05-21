@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, Self, viewChild, ViewEncapsulation } from '@angular/core';
+import {
+  Component,
+  Inject,
+  Self,
+  viewChild,
+  ViewEncapsulation,
+} from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
   NbButtonModule,
@@ -7,15 +13,23 @@ import {
   NbDialogService,
   NbStepperModule,
 } from '@nebular/theme';
-import { combineLatest, exhaustMap, map, merge } from 'rxjs';
+import {
+  combineLatest,
+  exhaustMap,
+  map,
+  merge,
+  Observable,
+  filter,
+} from 'rxjs';
 
-import { OrderStatus } from '@tradeyard-v2/api-dtos';
+import { GetWhoamiDto, OrderStatus } from '@tradeyard-v2/api-dtos';
 
 import {
   AuthApiService,
   ComplaintApiService,
   OrderApiService,
 } from '../../../modules/api/services';
+import { Whoami } from '../../../modules/auth';
 import { OnDestroyNotifier$ } from '../../../providers';
 
 import { CreateComplaintDialogComponent } from './create-complaint-dialog.component';
@@ -49,7 +63,7 @@ export class OrderOverviewPage {
     order: merge(this.router.params).pipe(
       exhaustMap(({ order_id }) => this.orderApiService.one({ order_id }))
     ),
-    whoami: this.authApiService.whoami(),
+    whoami: this.whoami.pipe(filter(Boolean)),
   });
 
   readonly isNotComplaint$ = this.status$.pipe(
@@ -73,6 +87,8 @@ export class OrderOverviewPage {
   });
 
   constructor(
+    @Inject(Whoami)
+    readonly whoami: Observable<GetWhoamiDto | null>,
     readonly router: ActivatedRoute,
     @Self() readonly destroy$: OnDestroyNotifier$,
     readonly authApiService: AuthApiService,

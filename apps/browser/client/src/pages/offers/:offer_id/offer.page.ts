@@ -36,7 +36,7 @@ export class OfferPage implements AfterViewInit {
     user: merge(
       of(this.authService.payload),
       this.authService.accessTokenChanges.pipe(
-        map(() => [this.authService.payload])
+        map(() => this.authService.payload)
       )
     ).pipe(filter(Boolean)),
   });

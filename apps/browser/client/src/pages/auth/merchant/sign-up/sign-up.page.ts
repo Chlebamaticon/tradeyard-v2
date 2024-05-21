@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import {
   NbButtonModule,
   NbCardModule,
@@ -79,11 +80,13 @@ export class MerchantSignUpPage {
           )
       ),
       tap(() => this.loading$.next(false)),
+      tap(() => this.router.navigateByUrl('/')),
       takeUntil(this.destroy$)
     )
     .subscribe();
 
   constructor(
+    readonly router: Router,
     readonly formBuilder: FormBuilder,
     readonly authService: AuthService,
     readonly destroy$: OnDestroyNotifier$

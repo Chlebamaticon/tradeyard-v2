@@ -1,3 +1,10 @@
+.row {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
 nb-card-body {
   display: flex;
   flex-flow: column nowrap;

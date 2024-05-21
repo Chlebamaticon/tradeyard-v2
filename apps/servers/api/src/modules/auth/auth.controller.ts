@@ -13,8 +13,12 @@ import {
   AuthSignUpBody,
   AuthSignUpBodyDto,
   AuthSignUpDto,
+  GetWhoami,
+  GetWhoamiDto,
   UserDto,
 } from '@tradeyard-v2/api-dtos';
+
+import { UserWalletService } from '../users/user-wallet.service';
 
 import { AuthService } from './auth.service';
 import { Public, User } from './decorators';
@@ -23,11 +27,20 @@ import { Public, User } from './decorators';
 export class AuthController {
   readonly logger = new Logger(AuthController.name);
 
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    readonly authService: AuthService,
+    readonly userWalletService: UserWalletService
+  ) {}
 
   @Get('whoami')
-  async getAuth(@User() user: UserDto): Promise<UserDto> {
-    return user;
+  async getWhoami(@User() user: UserDto): Promise<GetWhoamiDto> {
+    const { items: wallets } = await this.userWalletService.getMany({
+      user_id: user.user_id,
+    });
+    return GetWhoami.parse({
+      ...user,
+      wallets,
+    });
   }
 
   @Public()

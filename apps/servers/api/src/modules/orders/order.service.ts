@@ -175,7 +175,21 @@ export class OrderService {
     });
 
     return mapToOrderDto(
-      await this.orderRepository.findOneByOrFail({ order_id })
+      await this.orderRepository.findOneOrFail({
+        where: { order_id },
+        relations: {
+          complaints: true,
+          contract: true,
+          customer: { user: true },
+          merchant: { user: true },
+          offerVariant: {
+            offer: true,
+            offerVariantPrices: {
+              token: true,
+            },
+          },
+        },
+      })
     );
   }
 }

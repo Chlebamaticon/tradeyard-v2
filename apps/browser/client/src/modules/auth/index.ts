@@ -1,2 +1,4 @@
 export * from './auth.module';
-export * from './services/auth.service';
+export * from './providers';
+export * from './services';
+export * from './guards';

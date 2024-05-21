@@ -6,11 +6,14 @@ import {
   UserWalletViewEntity,
 } from '@tradeyard-v2/server/database';
 
+import { TurnkeyModule } from '../turnkey';
+
 import { UserWalletService } from './user-wallet.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserWalletViewEntity]),
+    TurnkeyModule,
     CommonDatabaseModule,
   ],
   providers: [UserWalletService],

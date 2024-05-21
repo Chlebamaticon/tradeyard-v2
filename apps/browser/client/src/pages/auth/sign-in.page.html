@@ -11,10 +11,6 @@
       </div>
 
       <div class="form-actions">
-        <button nbButton outline [nbSpinner]="(loading$ | async) ?? false" nbSpinnerStatus="success"
-          (click)="passkey$.emit()">
-          Use passkey instead
-        </button>
         <button nbButton status="primary" type="submit" [nbSpinner]="(loading$ | async) ?? false"
           nbSpinnerStatus="success" status="primary">
           Submit

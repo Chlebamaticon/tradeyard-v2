@@ -1,6 +1,7 @@
 import * as zod from 'zod';
 
 import { pagination, queryParams } from './pagination.dtos';
+import { UserWallet } from './user-wallet.dto';
 
 export const User = zod.object({
   user_id: zod.string().uuid(),
@@ -12,12 +13,21 @@ export type UserDto = zod.infer<typeof User>;
 
 export const UserExtended = zod
   .object({
-    customer_id: zod.string().uuid().optional(),
-    moderator_id: zod.string().uuid().optional(),
-    merchant_id: zod.string().uuid().optional(),
+    customer_id: zod.string().uuid().optional().nullable(),
+    moderator_id: zod.string().uuid().optional().nullable(),
+    merchant_id: zod.string().uuid().optional().nullable(),
   })
   .merge(User);
 export type UserExtendedDto = zod.infer<typeof UserExtended>;
+
+export const GetWhoami = zod
+  .object({
+    wallets: zod.array(
+      UserWallet.pick({ type: true, address: true, sub_organization_id: true })
+    ),
+  })
+  .merge(UserExtended);
+export type GetWhoamiDto = zod.infer<typeof GetWhoami>;
 
 export const GetUserPathParams = zod
   .object({})

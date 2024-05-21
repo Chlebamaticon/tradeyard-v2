@@ -3,14 +3,14 @@ import * as turnkey from '@turnkey/sdk-server';
 
 export const Turnkey = Symbol('turnkey:base');
 
-export default {
+export const turnkeyProvider: Provider<turnkey.Turnkey> = {
   provide: Turnkey,
   useFactory: () =>
     new turnkey.Turnkey({
       apiBaseUrl: 'https://api.turnkey.com',
-      apiPrivateKey: process.env.TURNKEY_API_PRIVATE_KEY,
-      apiPublicKey: process.env.TURNKEY_API_PUBLIC_KEY,
-      defaultOrganizationId: process.env.TURNKEY_ORGANIZATION_ID,
+      apiPrivateKey: process.env.TURNKEY_API_PRIVKEY,
+      apiPublicKey: process.env.TURNKEY_API_PUBKEY,
+      defaultOrganizationId: process.env.TURNKEY_ORGID,
     }),
   inject: [],
-} satisfies Provider<turnkey.Turnkey>;
+};

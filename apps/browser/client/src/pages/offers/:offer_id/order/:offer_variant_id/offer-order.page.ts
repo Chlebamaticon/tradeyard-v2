@@ -3,7 +3,7 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
-  input,
+  Inject,
   signal,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
@@ -14,15 +14,24 @@ import {
   NbCardModule,
   NbSpinnerModule,
 } from '@nebular/theme';
-import { exhaustMap, scan, switchMap, tap } from 'rxjs';
+import { exhaustMap, scan, switchMap, tap, withLatestFrom } from 'rxjs';
+import { WalletClient } from 'viem';
 
-import { OfferDto, OfferVariantDto } from '@tradeyard-v2/api-dtos';
+import {
+  GetWhoamiDto,
+  OfferDto,
+  OfferVariantDto,
+} from '@tradeyard-v2/api-dtos';
 
 import {
   OfferApiService,
   OrderApiService,
 } from '../../../../../modules/api/services';
-import { AuthService } from '../../../../../modules/auth';
+import {
+  AuthService,
+  TurnkeyWalletClient,
+  Whoami,
+} from '../../../../../modules/auth';
 
 @Component({
   standalone: true,
@@ -71,18 +80,12 @@ export class OfferOrderPage implements AfterViewInit {
   readonly createOrder$ = this.order$
     .pipe(
       tap(() => this.loading.set(true)),
-      exhaustMap(
-        async ([offer_id, offer_variant_id]) =>
-          [
-            [offer_id, offer_variant_id],
-            await this.authService.createOrUsePasskey(),
-          ] as const
-      ),
-      exhaustMap(([[offer_id, offer_variant_id], customer_address]) =>
+      withLatestFrom(this.walletClient),
+      exhaustMap(([[offer_id, offer_variant_id], walletClient]) =>
         this.orderApiService.create({
           offer_id,
           offer_variant_id,
-          customer_address,
+          customer_address: walletClient.account!.address,
           quantity: 1,
         })
       ),
@@ -96,7 +99,9 @@ export class OfferOrderPage implements AfterViewInit {
     readonly route: ActivatedRoute,
     readonly authService: AuthService,
     readonly offerApiService: OfferApiService,
-    readonly orderApiService: OrderApiService
+    readonly orderApiService: OrderApiService,
+    @Inject(TurnkeyWalletClient)
+    readonly walletClient: Promise<WalletClient>
   ) {}
 
   ngAfterViewInit(): void {

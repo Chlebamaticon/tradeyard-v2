@@ -15,13 +15,15 @@ import {
 } from '@tradeyard-v2/server/database';
 
 import { mapToModeratorDto } from '../../mappers';
+import { UserService } from '../users';
 
 @Injectable()
 export class ModeratorService {
   constructor(
     @InjectRepository(ModeratorViewEntity)
     private moderatorRepository: Repository<ModeratorViewEntity>,
-    private eventRepository: EventRepository
+    private eventRepository: EventRepository,
+    private userService: UserService
   ) {}
 
   async createOne({
@@ -29,22 +31,18 @@ export class ModeratorService {
     last_name,
     email,
   }: CreateModeratorBodyDto): Promise<CreateModeratorDto> {
-    const userCreatedEvent = await this.eventRepository.publish(
-      'user:created',
-      {
-        user_id: randomUUID(),
-        first_name,
-        last_name,
-        email,
-      }
-    );
+    const { user_id } = await this.userService.createOne({
+      first_name,
+      last_name,
+      email,
+    });
 
     const moderator_id = randomUUID();
     const moderatorCreatedEvent = await this.eventRepository.publish(
       'moderator:created',
       {
         moderator_id,
-        user_id: userCreatedEvent.body.user_id,
+        user_id,
       }
     );
 

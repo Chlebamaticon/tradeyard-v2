@@ -11,6 +11,10 @@ import { createAggregateEventsSelectQuery } from '../queries';
       .addSelect(`("event"."body" ->> 'chain')::varchar`, 'chain')
       .addSelect(`("event"."body" ->> 'address')::varchar`, 'address')
       .addSelect(`("event"."body" ->> 'type')::varchar`, 'type')
+      .addSelect(
+        `("event"."body" ->> 'sub_organization_id')::varchar`,
+        'sub_organization_id'
+      )
       .addSelect(`"event"."created_at"`, 'created_at')
       .from(
         createAggregateEventsSelectQuery({
@@ -36,6 +40,9 @@ export class UserWalletViewEntity {
 
   @ViewColumn()
   chain!: string;
+
+  @ViewColumn()
+  sub_organization_id!: string | null;
 
   @ViewColumn()
   created_at!: Date;

@@ -1,12 +1,15 @@
 import { randomUUID } from 'crypto';
 
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as tk from '@turnkey/sdk-server';
 import { LessThanOrEqual, Repository } from 'typeorm';
 
 import {
+  CreateTurnkeyWalletBodyDto,
   CreateUserWalletBodyDto,
   CreateUserWalletDto,
+  currentChain,
   GetUserWalletDto,
   GetUserWalletsDto,
   GetUserWalletsQueryParamsDto,
@@ -18,9 +21,12 @@ import {
   UserWalletViewEntity,
 } from '@tradeyard-v2/server/database';
 
+import { TurnkeyApiClient } from '../turnkey';
 @Injectable()
 export class UserWalletService {
   constructor(
+    @Inject(TurnkeyApiClient)
+    readonly turnkeyApiClient: tk.TurnkeyApiClient,
     @InjectRepository(UserWalletViewEntity)
     readonly userWalletRepository: Repository<UserWalletViewEntity>,
     readonly eventRepository: EventRepository
@@ -84,6 +90,54 @@ export class UserWalletService {
       user_wallet_id: randomUUID(),
       ...body,
     });
+    return UserWallet.parse(
+      await this.userWalletRepository.findOneByOrFail({
+        user_wallet_id: event.body.user_wallet_id,
+      })
+    );
+  }
+
+  async createTurnkeyWallet(
+    body: CreateTurnkeyWalletBodyDto & { user_id: string; email: string }
+  ): Promise<CreateUserWalletDto> {
+    const { subOrganizationId, wallet } =
+      await this.turnkeyApiClient.createSubOrganization({
+        subOrganizationName: body.email,
+        rootQuorumThreshold: 1,
+        rootUsers: [
+          {
+            userName: body.email,
+            userEmail: body.email,
+            apiKeys: [],
+            authenticators: [
+              {
+                authenticatorName: 'passkey',
+                challenge: body.challenge,
+                attestation: {
+                  credentialId: body.attestation.credentialId,
+                  clientDataJson: body.attestation.clientDataJson,
+                  attestationObject: body.attestation.attestationObject,
+                  transports: body.attestation.transports,
+                },
+              },
+            ],
+          },
+        ],
+        wallet: {
+          walletName: 'Default Wallet',
+          accounts: tk.DEFAULT_ETHEREUM_ACCOUNTS,
+        },
+      });
+    const [address] = wallet.addresses;
+    const event = await this.eventRepository.publish('user:wallet:created', {
+      user_id: body.user_id,
+      user_wallet_id: randomUUID(),
+      chain: `${currentChain.id}`,
+      type: 'turnkey',
+      address,
+      sub_organization_id: subOrganizationId,
+    });
+
     return UserWallet.parse(
       await this.userWalletRepository.findOneByOrFail({
         user_wallet_id: event.body.user_wallet_id,

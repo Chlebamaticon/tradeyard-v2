@@ -6,10 +6,13 @@ import {
   ModeratorViewEntity,
 } from '@tradeyard-v2/server/database';
 
+import { UserModule } from '../users';
+
 import { ModeratorService } from './moderator.service';
 
 @Module({
   imports: [
+    UserModule,
     CommonDatabaseModule,
     TypeOrmModule.forFeature([ModeratorViewEntity]),
   ],

@@ -1,22 +1,14 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
-import { AuthService } from '../services/auth.service';
+import { Whoami } from '../providers';
 
-export const CompleteAuthentication: CanActivateFn = async (route) => {
-  const auth = inject(AuthService);
+export const CompleteAuthentication: CanActivateFn = async () => {
   const router = inject(Router);
+  const whoami = inject(Whoami);
 
-  const { accessToken } = auth;
-  if (accessToken) {
-    return true;
-  }
-
-  const { bundle, orgId } = route.queryParams;
-  if (bundle && orgId) {
-    await auth.completeAuthentication(bundle, orgId);
-    return router.parseUrl('/');
-  }
-
-  return true;
+  return firstValueFrom(whoami).then((whoami) =>
+    whoami ? true : router.parseUrl('/auth/login')
+  );
 };

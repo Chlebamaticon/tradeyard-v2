@@ -25,21 +25,27 @@ import {
   UserViewEntity,
 } from '@tradeyard-v2/server/database';
 
+import { UserService } from '../users';
+
 @Injectable()
 export class MerchantService {
   constructor(
     @Inject(REQUEST) readonly request: Express.Request,
     @InjectRepository(MerchantViewEntity)
     readonly merchantRepository: Repository<MerchantViewEntity>,
-    readonly eventRepository: EventRepository
+    readonly eventRepository: EventRepository,
+    readonly userService: UserService
   ) {}
 
   async getOne({
     merchant_id,
   }: GetMerchantPathParamsDto): Promise<GetMerchantDto> {
-    const merchant = await this.#queryBuilder({
-      merchant_id,
-    }).getOneOrFail();
+    const merchant = await this.merchantRepository.findOneOrFail({
+      where: {
+        merchant_id,
+      },
+      relations: { user: true },
+    });
 
     return GetMerchant.parse(this.mapToMerchantDto(merchant));
   }
@@ -49,14 +55,11 @@ export class MerchantService {
     limit = 25,
     timestamp = Date.now(),
   }: GetMerchantsQueryParamsDto): Promise<GetMerchantsDto> {
-    const qb = this.#queryBuilder({
-      created_at: new Date(timestamp),
+    const [merchants, total] = await this.merchantRepository.findAndCount({
+      where: { created_at: new Date(timestamp) },
+      skip: offset,
+      take: limit,
     });
-
-    if (offset !== undefined) qb.skip(offset);
-    if (limit !== undefined) qb.take(limit);
-
-    const [merchants, total] = await qb.getManyAndCount();
 
     return {
       items: merchants.map((merchant) => this.mapToMerchantDto(merchant)),
@@ -71,35 +74,32 @@ export class MerchantService {
     last_name,
     email,
   }: CreateMerchantBodyDto): Promise<CreateMerchantDto> {
-    const userCreatedEvent = await this.eventRepository.publish(
-      'user:created',
-      {
-        user_id: randomUUID(),
-        first_name,
-        last_name,
-        email,
-      }
-    );
+    const { user_id } = await this.userService.createOne({
+      first_name,
+      last_name,
+      email,
+    });
 
     const merchantCreatedEvent = await this.eventRepository.publish(
       'merchant:created',
       {
         merchant_id: randomUUID(),
-        user_id: userCreatedEvent.body.user_id,
+        user_id,
       }
     );
 
-    const merchant = await this.#queryBuilder({
-      merchant_id: merchantCreatedEvent.body.merchant_id,
-    }).getOneOrFail();
+    const merchant = await this.merchantRepository.findOneOrFail({
+      where: { merchant_id: merchantCreatedEvent.body.merchant_id },
+      relations: { user: true },
+    });
 
     return CreateMerchant.parse(this.mapToMerchantDto(merchant));
   }
 
   async updateOne(body: UpdateMerchantBodyDto): Promise<UpdateMerchantDto> {
-    const merchant = await this.#queryBuilder({
+    const merchant = await this.merchantRepository.findOneBy({
       merchant_id: body.merchant_id,
-    }).getOneOrFail();
+    });
 
     await this.eventRepository.publish('merchant:updated', {
       merchant_id: merchant.merchant_id,
@@ -122,17 +122,5 @@ export class MerchantService {
       last_name: user?.last_name,
       email: user?.email,
     });
-  }
-
-  #queryBuilder(where: FindOptionsWhere<MerchantViewEntity> = {}) {
-    return this.merchantRepository
-      .createQueryBuilder('merchant')
-      .leftJoinAndMapOne(
-        'merchant.user',
-        UserViewEntity,
-        'user',
-        `"user"."user_id" = "merchant"."user_id"`
-      )
-      .where(where);
   }
 }

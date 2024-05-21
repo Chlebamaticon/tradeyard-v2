@@ -1,15 +1,23 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, EventEmitter, Self } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { NbListModule } from '@nebular/theme';
+import { NbButtonModule, NbListModule } from '@nebular/theme';
+import { firstValueFrom } from 'rxjs';
 
 import { WalletCardComponent } from '../../components/wallet-card/wallet-card.component';
 import { UserWalletApiService } from '../../modules/api/services';
+import { AuthService, AuthTurnkeyService } from '../../modules/auth';
 import { OnDestroyNotifier$ } from '../../providers';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, RouterModule, NbListModule, WalletCardComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    NbButtonModule,
+    NbListModule,
+    WalletCardComponent,
+  ],
   selector: 'app-profile-wallets-page',
   templateUrl: './profile-wallets.page.html',
   styleUrls: ['./profile-wallets.page.scss'],
@@ -26,8 +34,25 @@ export class ProfileWalletsPage implements AfterViewInit {
 
   constructor(
     @Self() readonly destroy$: OnDestroyNotifier$,
+    readonly auth: AuthService,
+    readonly authTurnkey: AuthTurnkeyService,
     readonly userWalletApiService: UserWalletApiService
   ) {}
+
+  async addWallet() {
+    const { payload } = this.auth;
+    if (!payload) return;
+    const { email } = payload;
+    const credentials = await this.authTurnkey.createWallet(email);
+    console.log(credentials);
+    const { user_wallet_id } = await firstValueFrom(
+      this.userWalletApiService.createTurnkey({
+        challenge: credentials.encodedChallenge,
+        attestation: credentials.attestation,
+      })
+    );
+    console.log(user_wallet_id);
+  }
 
   ngAfterViewInit(): void {
     this.init$.emit();

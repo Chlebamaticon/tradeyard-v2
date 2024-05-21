@@ -1,46 +1,32 @@
 import { Inject, Injectable } from '@angular/core';
 import {
-  Alchemy,
-  Network,
-  SimulateExecutionResponse,
-  Wallet,
-} from 'alchemy-sdk';
-import {
   BehaviorSubject,
   Observable,
   combineLatestWith,
   defer,
   delay,
   exhaustMap,
+  finalize,
   from,
-  map,
-  switchMap,
   tap,
-  throwError,
 } from 'rxjs';
-import {
-  Address,
-  decodeErrorResult,
-  encodeFunctionData,
-  isHex,
-  toHex,
-} from 'viem';
+import { Address } from 'viem';
 
-import { currentChain, OrderStatus } from '@tradeyard-v2/api-dtos';
+import { OrderStatus } from '@tradeyard-v2/api-dtos';
 import artifact from '@tradeyard-v2/contracts/ecommerce/artifacts/Order.sol/Order.json';
 
-import { AuthService } from '../../../../modules/auth';
+import {
+  AuthService,
+  TurnkeyWalletClient,
+  TurnkeyWalletClientType,
+} from '../../../../modules/auth';
 import { ActiveOrderContractAddress } from '../providers';
 
 type ContractInit = { functionName: string; args?: unknown[]; value?: bigint };
 
 @Injectable()
 export class BaseContract {
-  alchemy = new Alchemy({
-    apiKey: '6oy61c9A1D8Dm4e_rZ0KAAwf5KOZRCWM',
-    network: Network.ETH_SEPOLIA,
-  });
-
+  loading = new BehaviorSubject<boolean>(false);
   stateChanges = new BehaviorSubject<void>(undefined);
 
   getTokenAmount(): Observable<bigint> {
@@ -73,10 +59,11 @@ export class BaseContract {
 
   readContractOnce<T = unknown>(functionName: string): Observable<T> {
     return from(this.contractAddress).pipe(
+      combineLatestWith(this.walletClient),
       tap((args) => console.debug('readContractOnce', functionName, args)),
       exhaustMap(
-        (address) =>
-          this.auth.walletClient.readContract({
+        ([address, walletClient]) =>
+          walletClient.readContract({
             address,
             abi: artifact.abi,
             functionName,
@@ -87,11 +74,11 @@ export class BaseContract {
 
   readContract<T = unknown>(functionName: string): Observable<T> {
     return from(this.contractAddress).pipe(
-      combineLatestWith(this.stateChanges),
+      combineLatestWith(this.walletClient, this.stateChanges),
       tap((args) => console.debug('readContract', functionName, args)),
       exhaustMap(
-        ([address]) =>
-          this.auth.walletClient.readContract({
+        ([address, walletClient]) =>
+          walletClient.readContract({
             address,
             abi: artifact.abi,
             functionName,
@@ -100,144 +87,57 @@ export class BaseContract {
     );
   }
 
-  simulateContract(fromWallet: Wallet, init: ContractInit) {
+  simulateContract(init: ContractInit) {
     return defer(() =>
       from(this.contractAddress).pipe(
-        tap((toAddress) =>
+        combineLatestWith(this.walletClient),
+        tap(([to, walletClient]) =>
           console.debug('simulateContract', init, {
-            from: fromWallet,
-            to: toAddress,
-          })
-        ),
-        exhaustMap((toAddress) =>
-          from(
-            this.alchemy.transact.simulateExecution({
-              from: fromWallet.address,
-              to: toAddress,
-              value: init.value ? toHex(init.value) : undefined,
-              data: encodeFunctionData({
-                abi: artifact.abi,
-                functionName: init.functionName,
-                args: init.args ? init.args : [],
-              }),
-            })
-          )
-        ),
-        switchMap(({ calls }: SimulateExecutionResponse) => {
-          const [latestCall] = calls;
-          if (latestCall.error) {
-            return throwError(() =>
-              decodeErrorResult({
-                abi: artifact.abi,
-                data: isHex(latestCall.output)
-                  ? latestCall.output
-                  : `0x${latestCall.output}`,
-              })
-            );
-          }
-          return [latestCall];
-        })
-      )
-    );
-  }
-
-  writeContract(fromWallet: Wallet, init: ContractInit) {
-    return defer(() =>
-      from(this.contractAddress).pipe(
-        tap((toAddress) =>
-          console.debug('writeContract', init, {
-            from: fromWallet,
-            to: toAddress,
-          })
-        ),
-        combineLatestWith(
-          this.alchemy.core.getTransactionCount(fromWallet.address, 'latest'),
-          this.alchemy.core.getFeeData()
-        ),
-        exhaustMap(([to, nonce, feeData]) =>
-          this.auth.walletClient.sendTransaction({
+            from: walletClient.account.address,
             to,
-            nonce,
-            value: init.value ? init.value : 0n,
-            data: encodeFunctionData({
-              abi: artifact.abi,
-              functionName: init.functionName,
-              args: init.args ? init.args : [],
-            }),
-            type: 'eip1559',
-            maxPriorityFeePerGas: feeData.maxPriorityFeePerGas!.toBigInt(),
-            maxFeePerGas: feeData.maxFeePerGas!.toBigInt(),
-          } as const)
-        ),
-        exhaustMap((hash) => this.alchemy.core.waitForTransaction(hash)),
-        tap(() => this.stateChanges.next())
-      )
-    );
-  }
-
-  writeContractViaStaticWallet(fromWallet: Wallet, init: ContractInit) {
-    return defer(() =>
-      from(this.contractAddress).pipe(
-        tap((toAddress) =>
-          console.debug('writeContract', init, {
-            from: fromWallet,
-            to: toAddress,
           })
         ),
-        combineLatestWith(
-          this.alchemy.core.getTransactionCount(fromWallet.address, 'latest'),
-          this.alchemy.core.getFeeData()
-        ),
-        map(([to, nonce, feeData]) => ({
-          chainId: currentChain.id,
-          to,
-          nonce,
-          value: init.value ? init.value : 0n,
-          data: encodeFunctionData({
+        exhaustMap(([to, walletClient]) =>
+          walletClient.simulateContract({
+            address: to,
+            value: init.value,
             abi: artifact.abi,
             functionName: init.functionName,
-            args: init.args ? init.args : [],
-          }),
-          type: 2,
-          gasLimit: '100000',
-          maxPriorityFeePerGas: feeData.maxPriorityFeePerGas!.toBigInt(),
-          maxFeePerGas: feeData.maxFeePerGas!.toBigInt(),
-        })),
-        tap(console.debug),
-        exhaustMap((unsignedTransaction) =>
-          fromWallet.signTransaction(unsignedTransaction)
-        ),
-        tap(console.debug)
-        // exhaustMap((signedTransaction) =>
-        //   this.alchemy.core.sendTransaction(signedTransaction)
-        // ),
-        // exhaustMap(({ hash }) => this.alchemy.core.waitForTransaction(hash)),
-        // tap(() => this.stateChanges.next())
+            args: init.args,
+          })
+        )
       )
     );
   }
 
-  createTransitionMethod(wallet: Wallet) {
-    return (functionName: string) =>
-      defer(() =>
-        this.simulateContract(wallet, { functionName }).pipe(
-          /**
-           * Alchemy does limit the RPC throughput; therefore
-           * we need to add artifical delay to avoid rate limiting.
-           * @todo To be removed once Alchemy upgrade plan.
-           */
-          delay(1000),
-          exhaustMap(() =>
-            this.writeContract(wallet, {
-              functionName,
-            })
-          )
-        )
-      );
+  writeContract(init: ContractInit) {
+    this.loading.next(true);
+    return this.simulateContract(init).pipe(
+      combineLatestWith(this.walletClient),
+      tap(([to, walletClient]) =>
+        console.debug('writeContract', init, {
+          from: walletClient.account.address,
+          to,
+        })
+      ),
+      exhaustMap(([{ request }, walletClient]) =>
+        walletClient
+          .writeContract(request)
+          .then((hash) => walletClient.waitForTransactionReceipt({ hash }))
+      ),
+      tap(() => this.stateChanges.next()),
+      finalize(() => this.loading.next(false))
+    );
+  }
+
+  createTransitionMethod() {
+    return (functionName: string) => this.writeContract({ functionName });
   }
 
   constructor(
     readonly auth: AuthService,
+    @Inject(TurnkeyWalletClient)
+    readonly walletClient: Observable<TurnkeyWalletClientType>,
     @Inject(ActiveOrderContractAddress)
     readonly contractAddress: Promise<Address>
   ) {}

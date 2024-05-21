@@ -10,6 +10,10 @@ import {
 import * as express from 'express';
 
 import {
+  CreateTurnkeyWallet,
+  CreateTurnkeyWalletBody,
+  CreateTurnkeyWalletBodyDto,
+  CreateTurnkeyWalletDto,
   CreateUser,
   CreateUserDto,
   CreateUserWalletBody,
@@ -17,7 +21,10 @@ import {
   GetUserWallets,
   GetUserWalletsDto,
   GetUserWalletsQueryParams,
+  UserExtendedDto,
 } from '@tradeyard-v2/api-dtos';
+
+import { User } from '../auth/decorators';
 
 import { UserWalletService } from './user-wallet.service';
 
@@ -47,13 +54,30 @@ export class UserWalletController {
   @Post()
   async createOne(
     @Body() body: CreateUserWalletBodyDto,
-    @Request() req: express.Request
+    @User('user_id') user_id: string
   ): Promise<CreateUserDto> {
     const validatedBody = CreateUserWalletBody.parse(body);
     return CreateUser.parse(
       await this.userWalletService.createOne({
         ...validatedBody,
-        user_id: req.user.user_id,
+        user_id,
+      })
+    );
+  }
+
+  @Post('v2')
+  async createTurnkeyWallet(
+    @Body() body: CreateTurnkeyWalletBodyDto,
+    @User() { email, user_id }: UserExtendedDto
+  ): Promise<CreateTurnkeyWalletDto> {
+    const validatedBody = CreateTurnkeyWalletBody.required()
+      .strict()
+      .parse(body);
+    return CreateTurnkeyWallet.parse(
+      await this.userWalletService.createTurnkeyWallet({
+        ...validatedBody,
+        user_id,
+        email,
       })
     );
   }

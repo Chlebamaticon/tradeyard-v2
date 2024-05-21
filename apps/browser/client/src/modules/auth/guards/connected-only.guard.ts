@@ -1,13 +1,14 @@
 import { inject } from '@angular/core';
 import { CanActivateFn } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
-import { AuthService } from '../services/auth.service';
+import { TurnkeyWalletClient } from '../providers';
 
 export const ConnectedOnly: CanActivateFn = async () => {
-  const authService = inject(AuthService);
+  const walletClient = inject(TurnkeyWalletClient);
 
   try {
-    await authService.createOrUsePasskey();
+    await firstValueFrom(walletClient);
     return true;
   } catch (error) {
     console.error(error);

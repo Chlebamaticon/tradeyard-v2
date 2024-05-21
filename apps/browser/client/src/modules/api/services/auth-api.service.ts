@@ -6,6 +6,7 @@ import {
   AuthSignInDto,
   AuthSignUpBodyDto,
   AuthSignUpDto,
+  GetWhoamiDto,
 } from '@tradeyard-v2/api-dtos';
 
 import { BaseApiService } from './base-api.service';
@@ -14,7 +15,7 @@ import { BaseApiService } from './base-api.service';
 export class AuthApiService {
   constructor(readonly baseApiService: BaseApiService) {}
 
-  whoami(): Observable<any> {
+  whoami(): Observable<GetWhoamiDto> {
     return this.baseApiService.get('auth/whoami', {});
   }
 

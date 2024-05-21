@@ -1,4 +1,8 @@
-<h6>Wallets</h6>
+<div class="row">
+  <h6>Wallets</h6>
+
+  <button nbButton (click)="addWallet()">Add wallet</button>
+</div>
 
 <nb-list>
   @for(wallet of (wallets.data$ | async)?.items; track wallet) {
