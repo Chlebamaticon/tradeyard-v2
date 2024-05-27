@@ -1,8 +1,11 @@
 @if (data$ | async; as data) {
 <div class="offers-header">
-  <div class="offers-header__breadcrumbs">
-    <h4 routerLink="/offers">Offers</h4>
-  </div>
+  <ul class="offers-header__breadcrumbs breadcrumbs">
+    <li class="breadcrumbs__item"><a routerLink="/offers">Offers</a></li>
+    @if(data.offer) {
+    <li class="breadcrumbs__item"><a [routerLink]="['/offers', data.offer.offer_id]">{{ data.offer.title }}</a></li>
+    }
+  </ul>
 
 
 

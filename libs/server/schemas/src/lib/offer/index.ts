@@ -9,6 +9,9 @@ export const offer = zod.object({
 
 export default {
   'offer:created': offer.required(),
-  'offer:updated': offer.required(),
+  'offer:updated': offer
+    .pick({ title: true, description: true, offer_id: true })
+    .partial({ title: true, description: true })
+    .required({ offer_id: true }),
   'offer:snapshot': offer.required(),
 };

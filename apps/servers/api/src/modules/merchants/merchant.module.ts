@@ -9,7 +9,7 @@ import {
 
 import { UserModule } from '../users';
 
-import { MerchantService } from './merchant.service';
+import { MerchantService } from './services';
 
 @Module({
   imports: [

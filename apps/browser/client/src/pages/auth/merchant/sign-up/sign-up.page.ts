@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { NbEvaIconsModule } from '@nebular/eva-icons';
 import {
   NbButtonModule,
   NbCardModule,
+  NbIconModule,
   NbInputModule,
   NbSpinnerModule,
 } from '@nebular/theme';
@@ -29,6 +31,9 @@ import { OnDestroyNotifier$ } from '../../../../providers';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterModule,
+    NbIconModule,
+    NbEvaIconsModule,
     NbCardModule,
     NbButtonModule,
     NbInputModule,

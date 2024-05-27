@@ -8,9 +8,9 @@ export const turnkeyProvider: Provider<turnkey.Turnkey> = {
   useFactory: () =>
     new turnkey.Turnkey({
       apiBaseUrl: 'https://api.turnkey.com',
-      apiPrivateKey: process.env.TURNKEY_API_PRIVKEY,
-      apiPublicKey: process.env.TURNKEY_API_PUBKEY,
-      defaultOrganizationId: process.env.TURNKEY_ORGID,
+      apiPrivateKey: process.env.TURNKEY_API_PRIVKEY!,
+      apiPublicKey: process.env.TURNKEY_API_PUBKEY!,
+      defaultOrganizationId: process.env.TURNKEY_ORGID!,
     }),
   inject: [],
 };

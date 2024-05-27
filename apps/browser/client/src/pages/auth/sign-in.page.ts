@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { NbEvaIconsModule } from '@nebular/eva-icons';
 import {
   NbButtonGroupModule,
   NbButtonModule,
   NbCardModule,
+  NbIconModule,
   NbInputModule,
   NbSpinnerModule,
 } from '@nebular/theme';
@@ -26,7 +28,10 @@ import { AuthService } from '../../modules/auth';
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     ReactiveFormsModule,
+    NbIconModule,
+    NbEvaIconsModule,
     NbCardModule,
     NbInputModule,
     NbButtonGroupModule,

@@ -67,3 +67,10 @@ p {
   margin: 0 auto;
   position: relative;
 }
+
+.header {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.5rem;
+  align-items: center;
+}

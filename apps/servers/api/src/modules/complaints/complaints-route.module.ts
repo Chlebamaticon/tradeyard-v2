@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 
-import { ComplaintsController } from './complaints.controller';
 import { ComplaintsModule } from './complaints.module';
+import { ComplaintsController } from './controllers';
 
 @Module({
   imports: [ComplaintsModule],

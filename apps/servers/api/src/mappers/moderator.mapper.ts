@@ -1,9 +1,12 @@
+import assert from 'assert';
+
 import { ModeratorDto } from '@tradeyard-v2/api-dtos';
 import { ModeratorViewEntity } from '@tradeyard-v2/server/database';
 
 export function mapToModeratorDto(
   moderator: ModeratorViewEntity
 ): ModeratorDto {
+  assert.ok(moderator.user, 'Moderator user not found');
   return {
     moderator_id: moderator.moderator_id,
     user_id: moderator.user_id,

@@ -3,6 +3,7 @@ import { BaseApiService } from './base-api.service';
 import { ComplaintApiService } from './complaint-api.service';
 import { ComplaintDecisionApiService } from './complaint-decision-api.service';
 import { OfferApiService } from './offer-api.service';
+import { OfferVariantApiService } from './offer-variant-api.service';
 import { OrderApiService } from './order-api.service';
 import { TokenApiService } from './token-api.service';
 import { UserWalletApiService } from './user-wallet-api.service';
@@ -12,6 +13,7 @@ export {
   BaseApiService,
   ComplaintApiService,
   ComplaintDecisionApiService,
+  OfferVariantApiService,
   OfferApiService,
   OrderApiService,
   TokenApiService,
@@ -23,6 +25,7 @@ export default [
   BaseApiService,
   ComplaintApiService,
   ComplaintDecisionApiService,
+  OfferVariantApiService,
   OfferApiService,
   OrderApiService,
   TokenApiService,

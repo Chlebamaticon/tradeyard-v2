@@ -12,9 +12,8 @@ import {
 
 import { AlchemyModule } from '../alchemy';
 
-import { ComplaintContractFacade } from './complaint-contract.facade';
-import { ComplaintMessageService } from './complaint-message.service';
-import { ComplaintService } from './complaint.service';
+import { ComplaintContractFacade } from './facades';
+import { ComplaintService, ComplaintMessageService } from './services';
 
 @Module({
   imports: [

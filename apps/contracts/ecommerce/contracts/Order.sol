@@ -161,37 +161,37 @@ contract Order is Ownable {
         }
     }
 
-    function releaseComplaint() external onlyOwner {
-        transition(OrderStatus.ModeratorComplaintReleased);
+function releaseComplaint() external onlyOwner {
+    transition(OrderStatus.ModeratorComplaintReleased);
 
-        _release();
-        emit ModeratorComplaintReleased(
-            block.timestamp,
-            _msgSender(),
-            customer
-        );
-    }
+    _release();
+    emit ModeratorComplaintReleased(
+        block.timestamp,
+        _msgSender(),
+        customer
+    );
+}
 
-    function refundComplaint() external onlyOwner {
-        transition(OrderStatus.ModeratorComplaintRefunded);
+function refundComplaint() external onlyOwner {
+    transition(OrderStatus.ModeratorComplaintRefunded);
 
-        _refund();
-        emit ModeratorComplaintRefunded(
-            block.timestamp,
-            _msgSender(),
-            merchant
-        );
-    }
+    _refund();
+    emit ModeratorComplaintRefunded(
+        block.timestamp,
+        _msgSender(),
+        merchant
+    );
+}
 
-    function rejectComplaint() external onlyOwner {
-        transition(previousStatus);
+function rejectComplaint() external onlyOwner {
+    transition(previousStatus);
 
-        emit ModeratorComplaintRejected(
-            block.timestamp,
-            _msgSender(),
-            customer
-        );
-    }
+    emit ModeratorComplaintRejected(
+        block.timestamp,
+        _msgSender(),
+        customer
+    );
+}
 
     function transition(
         OrderStatus _nextStatus

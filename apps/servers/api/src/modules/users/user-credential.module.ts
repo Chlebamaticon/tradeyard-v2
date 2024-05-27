@@ -7,7 +7,7 @@ import {
   UserViewEntity,
 } from '@tradeyard-v2/server/database';
 
-import { UserCredentialService } from './user-credential.service';
+import { UserCredentialService } from './services/user-credential.service';
 
 @Module({
   imports: [

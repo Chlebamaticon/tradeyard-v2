@@ -1,33 +1,11 @@
 import { inject, InjectionToken } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import {
-  filter,
-  firstValueFrom,
-  map,
-  merge,
-  shareReplay,
-  scan,
-  Observable,
-  switchMap,
-} from 'rxjs';
+import { filter, firstValueFrom, map, shareReplay, switchMap } from 'rxjs';
 
 import { OrderDto } from '@tradeyard-v2/api-dtos';
 
+import { collectPathParamsWithActivatedRoute } from '../../../../helpers';
 import { OrderApiService } from '../../../../modules/api/services';
-
-const collectParams$ = (
-  activatedRoute: ActivatedRoute
-): Observable<Record<string, string>> => {
-  let currentRoute: ActivatedRoute | null = activatedRoute;
-  const params$ = [];
-  while (currentRoute) {
-    params$.push(currentRoute.params);
-    currentRoute = currentRoute.firstChild;
-  }
-  return merge(...params$).pipe(
-    scan((acc, params) => ({ ...acc, ...params }), {})
-  );
-};
 
 export const ActiveOrder = new InjectionToken('ActiveOrder', {
   providedIn: 'any',
@@ -36,7 +14,7 @@ export const ActiveOrder = new InjectionToken('ActiveOrder', {
     const orderApiService = inject(OrderApiService);
     console.log(activatedRoute);
     return firstValueFrom(
-      collectParams$(activatedRoute).pipe(
+      collectPathParamsWithActivatedRoute(activatedRoute).pipe(
         map(({ order_id }) => order_id),
         filter((order_id) => !!order_id),
         switchMap((order_id) => orderApiService.one({ order_id })),

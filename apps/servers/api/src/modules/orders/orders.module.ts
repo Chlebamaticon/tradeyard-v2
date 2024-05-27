@@ -13,7 +13,7 @@ import { OffersModule } from '../offers';
 import { OrdersContractModule } from '../orders-contract';
 import { UserWalletModule } from '../users';
 
-import { OrderService } from './order.service';
+import { OrderService } from './services';
 
 @Module({
   imports: [

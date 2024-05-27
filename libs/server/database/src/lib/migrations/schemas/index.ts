@@ -15,3 +15,6 @@ export * from './1714296842985-updated-order-with-merchant-id';
 export * from './1714298628843-updated-deployment-with-contract-id';
 export * from './1715266274594-added-complaint-view';
 export * from './1716142019718-updated-wallet-with-sub-org-id';
+export * from './1716814836224-updated-aggregate-events-factory';
+export * from './1716821803852-updated-variants-with-archived-flag';
+export * from './1716822795482-updated-archived-flag';

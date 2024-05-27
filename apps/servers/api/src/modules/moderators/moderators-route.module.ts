@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 
+import { ModeratorsController } from './controllers';
 import { ModeratorModule } from './moderator.module';
-import { ModeratorsController } from './moderators.controller';
 
 @Module({
   imports: [ModeratorModule],

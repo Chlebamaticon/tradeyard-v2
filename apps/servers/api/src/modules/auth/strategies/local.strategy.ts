@@ -40,7 +40,7 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
 
   async #matchUser(email: string, password: string): Promise<UserExtendedDto> {
     const { customer, merchant, moderator, ...user } =
-      await this.userRepository.findOne({
+      await this.userRepository.findOneOrFail({
         where: { email },
         relations: {
           customer: true,
@@ -48,7 +48,7 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
           moderator: true,
         },
       });
-    const credential = await this.userCredentialRepository.findOne({
+    const credential = await this.userCredentialRepository.findOneOrFail({
       where: { user_id: user.user_id, type: 'password' },
       order: { created_at: 'DESC' },
     });

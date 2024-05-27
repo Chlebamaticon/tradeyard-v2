@@ -2,8 +2,8 @@ import { Logger, Provider } from '@nestjs/common';
 import {
   createWalletClient,
   formatEther,
+  publicActions,
   PublicClient,
-  WalletClient,
 } from 'viem';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 
@@ -34,7 +34,7 @@ export default {
       }) as a wallet client.`,
       { privateKey }
     );
-    return client;
+    return client.extend(publicActions);
   },
   inject: [AlchemyPublicClient],
-} satisfies Provider<WalletClient>;
+};

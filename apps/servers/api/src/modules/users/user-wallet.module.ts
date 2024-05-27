@@ -8,7 +8,7 @@ import {
 
 import { TurnkeyModule } from '../turnkey';
 
-import { UserWalletService } from './user-wallet.service';
+import { UserWalletService } from './services/user-wallet.service';
 
 @Module({
   imports: [

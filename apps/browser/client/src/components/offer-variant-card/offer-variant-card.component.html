@@ -1,0 +1,60 @@
+@if(data$ | async; as data) {
+<nb-card [formGroup]="group">
+    <nb-card-header>
+        @if (data.editMode) {
+        <div class="form-control">
+            <input nbInput formControlName="title" fullWidth />
+            <button nbButton ghost size="small" (click)="toggleEditMode(true)"><nb-icon
+                    icon="close-circle-outline" /></button>
+            <button nbButton ghost status="success" size="small" (click)="save()"><nb-icon
+                    icon="checkmark-circle-outline" /></button>
+        </div>
+        } @else {
+        <h6>{{ data.variant?.title || data.offer?.title }}</h6>
+        @if (data.whoami.merchant_id && data.whoami.merchant_id === data.offer?.merchant_id) {
+        <div class="actions">
+            <button nbButton ghost size="small" (click)="toggleEditMode(true)">
+                <nb-icon icon="edit" />
+            </button>
+            @if (data.removable) {
+            <button nbButton ghost size="small" (click)="remove.emit(data.variant!)">
+                <nb-icon icon="trash-2-outline" />
+            </button>
+            }
+        </div>
+        }
+        }
+    </nb-card-header>
+    <nb-card-body>
+        @if (data.editMode) {
+        <textarea nbInput fullWidth formControlName="description"></textarea>
+        } @else {
+        <p>{{ data.variant?.description || data.offer?.description }}</p>
+        }
+    </nb-card-body>
+    <nb-card-footer>
+        @if (data.editMode) {
+        <div class="form-control" formGroupName="price">
+            <nb-form-field>
+                <nb-icon nbPrefix icon="pricetags-outline" pack="eva"></nb-icon>
+                <input type="number" nbInput formControlName="amount" placeholder="Type your price..." step="0.01"
+                    formControlName="amount">
+            </nb-form-field>
+
+            <app-token-select [toValue]="parseTokenToValue" [fromValue]="parseValueToToken"
+                formControlName="token"></app-token-select>
+        </div>
+        } @else {
+        <p>
+            {{ data.variant?.current_price?.amount }} <span>{{ data.variant?.current_price?.token?.symbol }}</span>
+        </p>
+        }
+        @if (data.whoami.customer_id) {
+        <nb-button-group status="success">
+            <button nbButton [routerLink]="['/offers', data.variant?.offer_id, 'order', data.variant?.offer_variant_id]"
+                [queryParams]="{quantity: 1}">Order</button>
+        </nb-button-group>
+        }
+    </nb-card-footer>
+</nb-card>
+}

@@ -10,7 +10,7 @@ import {
 import { CustomerModule } from '../customers';
 import { MerchantModule } from '../merchants';
 import { ModeratorModule } from '../moderators';
-import { UserCredentialModule, UserModule, UserWalletModule } from '../users';
+import { UserCredentialModule, UserModule } from '../users';
 
 import { AuthService } from './auth.service';
 import { LocalStrategy } from './strategies';

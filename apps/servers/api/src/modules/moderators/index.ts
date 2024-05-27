@@ -1,4 +1,3 @@
-export * from './moderator.service';
-export * from './moderators.controller';
+export * from './services';
 export * from './moderators-route.module';
 export * from './moderator.module';

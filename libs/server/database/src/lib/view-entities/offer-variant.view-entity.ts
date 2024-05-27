@@ -24,6 +24,7 @@ import { OrderViewEntity } from './order.view-entity';
       )
       .addSelect(`"event"."body" ->> 'title'`, `title`)
       .addSelect(`"event"."body" ->> 'description'`, `description`)
+      .addSelect(`("event"."body" ->> 'archived')::bool`, `archived`)
       .addSelect(`"event"."created_at"`, 'created_at')
       .from(
         createAggregateEventsSelectQuery({
@@ -53,6 +54,9 @@ export class OfferVariantViewEntity {
 
   @ViewColumn()
   created_at!: Date;
+
+  @ViewColumn()
+  archived!: boolean | null;
 
   @ManyToOne(() => OfferViewEntity, (offer) => offer.variants)
   @JoinColumn({ name: 'offer_id', referencedColumnName: 'offer_id' })

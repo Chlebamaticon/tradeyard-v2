@@ -12,7 +12,7 @@ import {
 import { CustomersRouteModule } from '../modules/customers';
 import { MerchantsRouteModule } from '../modules/merchants';
 import { ModeratorsRouteModule } from '../modules/moderators';
-import { OffersRouteModule } from '../modules/offers';
+import { OffersRouteModule, OfferVariantsRouteModule } from '../modules/offers';
 import { OrdersRouteModule } from '../modules/orders';
 import { SeedModule } from '../modules/seed';
 import { TokensRouteModule } from '../modules/tokens';
@@ -31,6 +31,7 @@ import { AppService } from './app.service';
     ComplaintMessagesRouteModule,
     CustomersRouteModule,
     MerchantsRouteModule,
+    OfferVariantsRouteModule,
     OffersRouteModule,
     UsersRouteModule,
     TokensRouteModule,
@@ -57,6 +58,12 @@ import { AppService } from './app.service';
       {
         path: 'offers',
         module: OffersRouteModule,
+        children: [
+          {
+            path: ':offer_id/variants',
+            module: OfferVariantsRouteModule,
+          },
+        ],
       },
       {
         path: 'orders',

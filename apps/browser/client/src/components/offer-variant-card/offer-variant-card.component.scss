@@ -1,0 +1,33 @@
+nb-card {
+  margin: 0;
+}
+
+nb-card-header {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: 1rem;
+
+  .form-control {
+    flex-grow: 1;
+  }
+}
+
+nb-card-footer {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+}
+
+nb-card-footer p {
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+nb-card-footer span {
+  font-weight: 300;
+  color: rgba(0, 0, 0, 0.32);
+}

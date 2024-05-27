@@ -10,8 +10,7 @@ import {
   TokenViewEntity,
 } from '@tradeyard-v2/server/database';
 
-import { OfferVariantService } from './offer-variant.service';
-import { OfferService } from './offers.service';
+import { OfferService, OfferVariantService } from './services';
 
 @Module({
   imports: [

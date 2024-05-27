@@ -7,6 +7,7 @@ import {
   forwardRef,
   Input,
   Self,
+  signal,
 } from '@angular/core';
 import {
   ControlValueAccessor,
@@ -15,6 +16,7 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { NbSelectModule } from '@nebular/theme';
+import { first, firstValueFrom } from 'rxjs';
 
 import { TokenDto } from '@tradeyard-v2/api-dtos';
 
@@ -48,16 +50,18 @@ export class TokenSelectComponent
     value: unknown
   ) => TokenDto | undefined;
 
+  disabled = signal(false);
   selected?: TokenDto;
 
-  readonly control = this.builder.control('');
   readonly init$ = new EventEmitter<void>();
+  readonly control = this.builder.control('');
   readonly tokens = this.tokenApiService.many({
     initialParams: {
       offset: 0,
       limit: 20,
       timestamp: Date.now(),
     },
+    initNotifier: this.init$,
     destroyNotifier: this.destroy$,
   });
 
@@ -75,10 +79,16 @@ export class TokenSelectComponent
     this.init$.complete();
   }
 
+  setDisabledState?(isDisabled: boolean): void {
+    this.disabled.set(isDisabled);
+  }
+
   writeValue(obj: TokenDto): void {
-    this.selected = this.fromValue
-      ? this.fromValue(this.tokens.data.items, obj)
-      : obj;
+    firstValueFrom(
+      this.tokens.data$.pipe(first(({ items }) => items.length > 0))
+    ).then(({ items }) => {
+      this.selected = this.fromValue ? this.fromValue(items, obj) : obj;
+    });
   }
   registerOnChange(fn: (value: unknown) => unknown): void {
     this.onChange = fn;

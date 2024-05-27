@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 
-import { UserWalletController } from './user-wallet.controller';
+import { UserWalletController } from './controllers';
 import { UserWalletModule } from './user-wallet.module';
 
 @Module({

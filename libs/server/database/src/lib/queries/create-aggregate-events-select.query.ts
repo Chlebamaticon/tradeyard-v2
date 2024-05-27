@@ -27,11 +27,19 @@ export function createAggregateEventsSelectQuery({
       )
       .addSelect(`jsonb_recursive_mergeagg("${alias}"."body")`, 'body')
       .addSelect(`MIN("${alias}"."created_at")`, 'created_at')
-      .from(EventEntity, alias)
-      .where(
-        new Brackets((qb) =>
-          qb.where(`"${alias}"."type" IN (${escapeArrayToSQL(eventTypes)})`)
-        )
+      .from(
+        (qb) =>
+          qb
+            .select('*')
+            .from(EventEntity, 'event')
+            .where(
+              new Brackets((qb) =>
+                qb.where(`"event"."type" IN (${escapeArrayToSQL(eventTypes)})`)
+              )
+            )
+            .orderBy({ id: 'ASC' }),
+        alias
       )
+
       .groupBy(`"${alias}"."body" ->> '${primaryPropertyName}'`);
 }

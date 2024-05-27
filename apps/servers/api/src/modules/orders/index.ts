@@ -1,2 +1,3 @@
+export * from './services';
 export * from './orders-route.module';
-export * from './order.service';
+export * from './orders.module';

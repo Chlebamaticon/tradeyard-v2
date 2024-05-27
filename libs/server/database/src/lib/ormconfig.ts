@@ -19,7 +19,7 @@ export interface ConnectionCredentials {
 
 const connectionOptions: PostgresConnectionOptions = {
   type: 'postgres',
-  logging: true, // Set true to log raw SQL queries
+  logging: false, // Set true to log raw SQL queries
   migrationsRun: true,
   synchronize: false,
 };

@@ -4,6 +4,7 @@ import { pagination, queryParams } from './pagination.dtos';
 import { Token } from './token.dtos';
 
 export const TokenSymbol = zod.enum(['USD', 'EUR', 'GBP', 'MATIC', 'ETH']);
+export type TokenSymbolDto = zod.infer<typeof TokenSymbol>;
 
 export const OfferVariantPrice = zod.object({
   offer_variant_price_id: zod.string().uuid(),
@@ -18,6 +19,7 @@ export const OfferVariant = zod.object({
   title: zod.string().optional(),
   description: zod.string().optional(),
   current_price: OfferVariantPrice.optional(),
+  archived: zod.boolean().optional().nullable(),
 });
 export type OfferVariantDto = zod.infer<typeof OfferVariant>;
 
@@ -60,8 +62,11 @@ export type CreateOfferVariantBodyDto = zod.infer<
 
 export const UpdateOfferVariantBody = zod
   .object({
-    offer_id: zod.string().uuid(),
-    offer_variant_id: zod.string().uuid(),
+    price: OfferVariantPrice.pick({
+      amount: true,
+    })
+      .merge(zod.object({ token: TokenSymbol }))
+      .optional(),
   })
   .merge(OfferVariant.pick({ title: true, description: true }).partial());
 export const UpdateOfferVariantPathParams = zod.object({
@@ -75,4 +80,12 @@ export type UpdateOfferVariantBodyDto = zod.infer<
 >;
 export type UpdateOfferVariantPathParamsDto = zod.infer<
   typeof UpdateOfferVariantPathParams
+>;
+
+export const DeleteOfferVariantPathParams = zod.object({
+  offer_id: zod.string().uuid(),
+  offer_variant_id: zod.string().uuid(),
+});
+export type DeleteOfferVariantPathParamsDto = zod.infer<
+  typeof DeleteOfferVariantPathParams
 >;

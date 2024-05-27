@@ -9,6 +9,8 @@ export const offerVariantPrice = zod.object({
 
 export default {
   'offer:variant:price:created': offerVariantPrice.required(),
-  'offer:variant:price:updated': offerVariantPrice.required(),
+  'offer:variant:price:updated': offerVariantPrice
+    .required()
+    .omit({ offer_variant_id: true }),
   'offer:variant:price:snapshot': offerVariantPrice.required(),
 };

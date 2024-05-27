@@ -1,18 +1,17 @@
-nb-card-footer {
+:host {
   display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-end;
-  align-items: center;
+  flex-flow: column nowrap;
+  gap: 2rem;
+}
+
+.offer__overview {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.5rem;
+}
+
+.offer__variants {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
   gap: 1rem;
-}
-
-nb-card-footer p {
-  font-weight: 600;
-  font-size: 1rem;
-  line-height: 1;
-}
-
-nb-card-footer span {
-  font-weight: 300;
-  color: rgba(0, 0, 0, 0.32);
 }

@@ -40,6 +40,7 @@ export const UpdateOfferBody = zod
   .merge(Offer.pick({ title: true, description: true }).partial());
 export const UpdateOfferPathParams = zod.object({
   offer_id: zod.string().uuid(),
+  offer_variant_id: zod.string().uuid(),
 });
 export const UpdateOffer = zod.object({}).merge(Offer);
 export type UpdateOfferDto = zod.infer<typeof UpdateOffer>;

@@ -8,7 +8,7 @@ import {
 
 import { UserModule } from '../users';
 
-import { ModeratorService } from './moderator.service';
+import { ModeratorService } from './services';
 
 @Module({
   imports: [

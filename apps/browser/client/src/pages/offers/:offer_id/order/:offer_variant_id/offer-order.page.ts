@@ -17,21 +17,13 @@ import {
 import { exhaustMap, scan, switchMap, tap, withLatestFrom } from 'rxjs';
 import { WalletClient } from 'viem';
 
-import {
-  GetWhoamiDto,
-  OfferDto,
-  OfferVariantDto,
-} from '@tradeyard-v2/api-dtos';
+import { OfferDto, OfferVariantDto } from '@tradeyard-v2/api-dtos';
 
 import {
   OfferApiService,
   OrderApiService,
 } from '../../../../../modules/api/services';
-import {
-  AuthService,
-  TurnkeyWalletClient,
-  Whoami,
-} from '../../../../../modules/auth';
+import { AuthService, TurnkeyWalletClient } from '../../../../../modules/auth';
 
 @Component({
   standalone: true,
