@@ -29,7 +29,7 @@ import {
   customerStepToCompleted,
   customerStepToStatus,
 } from './constants/steps';
-import { BaseContract, CustomerContract } from './facades';
+import { BaseContractFacade, CustomerContractFacade } from './facades';
 
 @Component({
   standalone: true,
@@ -44,7 +44,7 @@ import { BaseContract, CustomerContract } from './facades';
     ComplaintThreadComponent,
     UnitPipe,
   ],
-  providers: [CustomerContract],
+  providers: [CustomerContractFacade],
 })
 export class CustomerFlowComponent {
   readonly stepper = viewChild('stepper', { read: NbStepperComponent });
@@ -118,8 +118,8 @@ export class CustomerFlowComponent {
 
   constructor(
     readonly auth: AuthService,
-    readonly baseContract: BaseContract,
-    readonly customerContract: CustomerContract
+    readonly baseContract: BaseContractFacade,
+    readonly customerContract: CustomerContractFacade
   ) {}
 
   async deposit(amount: bigint | null): Promise<void> {

@@ -4,7 +4,6 @@ import {
   Observable,
   combineLatestWith,
   defer,
-  delay,
   exhaustMap,
   finalize,
   from,
@@ -25,7 +24,7 @@ import { ActiveOrderContractAddress } from '../providers';
 type ContractInit = { functionName: string; args?: unknown[]; value?: bigint };
 
 @Injectable()
-export class BaseContract {
+export class BaseContractFacade {
   loading = new BehaviorSubject<boolean>(false);
   stateChanges = new BehaviorSubject<void>(undefined);
 
@@ -57,10 +56,10 @@ export class BaseContract {
     return defer(() => this.readContractOnce<Address>('getMerchantAddress'));
   }
 
+  // apps/browser/client/src/pages/orders/:order_id/facades/base-contract.facade.ts
   readContractOnce<T = unknown>(functionName: string): Observable<T> {
     return from(this.contractAddress).pipe(
       combineLatestWith(this.walletClient),
-      tap((args) => console.debug('readContractOnce', functionName, args)),
       exhaustMap(
         ([address, walletClient]) =>
           walletClient.readContract({
@@ -75,7 +74,6 @@ export class BaseContract {
   readContract<T = unknown>(functionName: string): Observable<T> {
     return from(this.contractAddress).pipe(
       combineLatestWith(this.walletClient, this.stateChanges),
-      tap((args) => console.debug('readContract', functionName, args)),
       exhaustMap(
         ([address, walletClient]) =>
           walletClient.readContract({
@@ -91,12 +89,6 @@ export class BaseContract {
     return defer(() =>
       from(this.contractAddress).pipe(
         combineLatestWith(this.walletClient),
-        tap(([to, walletClient]) =>
-          console.debug('simulateContract', init, {
-            from: walletClient.account.address,
-            to,
-          })
-        ),
         exhaustMap(([to, walletClient]) =>
           walletClient.simulateContract({
             address: to,
@@ -114,12 +106,6 @@ export class BaseContract {
     this.loading.next(true);
     return this.simulateContract(init).pipe(
       combineLatestWith(this.walletClient),
-      tap(([to, walletClient]) =>
-        console.debug('writeContract', init, {
-          from: walletClient.account.address,
-          to,
-        })
-      ),
       exhaustMap(([{ request }, walletClient]) =>
         walletClient
           .writeContract(request)

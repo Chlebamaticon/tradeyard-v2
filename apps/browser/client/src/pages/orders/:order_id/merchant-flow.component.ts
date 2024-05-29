@@ -29,7 +29,7 @@ import {
   merchantStepToCompleted,
   merchantStepToStatus,
 } from './constants/steps';
-import { BaseContract, MerchantContract } from './facades';
+import { BaseContractFacade, MerchantContractFacade } from './facades';
 
 @Component({
   standalone: true,
@@ -44,7 +44,7 @@ import { BaseContract, MerchantContract } from './facades';
     ComplaintThreadComponent,
     UnitPipe,
   ],
-  providers: [MerchantContract],
+  providers: [MerchantContractFacade],
 })
 export class MerchantFlowComponent {
   readonly pending = signal(false);
@@ -127,8 +127,8 @@ export class MerchantFlowComponent {
 
   constructor(
     readonly auth: AuthService,
-    readonly baseContract: BaseContract,
-    readonly merchantContract: MerchantContract
+    readonly baseContract: BaseContractFacade,
+    readonly merchantContract: MerchantContractFacade
   ) {}
 
   async cancel() {

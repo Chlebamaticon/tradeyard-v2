@@ -34,7 +34,7 @@ import { OnDestroyNotifier$ } from '../../../providers';
 
 import { CreateComplaintDialogComponent } from './create-complaint-dialog.component';
 import { CustomerFlowComponent } from './customer-flow.component';
-import { BaseContract } from './facades/base-contract.facade';
+import { BaseContractFacade } from './facades/base-contract.facade';
 import { MerchantFlowComponent } from './merchant-flow.component';
 import { ModeratorFlowComponent } from './moderator-flow.component';
 
@@ -54,7 +54,7 @@ import { ModeratorFlowComponent } from './moderator-flow.component';
     ModeratorFlowComponent,
     CreateComplaintDialogComponent,
   ],
-  providers: [BaseContract, OnDestroyNotifier$],
+  providers: [BaseContractFacade, OnDestroyNotifier$],
   encapsulation: ViewEncapsulation.None,
 })
 export class OrderOverviewPage {
@@ -93,7 +93,7 @@ export class OrderOverviewPage {
     @Self() readonly destroy$: OnDestroyNotifier$,
     readonly authApiService: AuthApiService,
     readonly orderApiService: OrderApiService,
-    readonly baseContract: BaseContract,
+    readonly baseContract: BaseContractFacade,
     readonly complaintApiService: ComplaintApiService,
     readonly dialogService: NbDialogService
   ) {}

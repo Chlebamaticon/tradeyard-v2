@@ -1,18 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { NbButtonModule, NbCardModule, NbStepperModule } from '@nebular/theme';
-import { combineLatest, firstValueFrom, shareReplay } from 'rxjs';
+import { combineLatest, shareReplay } from 'rxjs';
 
-import { ComplaintDto, OrderStatus } from '@tradeyard-v2/api-dtos';
+import { OrderStatus } from '@tradeyard-v2/api-dtos';
 
-import { ComplaintDecisionApiService } from '../../../modules/api/services';
 import { AuthService } from '../../../modules/auth';
 import { UnitPipe } from '../../../pipes/unit.pipe';
 
 import { ComplaintThreadComponent } from './complaint-thread.component';
-import { BaseContract } from './facades';
-import { ActiveOrderComplaint } from './providers';
+import { BaseContractFacade, ModeratorContractFacade } from './facades';
 
 @Component({
   standalone: true,
@@ -27,7 +25,7 @@ import { ActiveOrderComplaint } from './providers';
     ComplaintThreadComponent,
     UnitPipe,
   ],
-  providers: [BaseContract],
+  providers: [BaseContractFacade, ModeratorContractFacade],
 })
 export class ModeratorFlowComponent {
   readonly pending = signal(false);
@@ -41,42 +39,26 @@ export class ModeratorFlowComponent {
   }).pipe(shareReplay(1));
 
   constructor(
-    @Inject(ActiveOrderComplaint) readonly complaint: ComplaintDto,
     readonly auth: AuthService,
-    readonly baseContract: BaseContract,
-    readonly complaintDecisionApi: ComplaintDecisionApiService
+    readonly baseContract: BaseContractFacade,
+    readonly moderatorFacade: ModeratorContractFacade
   ) {}
 
   async refund() {
-    const { complaint_id } = await this.complaint;
     this.pending.set(true);
-    await firstValueFrom(
-      this.complaintDecisionApi.refund({
-        complaint_id,
-      })
-    );
+    await this.moderatorFacade.refund();
     this.pending.set(false);
   }
 
   async release() {
-    const { complaint_id } = await this.complaint;
     this.pending.set(true);
-    await firstValueFrom(
-      this.complaintDecisionApi.release({
-        complaint_id,
-      })
-    );
+    await this.moderatorFacade.release();
     this.pending.set(false);
   }
 
   async reject() {
-    const { complaint_id } = await this.complaint;
     this.pending.set(true);
-    await firstValueFrom(
-      this.complaintDecisionApi.reject({
-        complaint_id,
-      })
-    );
+    await this.moderatorFacade.reject();
     this.pending.set(false);
   }
 

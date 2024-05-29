@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { defer } from 'rxjs';
 
-import { BaseContract } from './base-contract.facade';
+import { BaseContractFacade } from './base-contract.facade';
 
 @Injectable()
-export class CustomerContract {
+export class CustomerContractFacade {
   deposit(value: bigint) {
     return defer(() =>
       this.base.writeContract({ functionName: 'deposit', value })
@@ -24,5 +24,5 @@ export class CustomerContract {
     return method(functionName);
   }
 
-  constructor(readonly base: BaseContract) {}
+  constructor(readonly base: BaseContractFacade) {}
 }

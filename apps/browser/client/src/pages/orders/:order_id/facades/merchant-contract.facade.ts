@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 
-import { BaseContract } from './base-contract.facade';
+import { BaseContractFacade } from './base-contract.facade';
 
 @Injectable()
-export class MerchantContract {
+export class MerchantContractFacade {
   confirm() {
     return this.#transition('confirm');
   }
@@ -33,5 +33,5 @@ export class MerchantContract {
     return method(functionName);
   }
 
-  constructor(readonly base: BaseContract) {}
+  constructor(readonly base: BaseContractFacade) {}
 }
