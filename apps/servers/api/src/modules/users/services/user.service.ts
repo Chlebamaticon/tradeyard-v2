@@ -24,9 +24,9 @@ import { UserViewEntity, EventRepository } from '@tradeyard-v2/server/database';
 @Injectable()
 export class UserService {
   constructor(
-    @Inject(REQUEST) readonly request: Express.Request,
     @InjectRepository(UserViewEntity)
     readonly userRepository: Repository<UserViewEntity>,
+    @Inject(REQUEST) readonly request: Express.Request,
     readonly eventRepository: EventRepository
   ) {}
 

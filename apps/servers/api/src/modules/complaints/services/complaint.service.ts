@@ -93,7 +93,9 @@ export class ComplaintService {
     const complaint = await this.complaintViewRepository.findOneOrFail({
       where: { complaint_id },
       relations: {
-        messages: true,
+        messages: {
+          user: true,
+        },
       },
     });
 
@@ -116,7 +118,9 @@ export class ComplaintService {
         skip: offset,
         take: limit,
         relations: {
-          messages: true,
+          messages: {
+            user: true,
+          },
         },
       }
     );

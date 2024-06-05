@@ -29,6 +29,23 @@ import { OrderService } from '../services';
 
 @Controller()
 export class OrdersController {
+  @Post()
+  @CustomerOnly
+  async createOne(
+    @Body() body: CreateOrderBodyDto,
+    @Request() request: Express.Request
+  ): Promise<CreateOrderDto> {
+    const validatedBody = CreateOrderBody.strict().parse({
+      ...body,
+    });
+    return CreateOrder.parse(
+      await this.orderService.createOne({
+        ...validatedBody,
+        user_id: request.user.user_id,
+      })
+    );
+  }
+
   @Get(':order_id')
   async getOne(
     @Param() pathParams: GetOrderPathParamsDto
@@ -58,23 +75,6 @@ export class OrdersController {
         merchant_id,
         moderator_id,
         ...validatedQueryParams,
-      })
-    );
-  }
-
-  @Post()
-  @CustomerOnly
-  async createOne(
-    @Body() body: CreateOrderBodyDto,
-    @Request() request: Express.Request
-  ): Promise<CreateOrderDto> {
-    const validatedBody = CreateOrderBody.strict().parse({
-      ...body,
-    });
-    return CreateOrder.parse(
-      await this.orderService.createOne({
-        ...validatedBody,
-        user_id: request.user.user_id,
       })
     );
   }

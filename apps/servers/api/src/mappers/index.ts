@@ -6,3 +6,5 @@ export * from './order.mapper';
 export * from './offer-price.mapper';
 export * from './offer-variant.mapper';
 export * from './offer.mapper';
+export * from './user-wallet.mapper';
+export * from './user.mapper';

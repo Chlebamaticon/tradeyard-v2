@@ -9,20 +9,15 @@ import {
   CreateCustomer,
   CreateCustomerBodyDto,
   CreateCustomerDto,
-  Customer,
-  CustomerDto,
   GetCustomer,
   GetCustomerDto,
   GetCustomerPathParamsDto,
   GetCustomersDto,
   GetCustomersQueryParamsDto,
-  UpdateCustomerBodyDto,
-  UpdateCustomerDto,
 } from '@tradeyard-v2/api-dtos';
 import {
   CustomerViewEntity,
   EventRepository,
-  UserViewEntity,
 } from '@tradeyard-v2/server/database';
 
 import { mapToCustomerDto } from '../../../mappers';

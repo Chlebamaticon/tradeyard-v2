@@ -44,14 +44,14 @@ export class ProfileWalletsPage implements AfterViewInit {
     if (!payload) return;
     const { email } = payload;
     const credentials = await this.authTurnkey.createWallet(email);
-    console.log(credentials);
     const { user_wallet_id } = await firstValueFrom(
-      this.userWalletApiService.createTurnkey({
+      this.userWalletApiService.create({
         challenge: credentials.encodedChallenge,
         attestation: credentials.attestation,
       })
     );
-    console.log(user_wallet_id);
+
+    this.wallets.refresh();
   }
 
   ngAfterViewInit(): void {

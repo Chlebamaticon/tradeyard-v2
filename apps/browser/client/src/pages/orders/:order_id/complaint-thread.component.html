@@ -4,7 +4,7 @@
       @if (data$ | async; as data) {
       @for(message of data.messages; track message) {
       <div class="message" [class.message--own]="message.own" [class.message--sent]="message.created_at">
-        <label for="" class="message__author">{{ message.user_id }}</label>
+        <label for="" class="message__author">{{ message.user?.first_name }} {{ message.user?.last_name }}</label>
         <p class="message__content">{{ message.body }}</p>
         <span class="message__timestamp">{{ message.sent_at | date:"MMM d 'at' hh:mm a" }}</span>
       </div>

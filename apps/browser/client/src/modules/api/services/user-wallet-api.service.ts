@@ -4,8 +4,6 @@ import { Observable } from 'rxjs';
 import {
   CreateTurnkeyWalletBodyDto,
   CreateTurnkeyWalletDto,
-  CreateUserWalletBodyDto,
-  CreateUserWalletDto,
   GetUserWalletsDto,
 } from '@tradeyard-v2/api-dtos';
 
@@ -17,15 +15,9 @@ import { BaseApiService } from './base-api.service';
 export class UserWalletApiService {
   constructor(readonly baseApiService: BaseApiService) {}
 
-  create(dto: CreateUserWalletBodyDto): Observable<CreateUserWalletDto> {
-    return this.baseApiService.post<CreateUserWalletDto>('/wallets', dto, {});
-  }
-
-  createTurnkey(
-    dto: CreateTurnkeyWalletBodyDto
-  ): Observable<CreateTurnkeyWalletDto> {
+  create(dto: CreateTurnkeyWalletBodyDto): Observable<CreateTurnkeyWalletDto> {
     return this.baseApiService.post<CreateTurnkeyWalletDto>(
-      '/wallets/v2',
+      '/wallets',
       dto,
       {}
     );

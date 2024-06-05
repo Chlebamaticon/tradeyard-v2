@@ -8,7 +8,7 @@ import {
   Self,
 } from '@angular/core';
 import { NbCardModule, NbTagModule } from '@nebular/theme';
-import { defer, exhaustMap, from, Observable } from 'rxjs';
+import { defer, exhaustMap, Observable } from 'rxjs';
 
 import { AuthService, TurnkeyWalletClient } from '../../modules/auth';
 import { UnitPipe } from '../../pipes/unit.pipe';

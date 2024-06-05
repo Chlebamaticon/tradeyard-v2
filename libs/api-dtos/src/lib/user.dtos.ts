@@ -11,6 +11,13 @@ export const User = zod.object({
 });
 export type UserDto = zod.infer<typeof User>;
 
+export const BasicUser = User.pick({
+  user_id: true,
+  first_name: true,
+  last_name: true,
+});
+export type BasicUserDto = zod.infer<typeof BasicUser>;
+
 export const UserExtended = zod
   .object({
     customer_id: zod.string().uuid().optional().nullable(),

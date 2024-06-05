@@ -75,37 +75,4 @@ export class AuthService {
       .signUp(body)
       .pipe(tap(({ access_token }) => (this.accessToken = access_token)));
   }
-
-  // async createOrUsePasskey(customEmail?: string): Promise<Address> {
-  //   const email = customEmail ?? this.payload?.email;
-  //   if (!email) throw new Error('No email provided');
-
-  //   const createPasskey$ = defer(() =>
-  //     from(this.signupWithPasskey(email))
-  //   ).pipe(
-  //     switchMap(() => this.signer.getAddress()),
-  //     exhaustMap((address) =>
-  //       this.userWalletApiService.create({
-  //         address,
-  //         type: 'turnkey',
-  //         chain: `${currentChain.id}`,
-  //       })
-  //     ),
-  //     map(({ address }) => getAddress(address))
-  //   );
-
-  //   const usePasskey$ = defer(() => from(this.signer.getAddress())).pipe(
-  //     catchError(() =>
-  //       from(this.authenticateWithPasskey()).pipe(
-  //         exhaustMap(() => this.signer.getAddress())
-  //       )
-  //     )
-  //   );
-
-  //   const createOrUsePasskey$ = from(
-  //     this.signer.inner.lookupUserByEmail(email).catch(() => null)
-  //   ).pipe(exhaustMap((org) => (org ? usePasskey$ : createPasskey$)));
-
-  //   return firstValueFrom(createOrUsePasskey$);
-  // }
 }

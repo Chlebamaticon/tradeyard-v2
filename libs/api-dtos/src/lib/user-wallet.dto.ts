@@ -30,16 +30,14 @@ export const UserWallet = zod.object({
 });
 export type UserWalletDto = zod.infer<typeof UserWallet>;
 
-export const CreateUserWalletBody = zod
-  .object({})
-  .merge(
-    UserWallet.pick({
-      address: true,
-      type: true,
-      chain: true,
-      sub_organization_id: true,
-    })
-  );
+export const CreateUserWalletBody = zod.object({}).merge(
+  UserWallet.pick({
+    address: true,
+    type: true,
+    chain: true,
+    sub_organization_id: true,
+  })
+);
 export const CreateUserWallet = zod.object({}).merge(UserWallet);
 export type CreateUserWalletDto = zod.infer<typeof CreateUserWallet>;
 export type CreateUserWalletBodyDto = zod.infer<typeof CreateUserWalletBody>;

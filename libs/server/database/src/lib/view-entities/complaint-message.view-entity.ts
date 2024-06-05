@@ -9,6 +9,7 @@ import {
 import { createAggregateEventsSelectQuery } from '../queries';
 
 import { ComplaintViewEntity } from './complaint.view-entity';
+import { UserViewEntity } from './user.view-entity';
 
 @ViewEntity({
   expression: (connection) =>
@@ -32,8 +33,8 @@ import { ComplaintViewEntity } from './complaint.view-entity';
       ),
 })
 export class ComplaintMessageViewEntity {
-  @PrimaryColumn()
   @ViewColumn()
+  @PrimaryColumn()
   complaint_message_id!: string;
 
   @ViewColumn()
@@ -53,5 +54,9 @@ export class ComplaintMessageViewEntity {
 
   @ManyToOne(() => ComplaintViewEntity, (complaint) => complaint.messages)
   @JoinColumn({ name: 'complaint_id', referencedColumnName: 'complaint_id' })
-  complaint?: ComplaintViewEntity[];
+  complaint?: ComplaintViewEntity;
+
+  @ManyToOne(() => UserViewEntity, (user) => user.messages)
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'user_id' })
+  user?: UserViewEntity;
 }

@@ -14,13 +14,13 @@ import {
   GetUserWalletsDto,
   GetUserWalletsQueryParamsDto,
   UserWallet,
-  UserWalletDto,
 } from '@tradeyard-v2/api-dtos';
 import {
   EventRepository,
   UserWalletViewEntity,
 } from '@tradeyard-v2/server/database';
 
+import { mapToUserWalletDto } from '../../../mappers';
 import { TurnkeyApiClient } from '../../turnkey';
 @Injectable()
 export class UserWalletService {
@@ -53,7 +53,7 @@ export class UserWalletService {
           user_wallet_id?: never;
         }
   ): Promise<GetUserWalletDto> {
-    return this.mapToUserWalletDto(
+    return mapToUserWalletDto(
       await this.userWalletRepository.findOneByOrFail(params)
     );
   }
@@ -76,7 +76,7 @@ export class UserWalletService {
     });
 
     return {
-      items: wallets.map((wallet) => this.mapToUserWalletDto(wallet)),
+      items: wallets.map((wallet) => mapToUserWalletDto(wallet)),
       offset,
       limit,
       total,
@@ -96,7 +96,7 @@ export class UserWalletService {
       })
     );
   }
-
+  //apps/servers/api/src/modules/users/services/user-wallet.service.ts
   async createTurnkeyWallet(
     body: CreateTurnkeyWalletBodyDto & { user_id: string; email: string }
   ): Promise<CreateUserWalletDto> {
@@ -138,17 +138,10 @@ export class UserWalletService {
       sub_organization_id: subOrganizationId,
     });
 
-    return UserWallet.parse(
+    return mapToUserWalletDto(
       await this.userWalletRepository.findOneByOrFail({
         user_wallet_id: event.body.user_wallet_id,
       })
     );
-  }
-
-  mapToUserWalletDto(wallet: UserWalletViewEntity): UserWalletDto {
-    return UserWallet.parse({
-      ...wallet,
-      created_at: `${wallet.created_at.toUTCString()}`,
-    });
   }
 }

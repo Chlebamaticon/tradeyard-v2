@@ -14,10 +14,6 @@ import {
   CreateTurnkeyWalletBody,
   CreateTurnkeyWalletBodyDto,
   CreateTurnkeyWalletDto,
-  CreateUser,
-  CreateUserDto,
-  CreateUserWalletBody,
-  CreateUserWalletBodyDto,
   GetUserWallets,
   GetUserWalletsDto,
   GetUserWalletsQueryParams,
@@ -51,20 +47,6 @@ export class UserWalletController {
   }
 
   @Post()
-  async createOne(
-    @Body() body: CreateUserWalletBodyDto,
-    @User('user_id') user_id: string
-  ): Promise<CreateUserDto> {
-    const validatedBody = CreateUserWalletBody.parse(body);
-    return CreateUser.parse(
-      await this.userWalletService.createOne({
-        ...validatedBody,
-        user_id,
-      })
-    );
-  }
-
-  @Post('v2')
   async createTurnkeyWallet(
     @Body() body: CreateTurnkeyWalletBodyDto,
     @User() { email, user_id }: UserExtendedDto

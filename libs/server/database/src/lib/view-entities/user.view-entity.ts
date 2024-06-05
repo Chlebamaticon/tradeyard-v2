@@ -1,5 +1,7 @@
 import {
   JoinColumn,
+  ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
   ViewColumn,
@@ -8,6 +10,7 @@ import {
 
 import { createAggregateEventsSelectQuery } from '../queries';
 
+import { ComplaintMessageViewEntity } from './complaint-message.view-entity';
 import { CustomerViewEntity } from './customer.view-entity';
 import { MerchantViewEntity } from './merchant.view-entity';
 import { ModeratorViewEntity } from './moderator.view-entity';
@@ -57,4 +60,7 @@ export class UserViewEntity {
   @OneToOne(() => ModeratorViewEntity, (moderator) => moderator.user)
   @JoinColumn({ name: 'user_id', referencedColumnName: 'user_id' })
   moderator?: ModeratorViewEntity;
+
+  @OneToMany(() => ComplaintMessageViewEntity, (message) => message.user)
+  messages?: ComplaintMessageViewEntity[];
 }

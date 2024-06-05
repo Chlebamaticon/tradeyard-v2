@@ -1,11 +1,13 @@
 import * as zod from 'zod';
 
 import { pagination, queryParams } from './pagination.dtos';
+import { BasicUser } from './user.dtos';
 
 export const ComplaintMessage = zod.object({
   complaint_id: zod.string().uuid(),
   complaint_message_id: zod.string().uuid(),
   user_id: zod.string().uuid(),
+  user: BasicUser.optional(),
   body: zod.string(),
   own: zod.boolean(),
   sent_at: zod.date(),
